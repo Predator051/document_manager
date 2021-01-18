@@ -1,0 +1,8 @@
+.mainMenuButton {
+    height: 25vh;
+    width: 25vw;
+    color: #fff;
+    font-size: x-large;
+    font-weight: bold;
+    text-shadow: 1px 1px 1px black, 0 0 2em rgb(255, 255, 255);
+}

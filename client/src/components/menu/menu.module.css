@@ -1,0 +1,44 @@
+ .mainMenuButton {
+   height: 25vh;
+   width: 25vw;
+   color: #fff;
+   font-size: x-large;
+   font-weight: bold;
+   text-shadow: 1px 1px 1px black, 0 0 2em rgb(255, 255, 255);
+ }
+
+ .logoBox {
+   height: 64px;
+   /* background: rgb(255, 255, 255); */
+   /* margin: 5px; */
+   color: #ffffff;
+   font-family: 'Raleway', sans-serif;
+   font-size: 28px;
+   font-weight: 800;
+   line-height: 20x;
+   text-align: center;
+   text-transform: uppercase;
+   text-overflow: ellipsis;
+   background-color: #001529;
+   overflow: hidden;
+ }
+
+ .logoMenu {
+   display: block;
+   margin-left: auto;
+   margin-right: auto;
+   height: 70px;
+   border-radius: 2px;
+ }
+
+ .siteLayoutBackground {
+   background: #fff;
+ }
+
+ .header {
+   padding: 0;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+ }

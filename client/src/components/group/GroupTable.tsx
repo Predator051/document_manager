@@ -1,0 +1,95 @@
+import { Table } from "antd";
+import { ColumnsType } from "antd/lib/table/interface";
+import React from "react";
+import { GroupUser } from "../../types/groupUser";
+
+interface EditableCellProps {
+	onSave: (newValue: any) => void;
+	editComponent: JSX.Element;
+	value: any;
+}
+
+interface GroupTableData {
+	data: GroupUser;
+	index: number;
+}
+
+const GroupColumns = () => {
+	const columns: ColumnsType<any> = [
+		{
+			title: "№ з/п",
+			dataIndex: "number",
+			key: "number",
+			render: (current: any, record: GroupTableData) => {
+				return record.index.toString();
+			},
+		},
+		{
+			title: "Прізвище, ім’я та по батькові",
+			dataIndex: "fullname",
+			key: "fullname",
+			render: (current: any, record: GroupTableData) => {
+				return <div>{record.data.fullname}</div>;
+			},
+		},
+		{
+			title: "Військове звання",
+			dataIndex: "rank",
+			key: "rank",
+			render: (current: any, record: GroupTableData) => {
+				return <div>{record.data.rank}</div>;
+			},
+		},
+		{
+			title: "День народження",
+			dataIndex: "birthday",
+			key: "birthday",
+			render: (current: any, record: GroupTableData) => {
+				return <div>{record.data.birthday}</div>;
+			},
+		},
+		{
+			title: "Освіта",
+			dataIndex: "education",
+			key: "education",
+			render: (current: any, record: GroupTableData) => {
+				return <div>{record.data.education}</div>;
+			},
+		},
+	];
+
+	return columns;
+};
+
+export interface GroupTableProps {
+	userGroups: GroupUser[];
+	title?: (data: any[]) => React.ReactNode;
+}
+
+export const GroupTable: React.FC<GroupTableProps> = (
+	props: GroupTableProps
+) => {
+	const tableData: GroupTableData[] = props.userGroups
+		.sort((a, b) => (a.fullname < b.fullname ? -1 : 1))
+		.map(
+			(ug, index) =>
+				({
+					data: ug,
+					index: index,
+				} as GroupTableData)
+		);
+
+	return (
+		<div>
+			<Table
+				title={props.title}
+				pagination={false}
+				rowKey={(gu: GroupTableData) => gu.data.id.toString()}
+				dataSource={tableData}
+				columns={GroupColumns()}
+				size="small"
+				bordered
+			></Table>
+		</div>
+	);
+};
