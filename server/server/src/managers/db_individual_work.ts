@@ -2,6 +2,7 @@ import { getRepository, SelectQueryBuilder } from "typeorm";
 
 import { NormMarkEntity } from "../entities/norm.mark.entity";
 import { IndividualWorkEntity } from "../entities/individual.work.entity";
+import { getStartEndOfYear } from "../helpers/dateHelper";
 
 export class DBIndividualWorkManager {
 	private static addRelations(
@@ -37,14 +38,21 @@ export class DBIndividualWorkManager {
 	}
 
 	public static async GetByUserId(
-		userId: number
+		userId: number,
+		year?: number
 	): Promise<IndividualWorkEntity[]> {
+		const { start, end } = getStartEndOfYear(year);
 		const result = this.addRelations(
 			getRepository(IndividualWorkEntity).createQueryBuilder("work")
-		)
-			.where("user.id = :userId", { userId })
-			.getMany();
+		).where("user.id = :userId", { userId });
 
-		return result;
+		if (year) {
+			result.andWhere("(work.date <= :end AND work.date >= :start)", {
+				end,
+				start,
+			});
+		}
+
+		return result.getMany();
 	}
 }

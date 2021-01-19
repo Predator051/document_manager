@@ -1,7 +1,10 @@
-import { Descriptions, Row, Tag } from "antd";
-import React from "react";
+import { Descriptions, Row, Tag, Spin } from "antd";
+import React, { useEffect, useState } from "react";
 
 import { Norm } from "../../types/norm";
+import { Subject } from "../../types/subject";
+import { RequestMessage, RequestCode, RequestType } from "../../types/requests";
+import { ConnectionManager } from "../../managers/connetion/connectionManager";
 
 export interface NormInfoShowerProps {
 	norm: Norm;
@@ -10,6 +13,28 @@ export interface NormInfoShowerProps {
 export const NormInfoShower: React.FC<NormInfoShowerProps> = (
 	props: NormInfoShowerProps
 ) => {
+	const [subject, setSubject] = useState<Subject | undefined>(undefined);
+
+	useEffect(() => {
+		ConnectionManager.getInstance().registerResponseOnceHandler(
+			RequestType.GET_SUBJECT_BY_ID,
+			(data) => {
+				const dataMessage = data as RequestMessage<Subject[]>;
+				if (
+					dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR &&
+					dataMessage.data.length < 1
+				) {
+					console.log(`Error: ${dataMessage.requestCode}`);
+					return;
+				}
+				setSubject(dataMessage.data[0]);
+			}
+		);
+		ConnectionManager.getInstance().emit(RequestType.GET_SUBJECT_BY_ID, [
+			props.norm.subjectId,
+		]);
+	}, [props.norm]);
+
 	const descriptionItemLabelStyle: React.CSSProperties = {
 		width: "45%",
 		backgroundColor: "#e1e3f0",
@@ -40,6 +65,14 @@ export const NormInfoShower: React.FC<NormInfoShowerProps> = (
 					contentStyle={descriptionItemContentStyle}
 				>
 					{props.norm.content}
+				</Descriptions.Item>
+				<Descriptions.Item
+					label="Предмет"
+					span={3}
+					labelStyle={descriptionItemLabelStyle}
+					contentStyle={descriptionItemContentStyle}
+				>
+					{subject === undefined ? <Spin></Spin> : subject.fullTitle}
 				</Descriptions.Item>
 				<Descriptions.Item
 					label="Часові показники"

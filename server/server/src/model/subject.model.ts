@@ -46,9 +46,9 @@ export class SubjectModel {
 	}
 
 	public static async getAllSubjectsByUserCycle(
-		request: RequestMessage<number>
+		request: RequestMessage<{ userId: number; year: number }>
 	): Promise<RequestMessage<Subject[]>> {
-		const userEntity = await DBUserManager.GetUserById(request.data);
+		const userEntity = await DBUserManager.GetUserById(request.data.userId);
 		if (userEntity === undefined) {
 			return {
 				data: [],
@@ -58,7 +58,8 @@ export class SubjectModel {
 			};
 		}
 		const subjectsEntities = await DBSubjectManager.GetByCycle(
-			userEntity.cycle.id
+			userEntity.cycle.id,
+			request.data.year
 		);
 
 		return {
@@ -110,6 +111,7 @@ export class SubjectModel {
 			}
 			subjectEntity.fullTitle = inputSubject.fullTitle;
 			subjectEntity.shortTitle = inputSubject.shortTitle;
+			subjectEntity.status = inputSubject.status;
 			subjectEntity.cycle = userEntity.user.cycle;
 
 			for (let inputTrainingProgram of inputSubject.programTrainings) {

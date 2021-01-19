@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Table, Spin, Empty } from "antd";
 import {
 	ColumnsType,
@@ -12,6 +12,7 @@ import { ConnectionManager } from "../../managers/connetion/connectionManager";
 import { RequestType, RequestMessage, RequestCode } from "../../types/requests";
 import { NormProcess } from "../../types/normProcess";
 import { Subject } from "../../types/subject";
+import { YearContext } from "../../context/YearContext";
 
 interface GroupTableData {
 	data: GroupUser;
@@ -32,6 +33,7 @@ export const GroupNormTable: React.FC<GroupTableProps> = (
 ) => {
 	const [normProcesses, setNormProcesses] = useState<NormProcess[]>([]);
 	const [norms, setNorms] = useState<Norm[]>([]);
+	const yearContext = useContext(YearContext);
 
 	useEffect(() => {
 		ConnectionManager.getInstance().registerResponseOnceHandler(
@@ -70,7 +72,7 @@ export const GroupNormTable: React.FC<GroupTableProps> = (
 		);
 		ConnectionManager.getInstance().emit(
 			RequestType.GET_NORM_PROCESSES_BY_GROUP_AND_USER,
-			{ groupId: props.group.id, userId: props.userId }
+			{ groupId: props.group.id, userId: props.userId, year: yearContext.year } //TODO ADD YEAR TO REQUEST
 		);
 		ConnectionManager.getInstance().registerResponseOnceHandler(
 			RequestType.GET_NORM_BY_IDS,
@@ -90,11 +92,6 @@ export const GroupNormTable: React.FC<GroupTableProps> = (
 				);
 
 				setNorms(filteredNorms);
-
-				// const filteredProcess = [
-				// 	...,
-				// ];
-				// setNormProcesses(filteredProcess);
 			}
 		);
 	}, []);

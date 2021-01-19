@@ -1,5 +1,6 @@
 import { getConnection, getRepository, SelectQueryBuilder, Raw } from "typeorm";
 import { NormProcessEntity } from "../entities/norm.process.entity";
+import { getStartEndOfYear } from "../helpers/dateHelper";
 
 export class DBNormProcessManager {
 	private static addRelations(
@@ -62,13 +63,19 @@ export class DBNormProcessManager {
 
 	public static async GetByUserAndGroup(
 		userId: number,
-		groupId: number
+		groupId: number,
+		year: number
 	): Promise<NormProcessEntity[]> {
+		const { start, end } = getStartEndOfYear(year);
 		const result = this.addRelations(
 			getRepository(NormProcessEntity).createQueryBuilder("normProcess")
 		)
 			.where("user.id = :userId", { userId })
-			.andWhere("group.id = :groupId", { groupId });
+			.andWhere("group.id = :groupId", { groupId })
+			.andWhere("(normProcess.date <= :end AND normProcess.date >= :start)", {
+				end,
+				start,
+			});
 
 		// console.log(result.getSql());
 		const r = result.getMany();
@@ -76,10 +83,20 @@ export class DBNormProcessManager {
 		return r;
 	}
 
-	public static async GetByUser(userId: number): Promise<NormProcessEntity[]> {
+	public static async GetByUser(
+		userId: number,
+		year: number
+	): Promise<NormProcessEntity[]> {
+		const { start, end } = getStartEndOfYear(
+			year ? year : new Date().getFullYear()
+		);
+
 		const result = this.addRelations(
 			getRepository(NormProcessEntity).createQueryBuilder("normProcess")
-		).where("user.id = :userId", { userId });
+		)
+			.where("user.id = :userId", { userId })
+			.andWhere("normProcess.date <= :end", { end })
+			.andWhere("normProcess.date >= :start", { start });
 
 		// console.log(result.getSql());
 		const r = result.getMany();

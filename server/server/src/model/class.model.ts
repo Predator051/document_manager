@@ -39,7 +39,8 @@ export class ClassModel {
 
 	public static async getMyClasses({
 		session,
-	}: RequestMessage<any>): Promise<RequestMessage<ClassEvent[]>> {
+		data: { year },
+	}: RequestMessage<{ year: number }>): Promise<RequestMessage<ClassEvent[]>> {
 		const userSessionEntity = await DBSessionManager.GetSession(session);
 		if (userSessionEntity === undefined) {
 			return {
@@ -51,7 +52,8 @@ export class ClassModel {
 		}
 
 		const result = await DBClassManager.GetClassesByUserId(
-			userSessionEntity.user.id
+			userSessionEntity.user.id,
+			year
 		);
 
 		return {
@@ -63,9 +65,11 @@ export class ClassModel {
 	}
 
 	public static async getClassesByUser(
-		request: RequestMessage<number>
+		request: RequestMessage<{ userId: number; year: number }>
 	): Promise<RequestMessage<ClassEvent[]>> {
-		const userSessionEntity = await DBUserManager.GetUserById(request.data);
+		const userSessionEntity = await DBUserManager.GetUserById(
+			request.data.userId
+		);
 		if (userSessionEntity === undefined) {
 			return {
 				data: [],
@@ -75,7 +79,10 @@ export class ClassModel {
 			};
 		}
 
-		const result = await DBClassManager.GetClassesByUserId(request.data);
+		const result = await DBClassManager.GetClassesByUserId(
+			request.data.userId,
+			request.data.year
+		);
 
 		return {
 			data: result.map((classEvent) => classEvent.ToRequestObject()),
@@ -107,9 +114,15 @@ export class ClassModel {
 	}
 
 	public static async getClassesByGroup(
-		request: RequestMessage<number>
+		request: RequestMessage<{
+			groupId: number;
+			year: number;
+		}>
 	): Promise<RequestMessage<ClassEvent[]>> {
-		const result = await DBClassManager.GetClassesByGroupId(request.data);
+		const result = await DBClassManager.GetClassesByGroupId(
+			request.data.groupId,
+			request.data.year
+		);
 
 		return {
 			data: result.map((classEvent) => classEvent.ToRequestObject()),

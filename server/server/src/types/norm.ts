@@ -1,3 +1,5 @@
+import { ObjectStatus } from "./constants";
+
 export class Norm {
 	id: number;
 	number: number;
@@ -6,4 +8,5 @@ export class Norm {
 	good: string;
 	satisfactory: string;
 	subjectId: number;
+	status: ObjectStatus;
 }

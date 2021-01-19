@@ -2,7 +2,7 @@ import "../../../node_modules/hover.css/css/hover.css";
 
 import { Table, Button } from "antd";
 import { ColumnsType } from "antd/lib/table/interface";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useHistory } from "react-router-dom";
 
 import { GenerateGroupName } from "../../helpers/GroupHelper";
@@ -15,6 +15,7 @@ import {
 } from "../../types/group";
 import { RequestCode, RequestMessage, RequestType } from "../../types/requests";
 import { VIEWER_HREFS } from "../menu/ViewerMenu";
+import { YearContext, isYearCurrent } from "../../context/YearContext";
 
 export interface GroupListProps {}
 
@@ -122,6 +123,7 @@ export const GroupList: React.FC<GroupListProps> = (props: GroupListProps) => {
 	const [sortInfo, setSortInfo] = useState<
 		{ order: "descend" | "ascend"; columnKey: string } | undefined
 	>(undefined);
+	const yearContext = useContext(YearContext);
 
 	const loadAllGroups = () => {
 		ConnectionManager.getInstance().registerResponseOnceHandler(
@@ -135,11 +137,18 @@ export const GroupList: React.FC<GroupListProps> = (props: GroupListProps) => {
 				setGroups([...dataMessage.data]);
 			}
 		);
-		ConnectionManager.getInstance().emit(RequestType.GET_ALL_GROUPS, {});
+		ConnectionManager.getInstance().emit(
+			RequestType.GET_ALL_GROUPS,
+			isYearCurrent(yearContext)
+				? {}
+				: {
+						year: yearContext.year, //TODO ARCHIVE
+				  }
+		);
 	};
 	useEffect(() => {
 		loadAllGroups();
-	}, []);
+	}, [yearContext.year]);
 
 	const columns: ColumnsType<any> = [
 		{

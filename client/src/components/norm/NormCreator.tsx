@@ -13,6 +13,7 @@ import { ConnectionManager } from "../../managers/connetion/connectionManager";
 import { Norm } from "../../types/norm";
 import { RequestCode, RequestMessage, RequestType } from "../../types/requests";
 import { Subject } from "../../types/subject";
+import { ObjectStatus } from "../../types/constants";
 
 export interface NormCreatorProps {
 	onCreate: (norm: Norm) => void;
@@ -29,6 +30,7 @@ export const NormCreator: React.FC<NormCreatorProps> = (
 		number: 0,
 		satisfactory: "",
 		subjectId: 0,
+		status: ObjectStatus.NORMAL,
 	});
 	const [subjects, setSubjects] = useState<Subject[]>([]);
 

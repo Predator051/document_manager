@@ -1,6 +1,12 @@
 export const DEFAULT_NAME_DB_CONNECION: string = "roadmap";
 export const SESSION_LENGTH: number = 30;
 
+export enum ObjectStatus {
+	NORMAL,
+	ARCHIVE,
+	DELETE,
+}
+
 export enum STANDART_ONE_TIME_TASK {
 	CREATE_STANDART_RANKS,
 }

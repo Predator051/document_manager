@@ -2,6 +2,7 @@ import { getRepository, SelectQueryBuilder } from "typeorm";
 
 import { NormEntity } from "../entities/norm.entity";
 import { AccountingEntity } from "../entities/accounting.teacher.entity";
+import { getStartEndOfYear } from "../helpers/dateHelper";
 
 export class DBAccountingTeacherManager {
 	private static addRelations(
@@ -42,13 +43,24 @@ export class DBAccountingTeacherManager {
 		return result;
 	}
 
-	public static async GetByUserToId(id: number): Promise<AccountingEntity[]> {
+	public static async GetByUserToId(
+		id: number,
+		year?: number
+	): Promise<AccountingEntity[]> {
 		const result = this.addRelations(
 			getRepository(AccountingEntity).createQueryBuilder("accounting")
-		)
-			.where("to.id = :toId", { toId: id })
-			.getMany();
+		).where("to.id = :toId", { toId: id });
+		if (year) {
+			const { start, end } = getStartEndOfYear(year);
+			result.andWhere(
+				"(accounting.date <= :end AND accounting.date >= :start)",
+				{
+					end,
+					start,
+				}
+			);
+		}
 
-		return result;
+		return result.getMany();
 	}
 }

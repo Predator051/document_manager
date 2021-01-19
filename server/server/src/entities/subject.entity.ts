@@ -11,6 +11,7 @@ import { SubjectTrainingProgramEntity } from "./subject.training.program.entity"
 import { Subject } from "../types/subject";
 import { SubdivisionEntity } from "./subdivision.entity";
 import { NormEntity } from "./norm.entity";
+import { ObjectStatus } from "../types/constants";
 
 @Entity()
 export class SubjectEntity {
@@ -31,6 +32,13 @@ export class SubjectEntity {
 	@ManyToOne((type) => SubdivisionEntity, (cycle) => cycle.subjects)
 	cycle: SubdivisionEntity;
 
+	@Column({
+		type: "enum",
+		enum: ObjectStatus,
+		default: ObjectStatus.NORMAL,
+	})
+	status: ObjectStatus;
+
 	@OneToMany((type) => NormEntity, (norm) => norm.subject)
 	norms?: NormEntity[];
 
@@ -40,6 +48,7 @@ export class SubjectEntity {
 			fullTitle: this.fullTitle,
 			shortTitle: this.shortTitle,
 			programTrainings: this.trainingPrograms.map((tp) => tp.ToRequestObject()),
+			status: this.status,
 		};
 	}
 }

@@ -7,9 +7,10 @@ import { STANDART_VALUES, STANDART_KEYS } from "../types/constants";
 
 export class AccountingTeacherModel {
 	public static async getByUserId(
-		id: number
+		userId: number,
+		year?: number
 	): Promise<RequestMessage<AccountingTeacher[]>> {
-		const result = await DBAccountingTeacherManager.GetByUserToId(id);
+		const result = await DBAccountingTeacherManager.GetByUserToId(userId, year);
 
 		return {
 			data: result.map((a) => a.ToRequestObject()),

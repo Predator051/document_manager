@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 
 import { GroupUser } from "../../types/groupUser";
 import { NormProcess } from "../../types/normProcess";
@@ -20,6 +20,7 @@ import {
 } from "antd";
 import { Group } from "../../types/group";
 import { GenerateGroupName } from "../../helpers/GroupHelper";
+import { YearContext } from "../../context/YearContext";
 
 export interface StudentProcessProps {
 	userId: number;
@@ -35,6 +36,7 @@ export const TeacherIndividualWorks: React.FC<StudentProcessProps> = (
 ) => {
 	const [individualWorks, setIndividualWorks] = useState<IndividualWork[]>([]);
 	const [groups, setGroups] = useState<Group[]>([]);
+	const yearContext = useContext(YearContext);
 
 	const isAllWorksHasGroup = () => {
 		for (const work of individualWorks) {
@@ -79,7 +81,7 @@ export const TeacherIndividualWorks: React.FC<StudentProcessProps> = (
 		);
 		ConnectionManager.getInstance().emit(
 			RequestType.GET_INDIVIDUAL_WORKS_BY_USER,
-			props.userId
+			{ userId: props.userId, year: yearContext.year }
 		);
 	};
 

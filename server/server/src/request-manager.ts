@@ -78,14 +78,17 @@ export class RequestManager {
 			socket.emit(RequestType.GET_USER_INFO, response);
 		});
 
-		socket.on(RequestType.GET_ALL_GROUPS, async (m: any) => {
-			console.log("[server](message): %s", JSON.stringify(m));
+		socket.on(
+			RequestType.GET_ALL_GROUPS,
+			async (m: RequestMessage<{ year?: number }>) => {
+				console.log("[server](message): %s", JSON.stringify(m));
 
-			const response = await GroupModel.getAllGroups();
-			console.log("response", response);
+				const response = await GroupModel.getAllGroups(m);
+				console.log("response", response);
 
-			socket.emit(RequestType.GET_ALL_GROUPS, response);
-		});
+				socket.emit(RequestType.GET_ALL_GROUPS, response);
+			}
+		);
 
 		socket.on(
 			RequestType.GET_GROUP_BY_ID,
@@ -138,7 +141,12 @@ export class RequestManager {
 
 		socket.on(
 			RequestType.GET_CLASS_BY_GROUP,
-			async (m: RequestMessage<number>) => {
+			async (
+				m: RequestMessage<{
+					groupId: number;
+					year: number;
+				}>
+			) => {
 				console.log("[server](message): %s", JSON.stringify(m));
 
 				const response = await ClassModel.getClassesByGroup(m);
@@ -147,13 +155,16 @@ export class RequestManager {
 			}
 		);
 
-		socket.on(RequestType.GET_MY_CLASSES, async (m: RequestMessage<any>) => {
-			console.log("[server](message): %s", JSON.stringify(m));
+		socket.on(
+			RequestType.GET_MY_CLASSES,
+			async (m: RequestMessage<{ year: number }>) => {
+				console.log("[server](message): %s", JSON.stringify(m));
 
-			const response = await ClassModel.getMyClasses(m);
+				const response = await ClassModel.getMyClasses(m);
 
-			socket.emit(RequestType.GET_MY_CLASSES, response);
-		});
+				socket.emit(RequestType.GET_MY_CLASSES, response);
+			}
+		);
 
 		socket.on(
 			RequestType.GET_CLASS_EVENTS_BY_SUBJECT_GROUP_AND_USER,
@@ -177,7 +188,7 @@ export class RequestManager {
 
 		socket.on(
 			RequestType.GET_CLASSES_BY_USER,
-			async (m: RequestMessage<number>) => {
+			async (m: RequestMessage<{ userId: number; year: number }>) => {
 				console.log("[server](message): %s", JSON.stringify(m));
 
 				const response = await ClassModel.getClassesByUser(m);
@@ -280,6 +291,7 @@ export class RequestManager {
 					userId: number;
 					groupId: number;
 					subjectId: number;
+					year: number;
 				}>
 			) => {
 				console.log("[server](message): %s", JSON.stringify(m));
@@ -292,7 +304,7 @@ export class RequestManager {
 
 		socket.on(
 			RequestType.GET_NORM_PROCESS_BY_USER,
-			async (m: RequestMessage<number>) => {
+			async (m: RequestMessage<{ userId: number; year: number }>) => {
 				console.log("[server](message): %s", JSON.stringify(m));
 
 				const response = await NormProcessModel.getProcessNormByUser(m);
@@ -354,7 +366,7 @@ export class RequestManager {
 
 		socket.on(
 			RequestType.GET_INDIVIDUAL_WORKS_BY_USER,
-			async (m: RequestMessage<number>) => {
+			async (m: RequestMessage<{ userId: number; year: number }>) => {
 				console.log("[server](message): %s", JSON.stringify(m));
 
 				const response = await IndividualWorkModel.getByUser(m);
@@ -438,10 +450,13 @@ export class RequestManager {
 
 		socket.on(
 			RequestType.GET_ACCOUNTING_TEACHER_BY_USER,
-			async (m: RequestMessage<number>) => {
+			async (m: RequestMessage<{ userId: number; year: number }>) => {
 				console.log("[server](message): %s", JSON.stringify(m));
 
-				const response = await AccountingTeacherModel.getByUserId(m.data);
+				const response = await AccountingTeacherModel.getByUserId(
+					m.data.userId,
+					m.data.year
+				);
 
 				socket.emit(RequestType.GET_ACCOUNTING_TEACHER_BY_USER, response);
 			}

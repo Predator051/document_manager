@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { User, UserType } from "../../types/user";
 import { ConnectionManager } from "../../managers/connetion/connectionManager";
 import { RequestType, RequestMessage, RequestCode } from "../../types/requests";
@@ -19,6 +19,7 @@ import "../../../node_modules/hover.css/css/hover.css";
 import { AccountingTeacherCreator } from "../accounting/AccountingTeacherCreator";
 import { STANDART_VALUES, STANDART_KEYS } from "../../types/constants";
 import "../../animations/text-focus-in.css";
+import { isYearCurrent, YearContext } from "../../context/YearContext";
 
 export interface TeacherAccountingProps {
 	userId: number;
@@ -39,6 +40,7 @@ export const TeacherAccounting: React.FC<TeacherAccountingProps> = (
 	const [standartValues, setStandardValues] = useState<
 		typeof STANDART_VALUES | undefined
 	>(undefined);
+	const yearContext = useContext(YearContext);
 
 	const me = JSON.parse(localStorage.getItem("user")) as User;
 
@@ -58,7 +60,7 @@ export const TeacherAccounting: React.FC<TeacherAccountingProps> = (
 		);
 		ConnectionManager.getInstance().emit(
 			RequestType.GET_ACCOUNTING_TEACHER_BY_USER,
-			props.userId
+			{ userId: props.userId, year: yearContext.year }
 		);
 	};
 
@@ -89,7 +91,8 @@ export const TeacherAccounting: React.FC<TeacherAccountingProps> = (
 
 				ConnectionManager.getInstance().emit(
 					RequestType.GET_ACCOUNTING_TEACHER_BY_USER,
-					props.userId
+
+					{ userId: props.userId, year: yearContext.year }
 				);
 			}
 		);
@@ -287,7 +290,7 @@ export const TeacherAccounting: React.FC<TeacherAccountingProps> = (
 
 	return (
 		<div className="text-focus-in">
-			{me.userType === UserType.VIEWER && (
+			{me.userType === UserType.VIEWER && isYearCurrent(yearContext) ? (
 				<Row
 					justify="end"
 					align="bottom"
@@ -303,6 +306,8 @@ export const TeacherAccounting: React.FC<TeacherAccountingProps> = (
 						</Button>
 					</Affix>
 				</Row>
+			) : (
+				<div></div>
 			)}
 			<Row justify="center" style={{ marginBottom: "1%" }}>
 				<Table

@@ -15,8 +15,10 @@ import { GroupUserEntity } from "../entities/group.user.entity";
 import { getTreeRepository } from "typeorm";
 
 export class GroupModel {
-	public static async getAllGroups(): Promise<RequestMessage<Group[]>> {
-		const groupsEntities = await DBGroupManager.GetAllGroups();
+	public static async getAllGroups(
+		request: RequestMessage<{ year?: number }>
+	): Promise<RequestMessage<Group[]>> {
+		const groupsEntities = await DBGroupManager.GetAllGroups(request.data.year);
 
 		return {
 			data: groupsEntities.map((ge) => ge.ToRequestObject()),
@@ -96,6 +98,7 @@ export class GroupModel {
 		newGroupEntity.platoon = gr.platoon;
 		newGroupEntity.quarter = gr.quarter;
 		newGroupEntity.year = gr.year;
+		newGroupEntity.status = gr.status;
 
 		DBGroupManager.SaveGroupEntity(newGroupEntity);
 

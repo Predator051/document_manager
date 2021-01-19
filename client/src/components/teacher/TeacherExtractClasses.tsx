@@ -1,6 +1,6 @@
 import { Row, Spin, Table, Typography, Empty } from "antd";
 import { ColumnsType } from "antd/lib/table/interface";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useHistory } from "react-router-dom";
 import "../../../node_modules/hover.css/css/hover.css";
 import { ConnectionManager } from "../../managers/connetion/connectionManager";
@@ -8,6 +8,7 @@ import { ClassEvent } from "../../types/classEvent";
 import { Group } from "../../types/group";
 import { RequestCode, RequestMessage, RequestType } from "../../types/requests";
 import { Subject } from "../../types/subject";
+import { YearContext } from "../../context/YearContext";
 
 export interface TeacherExtractClassesProps {
 	userId: number;
@@ -22,6 +23,7 @@ export const TeacherExtractClasses: React.FC<TeacherExtractClassesProps> = (
 	props: TeacherExtractClassesProps
 ) => {
 	const history = useHistory();
+	const yearContext = useContext(YearContext);
 	const [classEvents, setClassEvents] = useState<ClassEvent[]>([]);
 	const [subjects, setSubjects] = useState<Subject[]>([]);
 	const [groups, setGroups] = useState<Group[]>([]);
@@ -84,10 +86,10 @@ export const TeacherExtractClasses: React.FC<TeacherExtractClassesProps> = (
 				setGroups(dataMessage.data);
 			}
 		);
-		ConnectionManager.getInstance().emit(
-			RequestType.GET_CLASSES_BY_USER,
-			props.userId
-		);
+		ConnectionManager.getInstance().emit(RequestType.GET_CLASSES_BY_USER, {
+			userId: props.userId,
+			year: yearContext.year,
+		});
 	}, []);
 
 	if (subjects.length < 1 || classEvents.length < 1 || groups.length < 1) {

@@ -19,6 +19,8 @@ import { SubjectEntity } from "../entities/subject.entity";
 import { SubjectTrainingProgramEntity } from "../entities/subject.training.program.entity";
 import { SubjectTopicEntity } from "../entities/subject.topic.entity";
 import { SubjectSelectPathEntity } from "../entities/subject.select.path";
+import { ClassEventEntity } from "../entities/class.event.entity";
+import { getStartEndOfYear } from "../helpers/dateHelper";
 
 export class DBSubjectManager {
 	private static addRelations(
@@ -64,14 +66,47 @@ export class DBSubjectManager {
 		return user;
 	}
 
-	public static async GetByCycle(cycleId: number): Promise<SubjectEntity[]> {
+	public static async GetByCycle(
+		cycleId: number,
+		year?: number
+	): Promise<SubjectEntity[]> {
 		const user = this.addRelations(
 			getRepository(SubjectEntity).createQueryBuilder("subject")
-		)
-			.where("cycle.id = :cycleId", { cycleId })
-			.getMany();
+		);
+		if (year) {
+			const { start, end } = getStartEndOfYear(year);
+			user
+				.leftJoinAndSelect(
+					SubjectSelectPathEntity,
+					"selectPath",
+					"selectPath.subject = subject.id"
+				)
+				.leftJoinAndSelect(
+					ClassEventEntity,
+					"classevent",
+					`classevent."selectPathId" = selectPath.id`
+				)
+				.leftJoinAndSelect("subject.norms", `norms`)
+				.leftJoinAndSelect("norms.marks", `marks`)
+				.leftJoinAndSelect("marks.process", `norm_process`)
+				.where("cycle.id = :cycleId", { cycleId })
+				.andWhere("(classevent.date <= :end AND classevent.date >= :start)", {
+					end,
+					start,
+				})
+				.orWhere(
+					"(norm_process.date <= :end AND norm_process.date >= :start)",
+					{
+						end,
+						start,
+					}
+				);
+			console.log("sql", user.getSql());
+		} else {
+			user.where("cycle.id = :cycleId", { cycleId });
+		}
 
-		return user;
+		return user.getMany();
 	}
 
 	public static async GetById(id: number): Promise<SubjectEntity | undefined> {

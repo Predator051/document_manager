@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 
 import { GroupUser } from "../../types/groupUser";
 import { NormProcess } from "../../types/normProcess";
@@ -20,6 +20,7 @@ import {
 import { IndividualWorkCreator } from "./IndividualWorkCreator";
 import { Group } from "../../types/group";
 import { GenerateGroupName } from "../../helpers/GroupHelper";
+import { YearContext } from "../../context/YearContext";
 
 export interface StudentProcessProps {}
 
@@ -34,6 +35,7 @@ export const StudentProcess: React.FC<StudentProcessProps> = (
 	const [individualWorks, setIndividualWorks] = useState<IndividualWork[]>([]);
 	const me = JSON.parse(localStorage.getItem("user")) as User;
 	const [groups, setGroups] = useState<Group[]>([]);
+	const yearContext = useContext(YearContext);
 
 	const isAllWorksHasGroup = () => {
 		for (const work of individualWorks) {
@@ -78,7 +80,7 @@ export const StudentProcess: React.FC<StudentProcessProps> = (
 		);
 		ConnectionManager.getInstance().emit(
 			RequestType.GET_INDIVIDUAL_WORKS_BY_USER,
-			me.id
+			{ userId: me.id }
 		);
 	};
 
@@ -203,8 +205,6 @@ export const StudentProcess: React.FC<StudentProcessProps> = (
 			title: "Дата та зміст роботи",
 			dataIndex: "data",
 			key: "data",
-			// ellipsis: true,
-			// width: "max-content",
 			render: (value, record: StudentProcessTableData) => {
 				return (
 					<div>

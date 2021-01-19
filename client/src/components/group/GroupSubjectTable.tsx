@@ -186,6 +186,7 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 	// if (!isHasData) {
 	// 	return <Empty description="Не має даних"></Empty>;
 	// }
+	console.log("props", props);
 
 	return (
 		<div>

@@ -42,7 +42,8 @@ export class NormProcessModel {
 		}
 		const normProcessEntities = await DBNormProcessManager.GetByUserAndGroup(
 			userEntity.user.id,
-			request.data.gr.id
+			request.data.gr.id,
+			new Date(request.data.date).getFullYear()
 		);
 
 		const groupEntity = await DBGroupManager.GetById(request.data.gr.id);
@@ -85,9 +86,9 @@ export class NormProcessModel {
 	}
 
 	public static async getProcessNormByUser(
-		request: RequestMessage<number>
+		request: RequestMessage<{ userId: number; year: number }>
 	): Promise<RequestMessage<NormProcess[]>> {
-		const userEntity = await DBUserManager.GetUserById(request.data);
+		const userEntity = await DBUserManager.GetUserById(request.data.userId);
 		if (userEntity === undefined) {
 			return {
 				data: [],
@@ -97,7 +98,8 @@ export class NormProcessModel {
 			};
 		}
 		const normProcessEntities = await DBNormProcessManager.GetByUser(
-			userEntity.id
+			userEntity.id,
+			request.data.year
 		);
 
 		return {
@@ -109,11 +111,12 @@ export class NormProcessModel {
 	}
 
 	public static async getProcessNormByUserAndGroup(
-		request: RequestMessage<{ userId: number; groupId: number }>
+		request: RequestMessage<{ userId: number; groupId: number; year: number }>
 	): Promise<RequestMessage<NormProcess[]>> {
 		const normProcessEntities = await DBNormProcessManager.GetByUserAndGroup(
 			request.data.userId,
-			request.data.groupId
+			request.data.groupId,
+			request.data.year
 		);
 
 		return {

@@ -1,6 +1,7 @@
 import { getConnection, getRepository, SelectQueryBuilder } from "typeorm";
 import { ClassEventEntity } from "../entities/class.event.entity";
 import { GroupUserMarkEntity } from "../entities/group.user.mark.entity";
+import { getStartEndOfYear } from "../helpers/dateHelper";
 
 export class DBClassManager {
 	private static addRelations(
@@ -54,27 +55,42 @@ export class DBClassManager {
 	}
 
 	public static async GetClassesByUserId(
-		id: number
+		id: number,
+		year?: number
 	): Promise<ClassEventEntity[]> {
+		const { start, end } = getStartEndOfYear(
+			year ? year : new Date().getFullYear()
+		);
+		console.log("start", start, "end", end);
+
 		const result = this.addRelations(
 			getRepository(ClassEventEntity).createQueryBuilder("class")
 		)
 			.where("user.id = :id", { id })
+			// TODO .andWhere()
+			.andWhere("class.date <= :end", { end })
+			.andWhere("class.date >= :start", { start })
 			.getMany();
 
 		return result;
 	}
 
 	public static async GetClassesByGroupId(
-		id: number
+		id: number,
+		year?: number
 	): Promise<ClassEventEntity[]> {
 		const result = this.addRelations(
 			getRepository(ClassEventEntity).createQueryBuilder("class")
-		)
-			.where("group.id = :id", { id })
-			.getMany();
+		).where("group.id = :id", { id });
 
-		return result;
+		if (year) {
+			const { start, end } = getStartEndOfYear(year);
+			result
+				.andWhere("class.date <= :end", { end })
+				.andWhere("class.date >= :start", { start });
+		}
+
+		return result.getMany();
 	}
 
 	public static async GetClassesByGroupIdSubjectIdAndUserId(

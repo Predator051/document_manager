@@ -17,6 +17,7 @@ import { NormProcessEntity } from "./norm.process.entity";
 import { SubdivisionEntity } from "./subdivision.entity";
 import { NormMarkEntity } from "./norm.mark.entity";
 import { SubjectEntity } from "./subject.entity";
+import { ObjectStatus } from "../types/constants";
 
 @Entity()
 export class NormEntity {
@@ -44,6 +45,13 @@ export class NormEntity {
 	@ManyToOne((type) => SubjectEntity, (subject) => subject.norms)
 	subject: SubjectEntity;
 
+	@Column({
+		type: "enum",
+		enum: ObjectStatus,
+		default: ObjectStatus.NORMAL,
+	})
+	status: ObjectStatus;
+
 	@OneToMany((type) => NormMarkEntity, (mark) => mark.norm)
 	marks?: NormMarkEntity[];
 
@@ -56,6 +64,7 @@ export class NormEntity {
 			number: this.number,
 			satisfactory: this.satisfactory,
 			subjectId: this.subject.id,
+			status: this.status,
 		};
 	}
 }

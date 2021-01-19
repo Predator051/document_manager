@@ -11,6 +11,7 @@ import { Group, ConstripAppeal, MRSType } from "../types/group";
 import { GroupTrainingTypeEntity } from "./group.training.type.entity";
 import { NormProcessEntity } from "./norm.process.entity";
 import { IndividualWorkEntity } from "./individual.work.entity";
+import { ObjectStatus } from "../types/constants";
 
 @Entity()
 export class GroupEntity {
@@ -49,6 +50,13 @@ export class GroupEntity {
 	})
 	mrs: MRSType;
 
+	@Column({
+		type: "enum",
+		enum: ObjectStatus,
+		default: ObjectStatus.NORMAL,
+	})
+	status: ObjectStatus;
+
 	@OneToMany((type) => ClassEventEntity, (event) => event.group)
 	classEvents?: ClassEventEntity[];
 
@@ -73,6 +81,7 @@ export class GroupEntity {
 			appeal: this.appeal,
 			mrs: this.mrs,
 			users: this.users.map((u) => u.ToRequestObject()),
+			status: this.status
 		};
 	}
 }

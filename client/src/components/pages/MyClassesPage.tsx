@@ -1,6 +1,6 @@
 import { Button, PageHeader, Row, Spin, Table } from "antd";
 import { ColumnsType } from "antd/lib/table/interface";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useHistory } from "react-router-dom";
 import { GenerateGroupName } from "../../helpers/GroupHelper";
 import { ConnectionManager } from "../../managers/connetion/connectionManager";
@@ -11,6 +11,7 @@ import { Subject } from "../../types/subject";
 import { SubjectSelectPath } from "../../types/subjectSelectPath";
 import { HREFS } from "../menu/Menu";
 import { BackPage } from "../ui/BackPage";
+import { YearContext } from "../../context/YearContext";
 
 interface MyClassTableData {
 	key: number;
@@ -22,6 +23,7 @@ export const MyClassesPage: React.FC = () => {
 	const [classEvents, setClassEvents] = useState<ClassEvent[]>([]);
 	const [subjects, setSubjects] = useState<Subject[]>([]);
 	const [groups, setGroups] = useState<Group[]>([]);
+	const yearContext = useContext(YearContext);
 
 	useEffect(() => {
 		ConnectionManager.getInstance().registerResponseOnceHandler(
@@ -81,7 +83,9 @@ export const MyClassesPage: React.FC = () => {
 				setGroups(dataMessage.data);
 			}
 		);
-		ConnectionManager.getInstance().emit(RequestType.GET_MY_CLASSES, {});
+		ConnectionManager.getInstance().emit(RequestType.GET_MY_CLASSES, {
+			year: yearContext.year,
+		});
 	}, []);
 
 	if (subjects.length < 1 || classEvents.length < 1 || groups.length < 1) {

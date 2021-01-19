@@ -52,6 +52,7 @@ export const NormProcessPage: React.FC = () => {
 
 	const onGroupChange = (value: number) => {
 		setSelectedGroup(groups.find((gr) => gr.id === value));
+		setRerender(!rerender);
 	};
 
 	const onDateChange = (date: moment.Moment) => {

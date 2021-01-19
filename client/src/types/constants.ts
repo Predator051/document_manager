@@ -1,6 +1,12 @@
 export const DEFAULT_NAME_DB_CONNECION: string = "roadmap";
 export const SESSION_LENGTH: number = 30;
 
+export enum ObjectStatus {
+	NORMAL,
+	ARCHIVE,
+	DELETE,
+}
+
 export enum STANDART_KEYS {
 	STANDART_POSITION = "standart_position",
 	STANDART_ADMIN = "standart_admin",

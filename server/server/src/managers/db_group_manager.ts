@@ -15,6 +15,7 @@ import { GroupEntity } from "../entities/group.entity";
 import { GroupTrainingTypeEntity } from "../entities/group.training.type.entity";
 import { GroupUser } from "../types/groupUser";
 import { GroupUserEntity } from "../entities/group.user.entity";
+import { getStartEndOfYear } from "../helpers/dateHelper";
 
 export class DBGroupManager {
 	private static addRelations(
@@ -48,12 +49,30 @@ export class DBGroupManager {
 		return getRepository(GroupUserEntity).create();
 	}
 
-	public static async GetAllGroups(): Promise<GroupEntity[]> {
-		const user = this.addRelations(
+	public static async GetAllGroups(year?: number): Promise<GroupEntity[]> {
+		const groups = this.addRelations(
 			getRepository(GroupEntity).createQueryBuilder("group")
-		).getMany();
+		);
 
-		return user;
+		if (year) {
+			const { start, end } = getStartEndOfYear(year);
+			groups
+				.leftJoinAndSelect("group.classEvents", "classevent")
+				.leftJoinAndSelect("classevent.presenses", "presenses")
+				.leftJoinAndSelect("presenses.mark", "mark")
+				// .leftJoinAndSelect("group.normProcesses", "normprocess")
+				.where("(classevent.date <= :end AND classevent.date >= :start)", {
+					end,
+					start,
+				})
+				.andWhere("(mark.current > 0 OR mark.topic > 0 OR mark.subject > 0)");
+			// .orWhere("(normprocess.date <= :end AND normprocess.date >= :start)", {
+			// 	end,
+			// 	start,
+			// })
+		}
+
+		return groups.getMany();
 	}
 
 	public static async GetById(id: number): Promise<GroupEntity | undefined> {

@@ -6,7 +6,7 @@ import {
 	UpOutlined,
 } from "@ant-design/icons";
 import { Button, Descriptions, Row, Select, Typography } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useHistory } from "react-router-dom";
 
 import { GenerateGroupName } from "../../helpers/GroupHelper";
@@ -21,6 +21,7 @@ import { GroupNormTable } from "../group/GroupNormTable";
 import { GroupSubjectTable } from "../group/GroupSubjectTable";
 import { GroupTable } from "../group/GroupTable";
 import { NormInfoDrawer } from "../norm/NormInfoDrawer";
+import { YearContext } from "../../context/YearContext";
 
 export interface TeacherGroupListProps {
 	userId: number;
@@ -35,6 +36,7 @@ export const TeacherGroupList: React.FC<TeacherGroupListProps> = (
 	props: TeacherGroupListProps
 ) => {
 	const history = useHistory();
+	const yearContext = useContext(YearContext);
 	const [classEvents, setClassEvents] = useState<ClassEvent[]>([]);
 	const [normProcesses, setNormProcesses] = useState<NormProcess[]>([]);
 	const [groups, setGroups] = useState<Group[]>([]);
@@ -65,6 +67,8 @@ export const TeacherGroupList: React.FC<TeacherGroupListProps> = (
 					console.log(`Error: ${dataMessage.requestCode}`);
 					return;
 				}
+				console.log("recieve classes", dataMessage.data);
+
 				dataMessage.data.forEach(
 					(classEvent) => (classEvent.date = new Date(classEvent.date))
 				);
@@ -115,15 +119,15 @@ export const TeacherGroupList: React.FC<TeacherGroupListProps> = (
 			getGroupByIds
 		);
 
-		ConnectionManager.getInstance().emit(
-			RequestType.GET_CLASSES_BY_USER,
-			props.userId
-		);
+		ConnectionManager.getInstance().emit(RequestType.GET_CLASSES_BY_USER, {
+			userId: props.userId,
+			year: yearContext.year,
+		});
 
-		ConnectionManager.getInstance().emit(
-			RequestType.GET_NORM_PROCESS_BY_USER,
-			props.userId
-		);
+		ConnectionManager.getInstance().emit(RequestType.GET_NORM_PROCESS_BY_USER, {
+			userId: props.userId,
+			year: yearContext.year,
+		});
 
 		ConnectionManager.getInstance().registerResponseOnceHandler(
 			RequestType.GET_SUBJECTS_BY_USER_CYCLE,
@@ -133,13 +137,18 @@ export const TeacherGroupList: React.FC<TeacherGroupListProps> = (
 					console.log(`Error: ${dataMessage.requestCode}`);
 					return;
 				}
+				console.log("GET_SUBJECTS_BY_USER_CYCLE", dataMessage.data);
+
 				setUserCycleSubjects(dataMessage.data);
 			}
 		);
 
 		ConnectionManager.getInstance().emit(
 			RequestType.GET_SUBJECTS_BY_USER_CYCLE,
-			props.userId
+			{
+				userId: props.userId,
+				year: yearContext.year,
+			}
 		);
 
 		ConnectionManager.getInstance().registerResponseOnceHandler(
@@ -157,7 +166,7 @@ export const TeacherGroupList: React.FC<TeacherGroupListProps> = (
 		ConnectionManager.getInstance().emit(
 			RequestType.GET_NORMS_BY_USER_CYCLE,
 			props.userId
-		);
+		); //TODO Add year to request
 
 		return () => {
 			ConnectionManager.getInstance().removeRegisteredHandler(
@@ -192,6 +201,8 @@ export const TeacherGroupList: React.FC<TeacherGroupListProps> = (
 
 	const onGroupSelectChanged = (value: number) => {
 		setSelectedGroup(groups.find((gr) => gr.id === value));
+		setSelectedSubject(undefined);
+		setSelectedNorm(false);
 	};
 
 	const onSubjectSelectChanged = (value: number) => {

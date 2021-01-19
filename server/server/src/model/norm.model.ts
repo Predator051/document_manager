@@ -131,6 +131,7 @@ export class NormModel {
 			normEntity.number = norm.number;
 			normEntity.satisfactory = norm.satisfactory;
 			normEntity.subject = subjectEntity;
+			normEntity.status = norm.status;
 
 			const saveResult = await DBNormManager.SaveEntity(normEntity);
 			if (saveResult) {

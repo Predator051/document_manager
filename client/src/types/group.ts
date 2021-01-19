@@ -1,4 +1,5 @@
 import { GroupUser } from "./groupUser";
+import { ObjectStatus } from "./constants";
 
 export enum GroupTrainingType {
 	PROFESSIONAL_CONTRACT = "professional_contract",
@@ -48,6 +49,7 @@ export class Group {
 	trainingType: GroupTraining;
 	mrs: MRSType;
 	users: GroupUser[];
+	status: ObjectStatus;
 }
 
 export function TrainingTypeToString(tt: GroupTrainingType) {
@@ -108,5 +110,6 @@ export function CreateEmptyGroup(): Group {
 		appeal: ConstripAppeal.AUTUMN,
 		mrs: MRSType.ASU,
 		quarter: 0,
+		status: ObjectStatus.NORMAL,
 	};
 }

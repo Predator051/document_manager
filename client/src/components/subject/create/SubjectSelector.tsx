@@ -24,6 +24,7 @@ import { SubjectEditableTable } from "./SubjectEditableTable";
 import { PlusOutlined, EditOutlined, CheckOutlined } from "@ant-design/icons";
 import { SubjectSelectPath } from "../../../types/subjectSelectPath";
 import { useHistory } from "react-router-dom";
+import { ObjectStatus } from "../../../types/constants";
 
 moment.locale("uk");
 
@@ -173,6 +174,7 @@ export const SubjectSelector: React.FC<SubjectCreatorProps> = (
 						fullTitle: enteredFullTitle,
 						programTrainings: [],
 						shortTitle: enteredShortTitle,
+						status: ObjectStatus.NORMAL,
 					},
 				]);
 			},

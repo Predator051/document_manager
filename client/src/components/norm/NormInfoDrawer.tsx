@@ -49,7 +49,7 @@ export const NormInfoDrawer: React.FC<NormInfoDrawerProps> = (
 		ConnectionManager.getInstance().emit(
 			RequestType.GET_NORMS_BY_USER_CYCLE,
 			props.userId ? props.userId : me.id
-		);
+		); //TODO Add year to request
 	};
 
 	useEffect(() => {
@@ -84,7 +84,6 @@ export const NormInfoDrawer: React.FC<NormInfoDrawerProps> = (
 			zIndex: 1050,
 		});
 		const onNormCreate = (norm: Norm) => {
-			///TODO
 			ConnectionManager.getInstance().registerResponseOnceHandler(
 				RequestType.UPDATE_NORMS,
 				(data) => {

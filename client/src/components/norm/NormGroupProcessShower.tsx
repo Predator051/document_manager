@@ -22,6 +22,7 @@ import { NormProcess } from "../../types/normProcess";
 import { RequestCode, RequestMessage, RequestType } from "../../types/requests";
 
 import "../../../node_modules/hover.css/css/hover.css";
+import { Subject } from "../../types/subject";
 
 interface EditableCellProps {
 	onSave: (newValue: any) => void;
@@ -124,10 +125,22 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 	const [normProcess, setNormProcess] = useState<NormProcess | undefined>(
 		undefined
 	);
+	const [subjects, setSubjects] = useState<Subject[]>([]);
 
 	const buttonUpdateRef = useRef(null);
 
 	const loadAllNorms = () => {
+		ConnectionManager.getInstance().registerResponseOnceHandler(
+			RequestType.GET_SUBJECT_BY_ID,
+			(data) => {
+				const dataMessage = data as RequestMessage<Subject[]>;
+				if (dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR) {
+					console.log(`Error: ${dataMessage.requestCode}`);
+					return;
+				}
+				setSubjects(dataMessage.data);
+			}
+		);
 		ConnectionManager.getInstance().registerResponseOnceHandler(
 			RequestType.GET_NORMS,
 			(data) => {
@@ -139,6 +152,13 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 				dataMessage.data = dataMessage.data.sort((a, b) => a.number - b.number);
 				setNorms(dataMessage.data);
 				loadNormProcess(dataMessage.data);
+
+				ConnectionManager.getInstance().emit(
+					RequestType.GET_SUBJECT_BY_ID,
+					dataMessage.data
+						.map((n) => n.subjectId)
+						.filter((value, index, self) => self.indexOf(value) === index)
+				);
 			}
 		);
 		ConnectionManager.getInstance().emit(RequestType.GET_NORMS, {});
@@ -249,6 +269,11 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 			render: (value, record: NormGroupProcessShowerTableData) => {
 				return <div style={{ width: "auto" }}>{record.groupUser.fullname}</div>;
 			},
+			sorter: (
+				a: NormGroupProcessShowerTableData,
+				b: NormGroupProcessShowerTableData
+			) => (a.groupUser.fullname < b.groupUser.fullname ? -1 : 1),
+			defaultSortOrder: "ascend",
 			fixed: "left",
 			width: "max-content",
 			ellipsis: true,
@@ -259,7 +284,8 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 			title: (
 				<div>
 					<Typography.Title level={4} style={{ margin: 0 }}>
-						№ {norm.number}
+						№ {norm.number}{" "}
+						{subjects.find((s) => s.id === norm.subjectId)?.shortTitle}
 					</Typography.Title>
 				</div>
 			),
@@ -268,7 +294,7 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 					(mark) =>
 						mark.normId === norm.id && mark.userId === record.groupUser.id
 				);
-				if (!foundMark) debugger;
+				if (!foundMark) return <div>Не заватажилось</div>;
 				return (
 					<EditableCell
 						editComponent={<InputNumber min={0} max={5}></InputNumber>}

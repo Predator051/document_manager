@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Table, Tag, Popover, Row, Typography, Empty } from "antd";
 import {
 	ColumnsType,
@@ -19,6 +19,7 @@ import { GroupUserMark } from "../../types/groupUserMark";
 
 import "../../animations/fade-in-bck.css";
 import "../../animations/text-focus-in.css";
+import { YearContext } from "../../context/YearContext";
 
 interface GroupTableData {
 	data: GroupUser;
@@ -70,6 +71,7 @@ export const GroupSubjectMarkTable: React.FC<GroupSubjectMarkTableProps> = (
 ) => {
 	const [classEvents, setClassEvents] = useState<ClassEvent[]>([]);
 	const [subjects, setSubjects] = useState<Subject[]>([]);
+	const yearContext = useContext(YearContext);
 
 	useEffect(() => {
 		ConnectionManager.getInstance().registerResponseOnceHandler(
@@ -98,6 +100,7 @@ export const GroupSubjectMarkTable: React.FC<GroupSubjectMarkTableProps> = (
 					console.log(`Error: ${dataMessage.requestCode}`);
 					return;
 				}
+				console.log("recive classes", dataMessage.data);
 
 				dataMessage.data = dataMessage.data.filter((ce) =>
 					ce.presences.some(
@@ -116,10 +119,10 @@ export const GroupSubjectMarkTable: React.FC<GroupSubjectMarkTableProps> = (
 				);
 			}
 		);
-		ConnectionManager.getInstance().emit(
-			RequestType.GET_CLASS_BY_GROUP,
-			props.group.id
-		);
+		ConnectionManager.getInstance().emit(RequestType.GET_CLASS_BY_GROUP, {
+			groupId: props.group.id,
+			year: yearContext.year,
+		});
 	}, []);
 
 	const tableData: GroupTableData[] = props.group.users

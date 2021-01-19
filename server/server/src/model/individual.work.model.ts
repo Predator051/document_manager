@@ -10,9 +10,9 @@ import { DBGroupManager } from "../managers/db_group_manager";
 
 export class IndividualWorkModel {
 	public static async getByUser(
-		request: RequestMessage<number>
+		request: RequestMessage<{ userId: number; year?: number }>
 	): Promise<RequestMessage<IndividualWork[]>> {
-		const userEntity = await DBUserManager.GetUserById(request.data);
+		const userEntity = await DBUserManager.GetUserById(request.data.userId);
 		if (userEntity === undefined) {
 			return {
 				data: [],
@@ -22,7 +22,10 @@ export class IndividualWorkModel {
 			};
 		}
 
-		const result = await DBIndividualWorkManager.GetByUserId(request.data);
+		const result = await DBIndividualWorkManager.GetByUserId(
+			request.data.userId,
+			request.data.year
+		);
 
 		return {
 			data: result.map((work) => work.ToRequestObject()),

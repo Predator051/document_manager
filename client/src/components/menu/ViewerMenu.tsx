@@ -4,8 +4,17 @@ import {
 	OrderedListOutlined,
 	FileSearchOutlined,
 } from "@ant-design/icons";
-import { Col, Layout, Menu, Row, Tabs, Descriptions, DatePicker } from "antd";
-import React, { useState } from "react";
+import {
+	Col,
+	Layout,
+	Menu,
+	Row,
+	Tabs,
+	Descriptions,
+	DatePicker,
+	Typography,
+} from "antd";
+import React, { useState, useContext } from "react";
 import { Route, useHistory } from "react-router-dom";
 
 import { UserMenu } from "../user/menu/UserMenu";
@@ -20,6 +29,10 @@ import { User } from "../../types/user";
 import { GroupInfoPage } from "../viewer/GroupInfoPage";
 import { TeacherAccounting } from "../teacher/TeacherAccounting";
 import { AccountingTeacherPage } from "../pages/TeacherAccountingPage";
+import { YearFilter } from "../viewer/year/YearFilter";
+import { YearContext, isYearCurrent } from "../../context/YearContext";
+import moment from "moment";
+import "../../animations/fade-in.css";
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -34,6 +47,8 @@ export const ViewerMenu: React.FC = (props: any) => {
 	const history = useHistory();
 	const me = JSON.parse(localStorage.getItem("user")) as User;
 	const [archiveYear, setArchiveYear] = useState<Date | undefined>(undefined);
+	const [activeKey, setActiveKey] = useState<string>("1");
+	const yearContext = useContext(YearContext);
 
 	const headerStyle: React.CSSProperties = {
 		padding: 0,
@@ -55,7 +70,11 @@ export const ViewerMenu: React.FC = (props: any) => {
 	};
 
 	const changeArchiveYear = (year: moment.Moment) => {
-		setArchiveYear(year.toDate());
+		setArchiveYear(year?.toDate());
+		yearContext.year =
+			year && year.isValid()
+				? year.toDate().getFullYear()
+				: new Date().getFullYear();
 	};
 
 	return (
@@ -70,14 +89,23 @@ export const ViewerMenu: React.FC = (props: any) => {
 			<Layout className="site-layout">
 				<Header className="site-layout-background" style={{ padding: 0 }}>
 					<Row>
-						<Col flex="50%">
+						<Col flex="33%">
 							<Row justify="start" style={{ marginLeft: "2%" }}>
 								<a href={VIEWER_HREFS.MAIN_MENU}>
 									<HomeOutlined></HomeOutlined>
 								</a>
 							</Row>
 						</Col>
-						<Col flex="50%">
+						<Col flex="33%">
+							<Row justify="center" align="middle" style={{ height: "100%" }}>
+								<Typography.Title
+									style={{ color: "#F3F3F3", margin: 0, padding: 0 }}
+								>
+									{yearContext.year}
+								</Typography.Title>
+							</Row>
+						</Col>
+						<Col flex="auto">
 							<Menu
 								theme="dark"
 								mode="horizontal"
@@ -97,7 +125,17 @@ export const ViewerMenu: React.FC = (props: any) => {
 							className="site-layout-background"
 							style={{ width: "100%", height: "100%", marginTop: "5%" }}
 						>
-							<Tabs defaultActiveKey="1" tabPosition="left">
+							<Tabs
+								tabPosition="left"
+								onTabClick={(activeKey) => {}}
+								onChange={(activeKey) => {
+									if (activeKey === "1" || activeKey === "2") {
+										yearContext.year = new Date().getFullYear();
+									}
+									setActiveKey(activeKey);
+								}}
+								activeKey={activeKey}
+							>
 								<Tabs.TabPane
 									tab={
 										<span>
@@ -106,7 +144,9 @@ export const ViewerMenu: React.FC = (props: any) => {
 									}
 									key="1"
 								>
-									<UserList></UserList>
+									<div className="fade-in-left">
+										<UserList></UserList>
+									</div>
 								</Tabs.TabPane>
 								<Tabs.TabPane
 									tab={
@@ -123,7 +163,9 @@ export const ViewerMenu: React.FC = (props: any) => {
 										scrollBehavior: "smooth",
 									}}
 								>
-									<GroupList></GroupList>
+									<div className="fade-in-left">
+										<GroupList></GroupList>
+									</div>
 								</Tabs.TabPane>
 								<Tabs.TabPane
 									tab={
@@ -133,7 +175,7 @@ export const ViewerMenu: React.FC = (props: any) => {
 									}
 									key="3"
 								>
-									<Row justify="center">
+									<Row justify="center" className="fade-in-left">
 										<Descriptions bordered>
 											<Descriptions.Item
 												label="Оберіть рік"
@@ -144,42 +186,24 @@ export const ViewerMenu: React.FC = (props: any) => {
 												<DatePicker
 													picker="year"
 													onChange={changeArchiveYear}
+													value={moment(new Date(yearContext.year, 1, 1, 1))}
+													disabledDate={(date) => {
+														if (
+															date.toDate().getFullYear() <
+															new Date().getFullYear()
+														) {
+															return false;
+														}
+														return true;
+													}}
 												></DatePicker>
 											</Descriptions.Item>
 										</Descriptions>
 									</Row>
-									{archiveYear && (
-										<Row justify={"center"}>
-											<Tabs defaultActiveKey="1" tabPosition="top" centered>
-												<Tabs.TabPane
-													tab={
-														<span>
-															<TeamOutlined></TeamOutlined>Список викладачів
-														</span>
-													}
-													key="1"
-												>
-													<UserList></UserList>
-												</Tabs.TabPane>
-												<Tabs.TabPane
-													tab={
-														<span>
-															<OrderedListOutlined></OrderedListOutlined>Список
-															навчальних груп
-														</span>
-													}
-													key="2"
-													style={{
-														// height: "80vh",
-														// overflowY: "auto",
-														marginBottom: "1%",
-														scrollBehavior: "smooth",
-													}}
-												>
-													<GroupList></GroupList>
-												</Tabs.TabPane>
-											</Tabs>
-										</Row>
+									{archiveYear && !isYearCurrent(yearContext) ? (
+										<YearFilter></YearFilter>
+									) : (
+										<div></div>
 									)}
 								</Tabs.TabPane>
 							</Tabs>
