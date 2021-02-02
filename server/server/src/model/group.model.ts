@@ -109,4 +109,60 @@ export class GroupModel {
 			session: "",
 		};
 	}
+
+	public static async updateGroup(gr: Group) {
+		let newGroupEntity = await DBGroupManager.GetById(gr.id);
+
+		if (newGroupEntity === undefined) {
+			newGroupEntity = DBGroupManager.CreateEmptyGroupEntity();
+		}
+
+		if (gr.trainingType.id === StandartIdByGroupTrainingType.new) {
+			const gttEntity = await DBGroupManager.CreateGroupTrainingType({
+				id: (await DBGroupManager.GetGroupTrainingTypeByMaxId()) + 1,
+				content: gr.trainingType.content,
+				type: GroupTrainingType.OTHER,
+			});
+			if (gttEntity !== undefined) {
+				newGroupEntity.trainingType = gttEntity;
+			}
+		} else {
+			const gttEntity = await DBGroupManager.GetGroupTrainingTypeById(
+				gr.trainingType.id
+			);
+			if (gttEntity !== undefined) {
+				newGroupEntity.trainingType = gttEntity;
+			}
+		}
+
+		const newGroupUserEntities: GroupUserEntity[] = [];
+		for (const gu of gr.users) {
+			const newGU = DBGroupManager.CreateEmptyGroupUserEntity();
+			newGU.birthDay = gu.birthday;
+			newGU.education = gu.education;
+			newGU.fullname = gu.fullname;
+			newGU.rank = gu.rank;
+			newGU.id = gu.id;
+			newGroupUserEntities.push(newGU);
+		}
+
+		newGroupEntity.users = newGroupUserEntities;
+		newGroupEntity.appeal = gr.appeal;
+		newGroupEntity.company = gr.company;
+		newGroupEntity.cycle = gr.cycle;
+		newGroupEntity.mrs = gr.mrs;
+		newGroupEntity.platoon = gr.platoon;
+		newGroupEntity.quarter = gr.quarter;
+		newGroupEntity.year = gr.year;
+		newGroupEntity.status = gr.status;
+
+		DBGroupManager.SaveGroupEntity(newGroupEntity);
+
+		return {
+			data: {},
+			messageInfo: `SUCCESS`,
+			requestCode: RequestCode.RES_CODE_SUCCESS,
+			session: "",
+		};
+	}
 }

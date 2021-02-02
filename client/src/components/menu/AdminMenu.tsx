@@ -3,6 +3,7 @@ import {
 	UserAddOutlined,
 	UsergroupAddOutlined,
 	AppstoreAddOutlined,
+	MonitorOutlined,
 } from "@ant-design/icons";
 import { Button, Col, Layout, Menu, Row } from "antd";
 import React from "react";
@@ -25,6 +26,9 @@ import { PositionEditPage } from "../admin/pages/PositionEditPage";
 import { SubdivisionEditPage } from "../admin/pages/SubdivisionEditPage";
 import { UserEditPage } from "../admin/pages/UserEditPage";
 import { User } from "../../types/user";
+import { GroupManipulationPage } from "../admin/pages/GroupManipulationPage";
+import { ProfileEditPage } from "../login/EditProfile";
+import { SiteHREFS } from "../site/Site";
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -34,26 +38,33 @@ export enum HREFS_ADMIN {
 	ADD_USER = "/user/add",
 	EDIT_POSITIONS = "/position/edit",
 	EDIT_UNIT = "/unit/edit",
+	GROUP = "/groups",
 }
 
 const MENU_ITEMS = [
 	{
-		content: "Створити користувача",
+		content: "Користувачі",
 		icon: <UserAddOutlined></UserAddOutlined>,
 		component: <UserEditPage></UserEditPage>,
 		href: HREFS_ADMIN.ADD_USER,
 	},
 	{
-		content: "Редагувати посади",
+		content: "Посади",
 		icon: <AppstoreAddOutlined></AppstoreAddOutlined>,
 		component: <PositionEditPage></PositionEditPage>,
 		href: HREFS_ADMIN.EDIT_POSITIONS,
 	},
 	{
-		content: "Редагувати підрозділи",
+		content: "Підрозділи",
 		icon: <UsergroupAddOutlined></UsergroupAddOutlined>,
 		component: <SubdivisionEditPage></SubdivisionEditPage>,
 		href: HREFS_ADMIN.EDIT_UNIT,
+	},
+	{
+		content: "Групи",
+		icon: <MonitorOutlined></MonitorOutlined>,
+		component: <GroupManipulationPage></GroupManipulationPage>,
+		href: HREFS_ADMIN.GROUP,
 	},
 ];
 
@@ -139,6 +150,9 @@ export const AdminMainMenu: React.FC = (props: any) => {
 									</Route>
 								);
 							})}
+							<Route exact path={SiteHREFS.PROFILE_EDIT}>
+								<ProfileEditPage></ProfileEditPage>
+							</Route>
 						</Content>
 					</Layout>
 				</Content>

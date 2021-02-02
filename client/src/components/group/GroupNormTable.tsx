@@ -1,18 +1,33 @@
-import React, { useState, useEffect, useContext } from "react";
-import { Table, Spin, Empty } from "antd";
 import {
+	Empty,
+	Row,
+	Spin,
+	Table,
+	Tooltip,
+	Button,
+	Typography,
+	Modal,
+} from "antd";
+import {
+	ColumnGroupType,
 	ColumnsType,
 	ColumnType,
-	ColumnGroupType,
 } from "antd/lib/table/interface";
-import { GroupUser } from "../../types/groupUser";
-import { Group } from "../../types/group";
-import { Norm } from "../../types/norm";
-import { ConnectionManager } from "../../managers/connetion/connectionManager";
-import { RequestType, RequestMessage, RequestCode } from "../../types/requests";
-import { NormProcess } from "../../types/normProcess";
-import { Subject } from "../../types/subject";
+import React, { useContext, useEffect, useState } from "react";
+
 import { YearContext } from "../../context/YearContext";
+import { GenerateGroupName } from "../../helpers/GroupHelper";
+import { ConnectionManager } from "../../managers/connetion/connectionManager";
+import { Group } from "../../types/group";
+import { GroupUser } from "../../types/groupUser";
+import { Norm } from "../../types/norm";
+import { NormProcess } from "../../types/normProcess";
+import { RequestCode, RequestMessage, RequestType } from "../../types/requests";
+import { Subject } from "../../types/subject";
+import { ExcelExporter } from "../ui/excel-exporter/ExcelExporter";
+import { GroupNormExport } from "../ui/excel-exporter/exporters/GroupNormExporter";
+import { User } from "../../types/user";
+import { NormInfoShower } from "../norm/NormInfoShower";
 
 interface GroupTableData {
 	data: GroupUser;
@@ -20,12 +35,10 @@ interface GroupTableData {
 }
 
 export interface GroupTableProps {
-	// userGroups: GroupUser[];
 	title?: (data: any[]) => React.ReactNode;
 	userId: number;
 	group: Group;
 	subject: Subject;
-	// norm: Norm;
 }
 
 export const GroupNormTable: React.FC<GroupTableProps> = (
@@ -34,6 +47,7 @@ export const GroupNormTable: React.FC<GroupTableProps> = (
 	const [normProcesses, setNormProcesses] = useState<NormProcess[]>([]);
 	const [norms, setNorms] = useState<Norm[]>([]);
 	const yearContext = useContext(YearContext);
+	const [userInfo, setUserInfo] = useState<User | undefined>();
 
 	useEffect(() => {
 		ConnectionManager.getInstance().registerResponseOnceHandler(
@@ -72,7 +86,7 @@ export const GroupNormTable: React.FC<GroupTableProps> = (
 		);
 		ConnectionManager.getInstance().emit(
 			RequestType.GET_NORM_PROCESSES_BY_GROUP_AND_USER,
-			{ groupId: props.group.id, userId: props.userId, year: yearContext.year } //TODO ADD YEAR TO REQUEST
+			{ groupId: props.group.id, userId: props.userId, year: yearContext.year }
 		);
 		ConnectionManager.getInstance().registerResponseOnceHandler(
 			RequestType.GET_NORM_BY_IDS,
@@ -94,9 +108,24 @@ export const GroupNormTable: React.FC<GroupTableProps> = (
 				setNorms(filteredNorms);
 			}
 		);
-	}, []);
 
-	if (norms.length < 1 || normProcesses.length < 1) {
+		ConnectionManager.getInstance().registerResponseOnceHandler(
+			RequestType.GET_USER_INFO,
+			(data) => {
+				const dataMessage = data as RequestMessage<User>;
+				if (dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR) {
+					console.log(`Error: ${dataMessage.requestCode}`);
+					return;
+				}
+				setUserInfo(dataMessage.data);
+			}
+		);
+		ConnectionManager.getInstance().emit(
+			RequestType.GET_USER_INFO,
+			props.userId
+		);
+	}, []);
+	if (norms.length < 1 || normProcesses.length < 1 || userInfo === undefined) {
 		return (
 			<div>
 				<Empty description="Ще не має записів чи в процессі завантаження"></Empty>
@@ -106,14 +135,40 @@ export const GroupNormTable: React.FC<GroupTableProps> = (
 	}
 
 	const tableData: GroupTableData[] = props.group.users
-		.sort((a, b) => (a.fullname < b.fullname ? -1 : 1))
+		// .sort((a, b) => (a.fullname < b.fullname ? -1 : 1))
 		.map(
 			(ug, index) =>
 				({
 					data: ug,
-					index: index,
+					index: index + 1,
 				} as GroupTableData)
 		);
+
+	const onNormClick = (nId: number) => {
+		const modal = Modal.info({
+			title: "Інформація про предмет",
+			width: window.screen.width * 0.5,
+			style: { top: 20 },
+			closable: true,
+			zIndex: 1050,
+		});
+
+		modal.update({
+			content: (
+				<div
+					style={{
+						height: "auto",
+						// minHeight: "500px",
+					}}
+				>
+					<NormInfoShower
+						norm={norms.find((n) => n.id === nId)}
+						allowEdit={false}
+					></NormInfoShower>
+				</div>
+			),
+		});
+	};
 
 	const columns: ColumnsType<any> = [
 		{
@@ -134,6 +189,9 @@ export const GroupNormTable: React.FC<GroupTableProps> = (
 			render: (value, record: GroupTableData) => {
 				return <div>{record.data.fullname}</div>;
 			},
+			sorter: (a: GroupTableData, b: GroupTableData) =>
+				a.data.fullname < b.data.fullname ? -1 : 1,
+			defaultSortOrder: "ascend",
 			fixed: "left",
 			width: "max-content",
 			ellipsis: true,
@@ -172,7 +230,20 @@ export const GroupNormTable: React.FC<GroupTableProps> = (
 									})
 									.map((norm, index, self) => {
 										return {
-											title: <div>№ {norm.number}</div>,
+											title: (
+												<div>
+													<Tooltip title="Клік для подробиць">
+														<Button
+															type="link"
+															onClick={() => {
+																onNormClick(norm.id);
+															}}
+														>
+															№ {norm.number}
+														</Button>
+													</Tooltip>
+												</div>
+											),
 											key: norm.number + process.id,
 											dataIndex: norm.number + process.id,
 											render: (value, record: GroupTableData) => {
@@ -193,6 +264,35 @@ export const GroupNormTable: React.FC<GroupTableProps> = (
 
 	return (
 		<div>
+			<Row justify="end">
+				<ExcelExporter
+					bufferFunction={() => {
+						return GroupNormExport(
+							props.group,
+							props.subject,
+							norms,
+							normProcesses.filter((normProcess) => {
+								normProcess.marks = normProcess.marks.filter((mark) =>
+									norms.some((norm) => norm.id === mark.normId)
+								);
+
+								return normProcess.marks.length > 0;
+							})
+						);
+					}}
+					fileName={
+						userInfo.secondName +
+						" " +
+						userInfo.firstName +
+						": " +
+						GenerateGroupName(props.group) +
+						" облік виконання нормативів з " +
+						props.subject.fullTitle +
+						"_ " +
+						yearContext.year
+					}
+				></ExcelExporter>
+			</Row>
 			<Table
 				title={props.title}
 				pagination={false}

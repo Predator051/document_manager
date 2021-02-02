@@ -11,9 +11,11 @@ import {
 	Row,
 	Select,
 	Typography,
+	Switch,
 } from "antd";
 import DatePickerLocal from "antd/es/date-picker/locale/uk_UA";
-import * as moment from "moment";
+import * as momentSpace from "moment";
+import moment from "moment";
 import React, { useEffect, useState } from "react";
 
 import { ConnectionManager } from "../../../managers/connetion/connectionManager";
@@ -35,21 +37,29 @@ import {
 } from "../../../types/requests";
 import { EditableGroupTable } from "./GroupEditableTable";
 import { GroupUserUploader } from "./GroupUploader";
+import { ObjectStatus } from "../../../types/constants";
 
-moment.locale("uk");
+momentSpace.locale("uk");
 
 const { Option } = Select;
 
 interface GroupCreatorProps {
 	onClose: () => void;
 	onCreate: (group: Group) => void;
+	group?: Group;
+	archiveButton?: boolean;
+	createText?: string;
 }
 
 export const GroupCreator: React.FC<GroupCreatorProps> = (
 	props: GroupCreatorProps
 ) => {
-	const [userGroups, setUserGroups] = useState<GroupUser[]>([]);
-	const [group, setGroup] = useState<Group>(CreateEmptyGroup());
+	const [userGroups, setUserGroups] = useState<GroupUser[]>(
+		props.group ? props.group.users : []
+	);
+	const [group, setGroup] = useState<Group>(
+		props.group ? props.group : CreateEmptyGroup()
+	);
 	const [groupTraining, setGroupTraining] = useState<GroupTraining[]>([]);
 	const [selectTrainingType, setSelectTrainingType] = useState<number>(
 		group.trainingType.id
@@ -99,7 +109,7 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 		setUserGroups([...userGroups, newGroupUser]);
 	};
 
-	const onChangeYear = (data: moment.Moment) => {
+	const onChangeYear = (data: momentSpace.Moment) => {
 		setGroup({
 			...group,
 			year: data.toDate().getFullYear(),
@@ -247,6 +257,7 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 								defaultValue={undefined}
 								style={{ width: "100%" }}
 								onChange={onChangeCicle}
+								value={group.cycle}
 							>
 								{[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((cicle) => (
 									<Option key={cicle.toString()} value={cicle}>
@@ -264,7 +275,11 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 							labelStyle={descriptionItemLabelStyle}
 							contentStyle={descriptionItemContentStyle}
 						>
-							<Select style={{ width: "100%" }} onChange={onChangeAppeal}>
+							<Select
+								style={{ width: "100%" }}
+								onChange={onChangeAppeal}
+								value={group.appeal}
+							>
 								{Object.keys(ConstripAppeal).map((typeStr) => (
 									<Option
 										value={
@@ -287,7 +302,11 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 							labelStyle={descriptionItemLabelStyle}
 							contentStyle={descriptionItemContentStyle}
 						>
-							<Select style={{ width: "100%" }} onChange={onChangeQuater}>
+							<Select
+								style={{ width: "100%" }}
+								onChange={onChangeQuater}
+								value={group.quarter}
+							>
 								{[1, 2, 3, 4].map((kv) => (
 									<Option value={kv}>{kv.toString()}</Option>
 								))}
@@ -305,7 +324,8 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 							picker="year"
 							locale={DatePickerLocal}
 							onChange={onChangeYear}
-							format="DD-MM-YYYY"
+							format="YYYY"
+							value={moment(new Date(group.year, 1, 1))}
 						></DatePicker>
 					</Descriptions.Item>
 					<Descriptions.Item
@@ -314,7 +334,11 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 						labelStyle={descriptionItemLabelStyle}
 						contentStyle={descriptionItemContentStyle}
 					>
-						<Select style={{ width: "100%" }} onChange={onChangeCompany}>
+						<Select
+							style={{ width: "100%" }}
+							onChange={onChangeCompany}
+							value={group.company}
+						>
 							{[1, 2, 3, 4, 5, 6, 7, 8, 9].map((cicle) => (
 								<Option key={cicle.toString()} value={cicle}>
 									{cicle}
@@ -332,6 +356,7 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 							defaultValue={undefined}
 							style={{ width: "100%" }}
 							onChange={onChangePlatoon}
+							value={group.platoon}
 						>
 							{[1, 2, 3, 4, 5].map((cicle) => (
 								<Option key={cicle.toString()} value={cicle}>
@@ -346,7 +371,11 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 						labelStyle={descriptionItemLabelStyle}
 						contentStyle={descriptionItemContentStyle}
 					>
-						<Select style={{ width: "100%" }} onChange={onChangeMRSType}>
+						<Select
+							style={{ width: "100%" }}
+							onChange={onChangeMRSType}
+							value={group.mrs}
+						>
 							{Object.keys(MRSType).map((typeStr) => (
 								<Option value={MRSType[typeStr as keyof typeof MRSType]}>
 									{MRSType[typeStr as keyof typeof MRSType]}
@@ -354,6 +383,36 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 							))}
 						</Select>
 					</Descriptions.Item>
+					{props.archiveButton && (
+						<Descriptions.Item
+							label={
+								<Typography.Text type="danger">
+									Чи актуальная група:
+								</Typography.Text>
+							}
+							span={3}
+							labelStyle={descriptionItemLabelStyle}
+							contentStyle={descriptionItemContentStyle}
+						>
+							<Switch
+								onChange={(checked) => {
+									setGroup({
+										...group,
+										status: checked
+											? ObjectStatus.NORMAL
+											: ObjectStatus.ARCHIVE,
+									});
+								}}
+								checked={group.status === ObjectStatus.NORMAL}
+								title={"Чи актуальна група"}
+								checkedChildren="Так"
+								unCheckedChildren="Ні"
+								style={{
+									marginLeft: "1%",
+								}}
+							></Switch>
+						</Descriptions.Item>
+					)}
 				</Descriptions>
 			</Row>
 			<Row style={{ marginTop: "1%" }}>
@@ -371,18 +430,23 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 			</Row>
 
 			<EditableGroupTable userGroups={userGroups}></EditableGroupTable>
-			<Row justify="end" style={{ marginTop: "1%" }}>
-				<Button
-					type={"primary"}
-					onClick={() => {
-						props.onCreate({
-							...group,
-							users: userGroups,
-						});
-					}}
-				>
-					Створити
-				</Button>
+			<Row style={{ marginTop: "1%" }}>
+				<Col flex="50%"></Col>
+				<Col flex="50%">
+					<Row justify="end">
+						<Button
+							type={"primary"}
+							onClick={() => {
+								props.onCreate({
+									...group,
+									users: userGroups,
+								});
+							}}
+						>
+							{props.createText ? props.createText : "Створити"}
+						</Button>
+					</Row>
+				</Col>
 			</Row>
 		</div>
 	);

@@ -8,7 +8,7 @@ import {
 	Modal,
 	Select,
 } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useHistory } from "react-router-dom";
 
 import { ConnectionManager } from "../../managers/connetion/connectionManager";
@@ -16,7 +16,9 @@ import { Norm } from "../../types/norm";
 import { RequestCode, RequestMessage, RequestType } from "../../types/requests";
 import { NormCreator } from "./NormCreator";
 import { NormInfoShower } from "./NormInfoShower";
-import { User } from "../../types/user";
+import { User, UserType } from "../../types/user";
+import { YearContext } from "../../context/YearContext";
+import { Subject } from "../../types/subject";
 
 export interface NormInfoDrawerProps {
 	visible: boolean;
@@ -30,8 +32,10 @@ export const NormInfoDrawer: React.FC<NormInfoDrawerProps> = (
 ) => {
 	const history = useHistory();
 	const [norms, setNorms] = useState<Norm[]>([]);
+	const [subjects, setSubjects] = useState<Subject[]>([]);
 	const [currentNorm, setCurrentNorm] = useState<Norm | undefined>(undefined);
 	const me = JSON.parse(localStorage.getItem("user")) as User;
+	const yearContext = useContext(YearContext);
 
 	const loadAllNorms = () => {
 		ConnectionManager.getInstance().registerResponseOnceHandler(
@@ -42,14 +46,38 @@ export const NormInfoDrawer: React.FC<NormInfoDrawerProps> = (
 					console.log(`Error: ${dataMessage.requestCode}`);
 					return;
 				}
+				console.log("recieve norms", dataMessage.data);
 
 				setNorms(dataMessage.data);
+				loadSubjects(
+					dataMessage.data
+						.map((n) => n.subjectId)
+						.filter((value, index, self) => self.indexOf(value) === index)
+				);
 			}
 		);
-		ConnectionManager.getInstance().emit(
-			RequestType.GET_NORMS_BY_USER_CYCLE,
-			props.userId ? props.userId : me.id
-		); //TODO Add year to request
+		ConnectionManager.getInstance().emit(RequestType.GET_NORMS_BY_USER_CYCLE, {
+			userId: props.userId ? props.userId : me.id,
+			year: yearContext.year,
+		}); //TODO Add year to request
+	};
+
+	const loadSubjects = (ids: number[]) => {
+		ConnectionManager.getInstance().registerResponseOnceHandler(
+			RequestType.GET_SUBJECT_BY_ID,
+			(data) => {
+				const dataMessage = data as RequestMessage<Subject[]>;
+				if (
+					dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR &&
+					dataMessage.data.length < 1
+				) {
+					console.log(`Error: ${dataMessage.requestCode}`);
+					return;
+				}
+				setSubjects(dataMessage.data);
+			}
+		);
+		ConnectionManager.getInstance().emit(RequestType.GET_SUBJECT_BY_ID, ids);
 	};
 
 	useEffect(() => {
@@ -117,6 +145,11 @@ export const NormInfoDrawer: React.FC<NormInfoDrawerProps> = (
 		});
 	};
 
+	const onNormEdited = (norm: Norm) => {
+		loadAllNorms();
+		setCurrentNorm(undefined);
+	};
+
 	return (
 		<div>
 			<Drawer visible={props.visible} onClose={props.onClose} width="50%">
@@ -128,6 +161,7 @@ export const NormInfoDrawer: React.FC<NormInfoDrawerProps> = (
 						contentStyle={descriptionItemContentStyle}
 					>
 						<Select
+							value={currentNorm?.id}
 							style={{ width: "100%" }}
 							onChange={onChangeSelectNorm}
 							dropdownRender={(menu) => (
@@ -156,12 +190,21 @@ export const NormInfoDrawer: React.FC<NormInfoDrawerProps> = (
 							)}
 						>
 							{norms.map((norm) => (
-								<Select.Option value={norm.id}>{norm.number}</Select.Option>
+								<Select.Option value={norm.id}>
+									№{norm.number}{" "}
+									{subjects.find((s) => s.id === norm.subjectId)?.shortTitle}
+								</Select.Option>
 							))}
 						</Select>
 					</Descriptions.Item>
 				</Descriptions>
-				{currentNorm && <NormInfoShower norm={currentNorm}></NormInfoShower>}
+				{currentNorm && (
+					<NormInfoShower
+						norm={currentNorm}
+						onEdited={onNormEdited}
+						allowEdit={me.userType === UserType.TEACHER}
+					></NormInfoShower>
+				)}
 			</Drawer>
 		</div>
 	);

@@ -9,9 +9,11 @@ import {
 	Tag,
 	Typography,
 	Affix,
+	Modal,
+	Tooltip,
 } from "antd";
 import { ColumnsType } from "antd/lib/table/interface";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useContext } from "react";
 
 import { ConnectionManager } from "../../managers/connetion/connectionManager";
 import { Group } from "../../types/group";
@@ -23,6 +25,8 @@ import { RequestCode, RequestMessage, RequestType } from "../../types/requests";
 
 import "../../../node_modules/hover.css/css/hover.css";
 import { Subject } from "../../types/subject";
+import { YearContext } from "../../context/YearContext";
+import { NormInfoShower } from "./NormInfoShower";
 
 interface EditableCellProps {
 	onSave: (newValue: any) => void;
@@ -126,6 +130,7 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 		undefined
 	);
 	const [subjects, setSubjects] = useState<Subject[]>([]);
+	const yearContext = useContext(YearContext);
 
 	const buttonUpdateRef = useRef(null);
 
@@ -161,7 +166,9 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 				);
 			}
 		);
-		ConnectionManager.getInstance().emit(RequestType.GET_NORMS, {});
+		ConnectionManager.getInstance().emit(RequestType.GET_NORMS, {
+			year: yearContext.year,
+		});
 	};
 
 	const concatNormMarksWithEmpty = (
@@ -213,7 +220,7 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 		);
 		ConnectionManager.getInstance().emit(
 			RequestType.GET_NORM_PROCESS_BY_DATE_AND_GROUP,
-			{ gr: props.group, date: props.date }
+			{ gr: props.group, date: props.date, year: yearContext.year }
 		);
 	};
 
@@ -261,6 +268,32 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 		return <Spin></Spin>;
 	}
 
+	const onNormClick = (nId: number) => {
+		const modal = Modal.info({
+			title: "Інформація про предмет",
+			width: window.screen.width * 0.5,
+			style: { top: 20 },
+			closable: true,
+			zIndex: 1050,
+		});
+
+		modal.update({
+			content: (
+				<div
+					style={{
+						height: "auto",
+						// minHeight: "500px",
+					}}
+				>
+					<NormInfoShower
+						norm={norms.find((n) => n.id === nId)}
+						// allowEdit={true}
+					></NormInfoShower>
+				</div>
+			),
+		});
+	};
+
 	const columns: ColumnsType<any> = [
 		{
 			key: "fullname",
@@ -283,10 +316,19 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 			dataIndex: norm.id,
 			title: (
 				<div>
-					<Typography.Title level={4} style={{ margin: 0 }}>
-						№ {norm.number}{" "}
-						{subjects.find((s) => s.id === norm.subjectId)?.shortTitle}
-					</Typography.Title>
+					<Tooltip title="Клік для подробиць">
+						<Button
+							type="link"
+							onClick={() => {
+								onNormClick(norm.id);
+							}}
+						>
+							<Typography.Title level={4} style={{ margin: 0 }}>
+								№ {norm.number}{" "}
+								{subjects.find((s) => s.id === norm.subjectId)?.shortTitle}
+							</Typography.Title>
+						</Button>
+					</Tooltip>
 				</div>
 			),
 			render: (value: any, record: NormGroupProcessShowerTableData) => {
@@ -329,7 +371,7 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 		}
 	);
 	return (
-		<div>
+		<div className="swing-in-top-fwd">
 			<Table
 				columns={columns}
 				dataSource={tableData}

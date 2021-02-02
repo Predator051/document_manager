@@ -5,6 +5,7 @@ import styles from "./userMenu.module.css";
 import { User } from "../../../types/user";
 import store from "../../../app/store";
 import { setUserData } from "../../../redux/slicers/accountSlice";
+import { SiteHREFS } from "../../site/Site";
 
 export class UserMenu extends React.Component<{
 	name?: string;
@@ -23,7 +24,14 @@ export class UserMenu extends React.Component<{
 				overlay={
 					<div>
 						<Menu>
-							<Menu.Item>Налаштування</Menu.Item>
+							<Menu.Item
+								onClick={() => {
+									window.location.replace(SiteHREFS.PROFILE_EDIT);
+									// window.location.reload();
+								}}
+							>
+								Налаштування
+							</Menu.Item>
 							<Menu.Item danger onClick={this.exitClick}>
 								Вийти
 							</Menu.Item>

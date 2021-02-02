@@ -28,6 +28,8 @@ export class DBManager {
 			database: "docs_manager_db",
 			entities: [__dirname + "/../entities/*.ts"],
 			synchronize: true,
+			logging: ["query", "error"],
+			logger: "simple-console",
 		});
 	}
 

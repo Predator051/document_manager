@@ -23,7 +23,8 @@ import { DBSubjectTopicOccupationManager } from "../managers/db_subject_topic_oc
 export class SubjectModel {
 	public static async getAllSubjects({
 		session,
-	}: RequestMessage<Subject[]>): Promise<RequestMessage<Subject[]>> {
+		data: { year },
+	}: RequestMessage<{ year?: number }>): Promise<RequestMessage<Subject[]>> {
 		const userEntity = await DBSessionManager.GetSession(session);
 		if (userEntity === undefined) {
 			return {
@@ -34,7 +35,8 @@ export class SubjectModel {
 			};
 		}
 		const subjectsEntities = await DBSubjectManager.GetByCycle(
-			userEntity.user.cycle.id
+			userEntity.user.cycle.id,
+			year
 		);
 
 		return {
@@ -130,6 +132,7 @@ export class SubjectModel {
 					}
 					topicEntity.number = inputTopic.number;
 					topicEntity.title = inputTopic.title;
+					topicEntity.status = inputTopic.status;
 
 					for (let inputOccupation of inputTopic.occupation) {
 						let occupationEntity = await DBSubjectTopicOccupationManager.GetById(
@@ -142,6 +145,7 @@ export class SubjectModel {
 
 						occupationEntity.number = inputOccupation.number;
 						occupationEntity.title = inputOccupation.title;
+						occupationEntity.status = inputOccupation.status;
 
 						topicEntity.occupations.push(occupationEntity);
 					}

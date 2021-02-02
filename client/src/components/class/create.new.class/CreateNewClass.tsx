@@ -1,6 +1,12 @@
 import "moment/locale/uk";
 
-import { FormOutlined, HomeOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+	FormOutlined,
+	HomeOutlined,
+	PlusOutlined,
+	EditOutlined,
+	ExclamationCircleOutlined,
+} from "@ant-design/icons";
 import {
 	Breadcrumb,
 	Button,
@@ -13,10 +19,11 @@ import {
 	Row,
 	Select,
 	Typography,
+	Col,
 } from "antd";
 import DatePickerLocal from "antd/es/date-picker/locale/uk_UA";
 import * as moment from "moment";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useHistory } from "react-router-dom";
 
 import { GenerateGroupName } from "../../../helpers/GroupHelper";
@@ -33,6 +40,8 @@ import { SubjectSelectPath } from "../../../types/subjectSelectPath";
 import { GroupCreator } from "../../group/creator/GroupCreator";
 import { HREFS } from "../../menu/Menu";
 import { SubjectSelector } from "../../subject/create/SubjectSelector";
+import { BackPage } from "../../ui/BackPage";
+import { YearContext } from "../../../context/YearContext";
 
 moment.locale("uk");
 
@@ -49,6 +58,8 @@ export function CreateNewClassPage() {
 	const [selectedGroup, setSelectedGroup] = useState<Group | undefined>();
 	const [hours, setHours] = useState<number>(1);
 	const [place, setPlace] = useState<string>("");
+
+	const yearContext = useContext(YearContext);
 
 	function getSelectOccupation() {
 		if (subject !== undefined) {
@@ -156,6 +167,53 @@ export function CreateNewClassPage() {
 		});
 	}
 
+	function onGroupInfoClick(groupId: number) {
+		const modal = Modal.info({
+			title: "Інформація про групу",
+			width: window.screen.width * 0.6,
+			style: { top: 20 },
+			closable: true,
+			okButtonProps: {
+				style: { visibility: "hidden" },
+			},
+			zIndex: 1050,
+		});
+		const onGroupUpdate = (group: Group) => {
+			ConnectionManager.getInstance().registerResponseOnceHandler(
+				RequestType.UPDATE_GROUP,
+				(data) => {
+					const dataMessage = data as RequestMessage<any>;
+					if (dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR) {
+						console.log(`Error: ${dataMessage.requestCode}`);
+						return;
+					}
+
+					loadAllGroups();
+				}
+			);
+			ConnectionManager.getInstance().emit(RequestType.UPDATE_GROUP, group);
+			modal.destroy();
+		};
+		const onSubjectCreatorClose = () => {};
+		modal.update({
+			content: (
+				<div
+					style={{
+						height: "auto",
+						// minHeight: "500px",
+					}}
+				>
+					<GroupCreator
+						onCreate={onGroupUpdate}
+						onClose={onSubjectCreatorClose}
+						group={groups.find((gr) => gr.id === groupId)}
+						createText="Оновити"
+					></GroupCreator>
+				</div>
+			),
+		});
+	}
+
 	const createClassClick = () => {
 		ConnectionManager.getInstance().registerResponseOnceHandler(
 			RequestType.CREATE_CLASS,
@@ -213,25 +271,15 @@ export function CreateNewClassPage() {
 				setGroups(dataMessage.data);
 			}
 		);
-		ConnectionManager.getInstance().emit(RequestType.GET_ALL_GROUPS, {});
+		ConnectionManager.getInstance().emit(RequestType.GET_ALL_GROUPS, {
+			year: yearContext.year,
+		});
 	};
 
 	return (
 		<div style={{ marginTop: "1%" }}>
-			<Row justify="start">
-				<Breadcrumb style={{ fontSize: 14, marginLeft: "2%" }}>
-					<Breadcrumb.Item>
-						<a href={HREFS.MAIN_MENU}>
-							<HomeOutlined></HomeOutlined>
-						</a>
-					</Breadcrumb.Item>
-					<Breadcrumb.Item>
-						<FormOutlined /> Нове заняття
-					</Breadcrumb.Item>
-				</Breadcrumb>
-			</Row>
-
-			<Row justify="center">
+			<BackPage></BackPage>
+			<Row justify="center" className="swing-in-top-fwd">
 				<Descriptions
 					title={
 						<Typography.Title level={2}>Створення заняття</Typography.Title>
@@ -269,7 +317,25 @@ export function CreateNewClassPage() {
 							)}
 						>
 							{groups.map((gr) => (
-								<Option value={gr.id}>{GenerateGroupName(gr)}</Option>
+								<Option value={gr.id} title={GenerateGroupName(gr)}>
+									<Row justify="start">
+										<Col flex="auto">{GenerateGroupName(gr)}</Col>
+										<Col flex="10%">
+											<Row justify="end">
+												<Button
+													icon={
+														<ExclamationCircleOutlined></ExclamationCircleOutlined>
+													}
+													type="link"
+													onClick={() => {
+														onGroupInfoClick(gr.id);
+													}}
+													style={{ margin: 0, padding: 0 }}
+												></Button>
+											</Row>
+										</Col>
+									</Row>
+								</Option>
 							))}
 						</Select>
 					</Descriptions.Item>

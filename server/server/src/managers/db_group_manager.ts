@@ -1,6 +1,6 @@
 import { UserEntity } from "../entities/user.entity";
 import { getConnection, getRepository, SelectQueryBuilder } from "typeorm";
-import { DEFAULT_NAME_DB_CONNECION } from "../types/constants";
+import { DEFAULT_NAME_DB_CONNECION, ObjectStatus } from "../types/constants";
 import { User } from "../types/user";
 import { UserSessionEntity } from "../entities/session.entity";
 import { DBManager } from "./db_manager";
@@ -54,7 +54,7 @@ export class DBGroupManager {
 			getRepository(GroupEntity).createQueryBuilder("group")
 		);
 
-		if (year) {
+		if (year && year !== new Date().getFullYear()) {
 			const { start, end } = getStartEndOfYear(year);
 			groups
 				.leftJoinAndSelect("group.classEvents", "classevent")
@@ -70,6 +70,12 @@ export class DBGroupManager {
 			// 	end,
 			// 	start,
 			// })
+		}
+
+		if (year === new Date().getFullYear()) {
+			groups.andWhere("group.status = :status", {
+				status: ObjectStatus.NORMAL,
+			});
 		}
 
 		return groups.getMany();

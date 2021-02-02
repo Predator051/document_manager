@@ -23,7 +23,7 @@ export class DBKeyValueManager {
 		id: string
 	): Promise<StandartKeyValueEntity | undefined> {
 		const result = this.addRelations(
-			getRepository(StandartKeyValueEntity).createQueryBuilder("norm")
+			getRepository(StandartKeyValueEntity).createQueryBuilder("skv")
 		)
 			.where({ id })
 			.getOne();

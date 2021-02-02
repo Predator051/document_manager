@@ -16,11 +16,15 @@ import {
 	Spin,
 	Row,
 	Typography,
+	Col,
 } from "antd";
 import { IndividualWorkCreator } from "./IndividualWorkCreator";
 import { Group } from "../../types/group";
 import { GenerateGroupName } from "../../helpers/GroupHelper";
 import { YearContext } from "../../context/YearContext";
+import { ExcelExporter } from "../ui/excel-exporter/ExcelExporter";
+import { IndividualWorkExport } from "../ui/excel-exporter/exporters/IndividualWorkExporter";
+import { BackPage } from "../ui/BackPage";
 
 export interface StudentProcessProps {}
 
@@ -152,14 +156,19 @@ export const StudentProcess: React.FC<StudentProcessProps> = (
 	) {
 		return (
 			<div>
-				<Button
-					block
-					type={"dashed"}
-					style={{ height: "5%" }}
-					onClick={onAddWorkClick}
-				>
-					Додати індівідуальну роботу
-				</Button>
+				<BackPage></BackPage>
+				<Row style={{ width: "30%" }}>
+					<Col flex="auto">
+						<Button
+							type={"dashed"}
+							style={{ width: "100%" }}
+							onClick={onAddWorkClick}
+							className="fade-in-left"
+						>
+							Додати індівідуальну роботу
+						</Button>
+					</Col>
+				</Row>
 				<Spin size="large"></Spin>
 			</div>
 		);
@@ -170,9 +179,9 @@ export const StudentProcess: React.FC<StudentProcessProps> = (
 			title: "Навчальна група",
 			dataIndex: "group",
 			key: "group",
-			ellipsis: true,
-			width: "max-content",
-			fixed: "left",
+			// ellipsis: true,
+			// width: "max-content",
+			// fixed: "left",
 			render: (value, record: StudentProcessTableData) => {
 				return (
 					<Button type="link" style={{ width: "auto" }}>
@@ -187,8 +196,8 @@ export const StudentProcess: React.FC<StudentProcessProps> = (
 			title: "Прізвища та ініціали",
 			dataIndex: "fullnames",
 			key: "fullnames",
-			ellipsis: true,
-			width: "max-content",
+			// ellipsis: true,
+			// width: "max-content",
 			render: (value, record: StudentProcessTableData) => {
 				return (
 					<div>
@@ -206,6 +215,8 @@ export const StudentProcess: React.FC<StudentProcessProps> = (
 			dataIndex: "data",
 			key: "data",
 			render: (value, record: StudentProcessTableData) => {
+				console.log("content", record.work.content);
+
 				return (
 					<div>
 						<Row>
@@ -217,8 +228,13 @@ export const StudentProcess: React.FC<StudentProcessProps> = (
 							})}
 						</Row>
 						<Row>
-							<Typography.Text strong>Зміст:</Typography.Text>{" "}
-							{record.work.content}
+							<Typography.Text strong>Зміст:</Typography.Text>
+							<Typography.Paragraph
+								ellipsis={{ rows: 3, symbol: "показати", expandable: true }}
+								style={{ wordBreak: "break-word", whiteSpace: "pre-wrap" }}
+							>
+								{record.work.content}
+							</Typography.Paragraph>
 						</Row>
 					</div>
 				);
@@ -226,6 +242,7 @@ export const StudentProcess: React.FC<StudentProcessProps> = (
 			sorter: (a: StudentProcessTableData, b: StudentProcessTableData) =>
 				a.work.date < b.work.date ? -1 : 1,
 			defaultSortOrder: "descend",
+			width: "70%",
 		},
 	];
 
@@ -240,22 +257,56 @@ export const StudentProcess: React.FC<StudentProcessProps> = (
 
 	return (
 		<div>
-			<Button
-				block
-				type={"dashed"}
-				style={{ height: "5%" }}
-				onClick={onAddWorkClick}
-			>
-				Додати індівідуальну роботу
-			</Button>
+			<BackPage></BackPage>
+			<Row justify="end">
+				<Row style={{ width: "30%" }}>
+					<Col flex="auto">
+						<Button
+							type={"dashed"}
+							style={{ width: "100%" }}
+							onClick={onAddWorkClick}
+							className="fade-in-left"
+						>
+							Додати індівідуальну роботу
+						</Button>
+					</Col>
+					<Col flex="30%">
+						<ExcelExporter
+							bufferFunction={() => {
+								return IndividualWorkExport(
+									tableData.map((d) =>
+										groups.find((gr) => gr.id === d.work.groupId)
+									),
+									tableData.map((d) => d.work)
+								);
+							}}
+							fileName={
+								me.secondName +
+								" " +
+								me.firstName +
+								": індивідуальна робота з курсантами"
+							}
+						></ExcelExporter>
+					</Col>
+				</Row>
+			</Row>
+
 			<Divider></Divider>
-			<Table
-				dataSource={tableData}
-				columns={columns}
-				bordered
-				style={{ width: "auto" }}
-				scroll={{ x: "max-content" }}
-			></Table>
+			<Row
+				justify="center"
+				style={{ marginBottom: "1%" }}
+				className="swing-in-top-fwd"
+			>
+				<Table
+					dataSource={tableData}
+					columns={columns}
+					bordered
+					style={{ width: "80%" }}
+					size="small"
+					pagination={false}
+					//scroll={{ x: "" }}
+				></Table>
+			</Row>
 		</div>
 	);
 };

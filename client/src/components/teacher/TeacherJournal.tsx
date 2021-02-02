@@ -6,6 +6,8 @@ import { ConnectionManager } from "../../managers/connetion/connectionManager";
 import { RequestCode, RequestMessage, RequestType } from "../../types/requests";
 import { User } from "../../types/user";
 
+import "../../animations/swing-in.css";
+
 export interface TeacherJournalProps {
 	userId: number;
 }
@@ -49,12 +51,12 @@ export const TeacherJournal: React.FC<TeacherJournalProps> = (
 
 	return (
 		<div>
-			<Typography.Title level={3}>
+			<Typography.Title level={3} className="swing-in-top-fwd">
 				{userInfo.secondName.toUpperCase()} {userInfo.firstName.toUpperCase()}
 			</Typography.Title>
 			<Row justify="center" align="middle">
 				<div
-					className={"hvr-sweep-to-right"}
+					className={"hvr-sweep-to-right swing-in-right-fwd"}
 					style={{
 						height: "25vh",
 						width: "25vw",
@@ -74,7 +76,7 @@ export const TeacherJournal: React.FC<TeacherJournalProps> = (
 					</Row>
 				</div>
 				<div
-					className={"hvr-sweep-to-left"}
+					className={"hvr-sweep-to-left swing-in-right-fwd"}
 					style={{
 						height: "25vh",
 						width: "25vw",
@@ -93,28 +95,10 @@ export const TeacherJournal: React.FC<TeacherJournalProps> = (
 						Списки навчальних груп
 					</Row>
 				</div>
-				{/* <div
-					className={"hvr-sweep-to-left"}
-					style={{
-						height: "25vh",
-						width: "25vw",
-					}}
-					// onClick={() => {
-					// 	history.push(HREFS.NORM_PROCESS_PAGE);
-					// }}
-				>
-					<Row
-						align="middle"
-						style={{ width: "100%", height: "100%" }}
-						justify="center"
-					>
-						Облік виконання нормативів з предметів підготовки
-					</Row>
-				</div> */}
 			</Row>
 			<Row justify="center">
 				<div
-					className={"hvr-sweep-to-right"}
+					className={"hvr-sweep-to-right swing-in-right-fwd"}
 					style={{
 						height: "25vh",
 						width: "25vw",
@@ -135,7 +119,7 @@ export const TeacherJournal: React.FC<TeacherJournalProps> = (
 				</div>
 
 				<div
-					className={"hvr-sweep-to-left"}
+					className={"hvr-sweep-to-left swing-in-right-fwd"}
 					style={{
 						height: "25vh",
 						width: "25vw",

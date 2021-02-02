@@ -1,30 +1,40 @@
-import React, { useState, useEffect } from "react";
+import "moment/locale/uk";
+
 import {
-	Select,
-	Row,
-	Descriptions,
-	Input,
-	Col,
-	Divider,
+	CheckOutlined,
+	EditOutlined,
+	ExclamationCircleOutlined,
+	PlusOutlined,
+	AlertOutlined,
+} from "@ant-design/icons";
+import {
 	Button,
-	Modal,
+	Col,
+	Descriptions,
+	Divider,
+	Input,
 	InputNumber,
+	Modal,
+	Row,
+	Select,
+	Spin,
 } from "antd";
+import DescriptionsItem from "antd/lib/descriptions/Item";
+import * as moment from "moment";
+import React, { useContext, useEffect, useState } from "react";
+
+import { YearContext } from "../../../context/YearContext";
 import { ConnectionManager } from "../../../managers/connetion/connectionManager";
+import { ObjectStatus } from "../../../types/constants";
 import {
-	RequestMessage,
 	RequestCode,
+	RequestMessage,
 	RequestType,
 } from "../../../types/requests";
-import * as moment from "moment";
-import "moment/locale/uk";
 import { Subject } from "../../../types/subject";
-import DescriptionsItem from "antd/lib/descriptions/Item";
-import { SubjectEditableTable } from "./SubjectEditableTable";
-import { PlusOutlined, EditOutlined, CheckOutlined } from "@ant-design/icons";
 import { SubjectSelectPath } from "../../../types/subjectSelectPath";
-import { useHistory } from "react-router-dom";
-import { ObjectStatus } from "../../../types/constants";
+import { TopicEditor } from "../topic/TopicEditor";
+import { OccupationEditor } from "../occupation/OccupationEditor";
 
 moment.locale("uk");
 
@@ -39,12 +49,12 @@ export const SubjectSelector: React.FC<SubjectCreatorProps> = (
 	props: SubjectCreatorProps
 ) => {
 	const [subjects, setSubjects] = useState<Subject[]>([]);
-	const [currentSubject, setCurrentSubject] = useState<number>(0);
-	const [currentProgramTraining, setCurrentProgramTraining] = useState<number>(
-		0
-	);
-	const [currentTopic, setCurrentTopic] = useState<number>(0);
-	const [currentOccupation, setCurrentOccupation] = useState<number>(0);
+	let [currentSubject, setCurrentSubject] = useState<number>(0);
+	let [currentProgramTraining, setCurrentProgramTraining] = useState<number>(0);
+	let [currentTopic, setCurrentTopic] = useState<number>(0);
+	let [currentOccupation, setCurrentOccupation] = useState<number>(0);
+	let [loading, setLoading] = useState<boolean>(true);
+	const yearContext = useContext(YearContext);
 
 	const getCurrentSubject = () => {
 		return subjects.find((stp) => stp.id === currentSubject);
@@ -72,10 +82,25 @@ export const SubjectSelector: React.FC<SubjectCreatorProps> = (
 					return;
 				}
 
+				dataMessage.data.forEach((subj) => {
+					subj.programTrainings.forEach((pt) => {
+						pt.topics = pt.topics.filter(
+							(t) => t.status === ObjectStatus.NORMAL
+						);
+						pt.topics.forEach((t) => {
+							t.occupation = t.occupation.filter(
+								(occ) => occ.status === ObjectStatus.NORMAL
+							);
+						});
+					});
+				});
 				setSubjects(dataMessage.data);
+				setLoading(false);
 			}
 		);
-		ConnectionManager.getInstance().emit(RequestType.GET_ALL_SUBJECTS, {});
+		ConnectionManager.getInstance().emit(RequestType.GET_ALL_SUBJECTS, {
+			year: yearContext.year,
+		});
 	};
 
 	const updateSubjects = (us: Subject[]) => {
@@ -89,10 +114,27 @@ export const SubjectSelector: React.FC<SubjectCreatorProps> = (
 				}
 				console.log("receive data", dataMessage.data);
 
-				setSubjects(dataMessage.data);
+				dataMessage.data.forEach((subj) => {
+					subj.programTrainings.forEach((pt) => {
+						pt.topics = pt.topics.filter(
+							(t) => t.status === ObjectStatus.NORMAL
+						);
+						pt.topics.forEach((t) => {
+							t.occupation = t.occupation.filter(
+								(occ) => occ.status === ObjectStatus.NORMAL
+							);
+						});
+					});
+				});
+
+				setSubjects(
+					dataMessage.data.filter((subj) => subj.status === ObjectStatus.NORMAL)
+				);
+				setLoading(false);
 			}
 		);
 
+		setLoading(true);
 		ConnectionManager.getInstance().emit(RequestType.UPDATE_SUBJECTS, us);
 	};
 
@@ -113,7 +155,9 @@ export const SubjectSelector: React.FC<SubjectCreatorProps> = (
 	};
 
 	const handleSubjectSelectChange = (value: number) => {
-		setCurrentSubject(value);
+		setCurrentSubject(
+			subjects.findIndex((s) => s.id === value) >= 0 ? value : 0
+		);
 		setCurrentProgramTraining(0);
 		setCurrentTopic(0);
 		setCurrentOccupation(0);
@@ -183,6 +227,233 @@ export const SubjectSelector: React.FC<SubjectCreatorProps> = (
 			closable: true,
 		});
 	};
+
+	const onEditSubject = (subjectId: number) => {
+		const foundSubject = subjects.find((s) => s.id === subjectId);
+
+		const EditSubject: React.FC<{
+			subject: Subject;
+			onOk: (subject: Subject) => void;
+		}> = (props: { subject: Subject; onOk: (subject: Subject) => void }) => {
+			const [subject, setSubject] = useState<Subject>({ ...props.subject });
+			const onTextChange: (
+				who: string,
+				event: React.ChangeEvent<HTMLInputElement>
+			) => void = (who: string, { target: { value } }) => {
+				if (who === "full") {
+					foundSubject.fullTitle = value;
+					setSubject({ ...subject, fullTitle: value });
+				} else if (who === "short") {
+					setSubject({ ...subject, shortTitle: value });
+				}
+			};
+			return (
+				<div>
+					<Descriptions bordered>
+						<DescriptionsItem label="Введіть повну назву" span={3}>
+							<Input
+								onChange={onTextChange.bind(null, "full")}
+								placeholder="Введіть повну назву"
+								value={subject.fullTitle}
+								style={{ marginTop: "1%" }}
+							></Input>
+						</DescriptionsItem>
+						<DescriptionsItem label="Введіть коротку назву" span={3}>
+							<Input
+								onChange={onTextChange.bind(null, "short")}
+								placeholder="Введіть коротку назву"
+								value={subject.shortTitle}
+								style={{ marginTop: "1%" }}
+							></Input>
+						</DescriptionsItem>
+						{/* <DescriptionsItem label="Чи актуальний предмет" span={3}>
+							<Switch
+								checkedChildren="актуальний"
+								unCheckedChildren="не актуальный"
+								size="default"
+								checked={subject.status !== ObjectStatus.ARCHIVE}
+								onChange={(checked) => {
+									subject.status = checked
+										? ObjectStatus.NORMAL
+										: ObjectStatus.ARCHIVE;
+									setSubject({ ...subject });
+								}}
+								style={{ marginTop: "1%" }}
+							></Switch>
+						</DescriptionsItem> */}
+					</Descriptions>
+
+					<Row justify="end">
+						<Button
+							type={"primary"}
+							style={{ marginTop: "1%" }}
+							onClick={() => {
+								props.onOk(subject);
+							}}
+						>
+							Оновити
+						</Button>
+					</Row>
+				</div>
+			);
+		};
+
+		const modal = Modal.confirm({
+			title: "Інформація про предмет",
+			width: window.screen.width * 0.3,
+
+			zIndex: 1100,
+			icon: <EditOutlined />,
+			closable: true,
+			okButtonProps: {
+				style: {
+					visibility: "hidden",
+				},
+			},
+			cancelButtonProps: {
+				style: {
+					visibility: "hidden",
+				},
+			},
+		});
+
+		modal.update({
+			content: (
+				<div style={{ marginTop: "1%" }}>
+					<EditSubject
+						subject={foundSubject}
+						onOk={(subject) => {
+							updateSubjects([
+								...subjects.filter((s) => s.id !== subject.id),
+								subject,
+							]);
+							modal.destroy();
+						}}
+					></EditSubject>
+				</div>
+			),
+		});
+	};
+
+	const onEditTopic = (topicId: number) => {
+		const alert = Modal.confirm({
+			title: "Увага!",
+			content:
+				"Якщо ви змінюєте цю тему, то заняття цієї теми не будуть доступні для обирання! Якщо ви дійсно хочете змінити, то натисніть кнопку 'ОК'",
+			icon: <AlertOutlined />,
+			zIndex: 1100,
+			closable: true,
+			onOk: () => {
+				const foundTopic = getCurrentTrainingProgram().topics.find(
+					(s) => s.id === topicId
+				);
+				const modal = Modal.confirm({
+					title: "Інформація про програму підготовки",
+					width: window.screen.width * 0.3,
+
+					zIndex: 1100,
+					icon: <EditOutlined />,
+					closable: true,
+					okButtonProps: {
+						style: {
+							visibility: "hidden",
+						},
+					},
+					cancelButtonProps: {
+						style: {
+							visibility: "hidden",
+						},
+					},
+				});
+
+				modal.update({
+					content: (
+						<div style={{ marginTop: "1%" }}>
+							<TopicEditor
+								topic={foundTopic}
+								onOk={(topic) => {
+									const trainingProgram = getCurrentTrainingProgram();
+									trainingProgram.topics.push({
+										...topic,
+										id: 0,
+										occupation: [],
+									});
+									trainingProgram.topics.push({
+										...foundTopic,
+										status: ObjectStatus.ARCHIVE,
+									});
+									const subject = getCurrentSubject();
+									updateSubjects([
+										...subjects.filter((sb) => sb.id !== subject.id),
+										subject,
+									]);
+
+									setCurrentTopic(0);
+									setCurrentOccupation(0);
+									modal.destroy();
+								}}
+							></TopicEditor>
+						</div>
+					),
+				});
+			},
+			cancelText: "Відмінити"
+		});
+	};
+
+	const onEditOccupation = (occupationId: number) => {
+		const foundOccupation = getCurrentTopic().occupation.find(
+			(s) => s.id === occupationId
+		);
+		const modal = Modal.confirm({
+			title: "Інформація про предмет",
+			width: window.screen.width * 0.3,
+
+			zIndex: 1100,
+			icon: <EditOutlined />,
+			closable: true,
+			okButtonProps: {
+				style: {
+					visibility: "hidden",
+				},
+			},
+			cancelButtonProps: {
+				style: {
+					visibility: "hidden",
+				},
+			},
+		});
+
+		modal.update({
+			content: (
+				<div style={{ marginTop: "1%" }}>
+					<OccupationEditor
+						topic={foundOccupation}
+						onOk={(occupation) => {
+							const topic = getCurrentTopic();
+							topic.occupation.push({
+								...occupation,
+								id: 0,
+							});
+							topic.occupation.push({
+								...foundOccupation,
+								status: ObjectStatus.ARCHIVE,
+							});
+							const subject = getCurrentSubject();
+							updateSubjects([
+								...subjects.filter((sb) => sb.id !== subject.id),
+								subject,
+							]);
+
+							setCurrentOccupation(0);
+							modal.destroy();
+						}}
+					></OccupationEditor>
+				</div>
+			),
+		});
+	};
+
 	const onCreateTrainingType = () => {
 		let enteredTitle = "";
 		const onTextChange: (
@@ -255,6 +526,7 @@ export const SubjectSelector: React.FC<SubjectCreatorProps> = (
 					title: enteredTitle,
 					number: enteredNumber,
 					occupation: [],
+					status: ObjectStatus.NORMAL,
 				});
 				const subject = getCurrentSubject();
 				// setSubjects();
@@ -305,6 +577,7 @@ export const SubjectSelector: React.FC<SubjectCreatorProps> = (
 					id: 0,
 					title: enteredTitle,
 					number: enteredNumber,
+					status: ObjectStatus.NORMAL,
 				});
 				const subject = getCurrentSubject();
 				// setSubjects([
@@ -321,6 +594,10 @@ export const SubjectSelector: React.FC<SubjectCreatorProps> = (
 			closable: true,
 		});
 	};
+
+	if (loading) {
+		return <Spin></Spin>;
+	}
 
 	return (
 		<div>
@@ -363,7 +640,29 @@ export const SubjectSelector: React.FC<SubjectCreatorProps> = (
 											whiteSpace: "pre-wrap",
 										}}
 									>
-										{subj.shortTitle}
+										<Row
+											justify="start"
+											align="middle"
+											style={{ margin: 0, padding: 0 }}
+										>
+											<Col flex="auto">{subj.shortTitle}</Col>
+											<Col flex="10%" style={{ margin: 0, padding: 0 }}>
+												<Row justify="end" style={{ margin: 0, padding: 0 }}>
+													<Button
+														icon={
+															<ExclamationCircleOutlined
+																style={{ margin: 0, padding: 0 }}
+															></ExclamationCircleOutlined>
+														}
+														type="link"
+														onClick={() => {
+															onEditSubject(subj.id);
+														}}
+														style={{ margin: 0, padding: 0 }}
+													></Button>
+												</Row>
+											</Col>
+										</Row>
 									</div>
 								</Option>
 							))}
@@ -466,7 +765,31 @@ export const SubjectSelector: React.FC<SubjectCreatorProps> = (
 												whiteSpace: "pre-wrap",
 											}}
 										>
-											{topic.number} {topic.title}
+											<Row
+												justify="start"
+												align="middle"
+												style={{ margin: 0, padding: 0 }}
+											>
+												<Col flex="auto">
+													{topic.number} {topic.title}
+												</Col>
+												<Col flex="10%" style={{ margin: 0, padding: 0 }}>
+													<Row justify="end" style={{ margin: 0, padding: 0 }}>
+														<Button
+															icon={
+																<EditOutlined
+																	style={{ margin: 0, padding: 0 }}
+																></EditOutlined>
+															}
+															type="link"
+															onClick={() => {
+																onEditTopic(topic.id);
+															}}
+															style={{ margin: 0, padding: 0 }}
+														></Button>
+													</Row>
+												</Col>
+											</Row>
 										</div>
 									</Option>
 								))}
@@ -515,7 +838,31 @@ export const SubjectSelector: React.FC<SubjectCreatorProps> = (
 												whiteSpace: "pre-wrap",
 											}}
 										>
-											{occupation.number} {occupation.title}
+											<Row
+												justify="start"
+												align="middle"
+												style={{ margin: 0, padding: 0 }}
+											>
+												<Col flex="auto">
+													{occupation.number} {occupation.title}
+												</Col>
+												<Col flex="10%" style={{ margin: 0, padding: 0 }}>
+													<Row justify="end" style={{ margin: 0, padding: 0 }}>
+														<Button
+															icon={
+																<EditOutlined
+																	style={{ margin: 0, padding: 0 }}
+																></EditOutlined>
+															}
+															type="link"
+															onClick={() => {
+																onEditOccupation(occupation.id);
+															}}
+															style={{ margin: 0, padding: 0 }}
+														></Button>
+													</Row>
+												</Col>
+											</Row>
 										</div>
 									</Option>
 								))}

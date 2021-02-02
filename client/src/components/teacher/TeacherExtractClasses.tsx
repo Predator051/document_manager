@@ -1,14 +1,18 @@
-import { Row, Spin, Table, Typography, Empty } from "antd";
-import { ColumnsType } from "antd/lib/table/interface";
-import React, { useEffect, useState, useContext } from "react";
-import { useHistory } from "react-router-dom";
 import "../../../node_modules/hover.css/css/hover.css";
+
+import { Empty, Row, Spin, Table, Typography } from "antd";
+import { ColumnsType } from "antd/lib/table/interface";
+import React, { useContext, useEffect, useState } from "react";
+
+import { YearContext } from "../../context/YearContext";
 import { ConnectionManager } from "../../managers/connetion/connectionManager";
 import { ClassEvent } from "../../types/classEvent";
 import { Group } from "../../types/group";
 import { RequestCode, RequestMessage, RequestType } from "../../types/requests";
 import { Subject } from "../../types/subject";
-import { YearContext } from "../../context/YearContext";
+import { User } from "../../types/user";
+import { ExcelExporter } from "../ui/excel-exporter/ExcelExporter";
+import { ExtractClassesExport } from "../ui/excel-exporter/exporters/ExtractClassesExporter";
 
 export interface TeacherExtractClassesProps {
 	userId: number;
@@ -22,11 +26,11 @@ interface TeacherExtractClassesTableData {
 export const TeacherExtractClasses: React.FC<TeacherExtractClassesProps> = (
 	props: TeacherExtractClassesProps
 ) => {
-	const history = useHistory();
 	const yearContext = useContext(YearContext);
 	const [classEvents, setClassEvents] = useState<ClassEvent[]>([]);
 	const [subjects, setSubjects] = useState<Subject[]>([]);
 	const [groups, setGroups] = useState<Group[]>([]);
+	const [user, setUser] = useState<User | undefined>(undefined);
 
 	useEffect(() => {
 		ConnectionManager.getInstance().registerResponseOnceHandler(
@@ -90,9 +94,30 @@ export const TeacherExtractClasses: React.FC<TeacherExtractClassesProps> = (
 			userId: props.userId,
 			year: yearContext.year,
 		});
+
+		ConnectionManager.getInstance().registerResponseOnceHandler(
+			RequestType.GET_USER_INFO,
+			(data) => {
+				const dataMessage = data as RequestMessage<User>;
+				if (dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR) {
+					console.log(`Error: ${dataMessage.requestCode}`);
+					return;
+				}
+				setUser(dataMessage.data);
+			}
+		);
+		ConnectionManager.getInstance().emit(
+			RequestType.GET_USER_INFO,
+			props.userId
+		);
 	}, []);
 
-	if (subjects.length < 1 || classEvents.length < 1 || groups.length < 1) {
+	if (
+		subjects.length < 1 ||
+		classEvents.length < 1 ||
+		groups.length < 1 ||
+		user === undefined
+	) {
 		return (
 			<div>
 				<Empty description="Ще не має записів чи в процессі завантаження"></Empty>
@@ -207,8 +232,27 @@ export const TeacherExtractClasses: React.FC<TeacherExtractClassesProps> = (
 	);
 
 	return (
-		<div>
-			<Table columns={columns} bordered dataSource={tableData}></Table>
+		<div style={{ margin: "1%" }}>
+			<Row justify="end">
+				<ExcelExporter
+					bufferFunction={() => {
+						return ExtractClassesExport(tableData, subjects);
+					}}
+					fileName={
+						user.secondName +
+						" " +
+						user.firstName +
+						": витяг з розкладу занять:" +
+						yearContext.year
+					}
+				></ExcelExporter>
+			</Row>
+			<Table
+				columns={columns}
+				bordered
+				dataSource={tableData}
+				pagination={false}
+			></Table>
 		</div>
 	);
 };

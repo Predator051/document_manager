@@ -33,6 +33,8 @@ import { YearFilter } from "../viewer/year/YearFilter";
 import { YearContext, isYearCurrent } from "../../context/YearContext";
 import moment from "moment";
 import "../../animations/fade-in.css";
+import { ProfileEditPage } from "../login/EditProfile";
+import { SiteHREFS } from "../site/Site";
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -241,6 +243,9 @@ export const ViewerMenu: React.FC = (props: any) => {
 						path={VIEWER_HREFS.GROUP_INFO + ":id"}
 						render={(props) => <GroupInfoPage {...props}></GroupInfoPage>}
 					></Route>
+					<Route exact path={SiteHREFS.PROFILE_EDIT}>
+						<ProfileEditPage></ProfileEditPage>
+					</Route>
 				</Content>
 				<Footer style={{ textAlign: "center" }}>©2020 Created by BIUS</Footer>
 			</Layout>

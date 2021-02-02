@@ -17,5 +17,5 @@
 		"strictPropertyInitialization": false,
 		"strictNullChecks": false
 	},
-	"include": ["src"]
+	"include": ["src", "src/components/ui/excel-exporter/exporters/.ts"]
 }

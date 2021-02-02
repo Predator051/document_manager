@@ -139,11 +139,12 @@ export const GroupList: React.FC<GroupListProps> = (props: GroupListProps) => {
 		);
 		ConnectionManager.getInstance().emit(
 			RequestType.GET_ALL_GROUPS,
-			isYearCurrent(yearContext)
-				? {}
-				: {
-						year: yearContext.year, //TODO ARCHIVE
-				  }
+			// isYearCurrent(yearContext)
+			// 	? {}
+			// 	: {
+			{
+				year: yearContext.year, //TODO ARCHIVE
+			}
 		);
 	};
 	useEffect(() => {

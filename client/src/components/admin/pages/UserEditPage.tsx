@@ -11,6 +11,7 @@ import {
 	Select,
 	Divider,
 	message,
+	Typography,
 } from "antd";
 import { Store } from "antd/lib/form/interface";
 import FormLocale from "antd/es/locale/uk_UA";
@@ -281,7 +282,6 @@ export const UserEditPage: React.FC<Props> = () => {
 			setCurrentRank(ranks.find((pos) => pos.id === changes.rank));
 		}
 	};
-
 	return (
 		<div
 			style={{
@@ -293,6 +293,7 @@ export const UserEditPage: React.FC<Props> = () => {
 				display: "inline-block",
 			}}
 		>
+			<Typography.Text>Оберіть користувача чи створіть нового</Typography.Text>
 			<Select
 				style={{ width: "80%" }}
 				onSelect={onUserSelect}
@@ -321,16 +322,6 @@ export const UserEditPage: React.FC<Props> = () => {
 				})}
 			</Select>
 			<Divider style={{ borderColor: "#8c8c8c", width: "80%" }}></Divider>
-			{/* <SwitchTransition mode="out-in">
-				<CSSTransition
-					key={currentUser ? currentUser?.id : -1}
-					timeout={400}
-					classNames="task"
-					unmountOnExit
-					addEndListener={(node, done) => {
-						node.addEventListener("transitionend", done, false);
-					}}
-				> */}
 			<ConfigProvider locale={FormLocale}>
 				<Form
 					{...layout}

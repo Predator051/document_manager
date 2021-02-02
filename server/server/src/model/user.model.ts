@@ -22,7 +22,7 @@ export class UserModel {
 			if (userEntity.password !== userPassword) {
 				return {
 					data: User.EmptyUser(),
-					messageInfo: `cannot find a user ${userLogin}`,
+					messageInfo: `Пароль чи логін не правильний`,
 					requestCode: RequestCode.RES_CODE_INTERNAL_ERROR,
 					session: "",
 				};
@@ -33,7 +33,10 @@ export class UserModel {
 			return {
 				data: user,
 				messageInfo: "OK",
-				requestCode: RequestCode.RES_CODE_SUCCESS,
+				requestCode:
+					user.login === userPassword
+						? RequestCode.RES_CODE_EQUAL_PASSWORD_AND_LOGIN
+						: RequestCode.RES_CODE_SUCCESS,
 				session: "",
 			};
 		}
@@ -92,7 +95,10 @@ export class UserModel {
 			return {
 				data: user,
 				messageInfo: "OK",
-				requestCode: RequestCode.RES_CODE_SUCCESS,
+				requestCode:
+					user.login === user.password
+						? RequestCode.RES_CODE_EQUAL_PASSWORD_AND_LOGIN
+						: RequestCode.RES_CODE_SUCCESS,
 				session: "",
 			};
 		}

@@ -1,6 +1,7 @@
 import { getRepository, SelectQueryBuilder } from "typeorm";
 
 import { NormEntity } from "../entities/norm.entity";
+import { ObjectStatus } from "../types/constants";
 
 export class DBNormManager {
 	private static addRelations(
@@ -33,13 +34,20 @@ export class DBNormManager {
 		return result;
 	}
 
-	public static async GetByCycle(cycleId: number): Promise<NormEntity[]> {
+	public static async GetByCycle(
+		cycleId: number,
+		year?: number
+	): Promise<NormEntity[]> {
 		const result = this.addRelations(
 			getRepository(NormEntity).createQueryBuilder("norm")
-		)
-			.where("cycle.id = :cycleId", { cycleId })
-			.getMany();
+		).where("cycle.id = :cycleId", { cycleId });
 
-		return result;
+		if (year && year === new Date().getFullYear()) {
+			result.andWhere("norm.status = :status", {
+				status: ObjectStatus.NORMAL,
+			});
+		}
+
+		return result.getMany();
 	}
 }

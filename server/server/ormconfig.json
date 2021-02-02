@@ -6,7 +6,8 @@
    "password": "user0",
    "database": "docs_manager_db",
    "synchronize": true,
-   "logging": false,
+   "logging": ["query", "error"],
+   "logger": "advanced-console",
    "entities": [
       "src/entities/*.ts"
    ],

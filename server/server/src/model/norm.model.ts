@@ -24,7 +24,7 @@ import { DBNormManager } from "../managers/db_norm_manager";
 
 export class NormModel {
 	public static async getNorms(
-		request: RequestMessage<any>
+		request: RequestMessage<{ year?: number }>
 	): Promise<RequestMessage<Norm[]>> {
 		const userEntity = await DBSessionManager.GetSession(request.session);
 		if (userEntity === undefined) {
@@ -36,7 +36,8 @@ export class NormModel {
 			};
 		}
 		const normEntities = await DBNormManager.GetByCycle(
-			userEntity.user.cycle.id
+			userEntity.user.cycle.id,
+			request.data.year
 		);
 		return {
 			data: normEntities.map((ge) => ge.ToRequestObject()),
@@ -47,21 +48,23 @@ export class NormModel {
 	}
 
 	public static async getNormsByUserCycle(
-		request: RequestMessage<number>
+		request: RequestMessage<{ userId: number; year?: number }>
 	): Promise<RequestMessage<Norm[]>> {
 		//TODO
-		const userEntity = await DBUserManager.GetUserById(request.data);
+		const userEntity = await DBUserManager.GetUserById(request.data.userId);
 		if (userEntity === undefined) {
 			return {
 				data: [],
-				messageInfo: `CANNOT GET USER`,
+				messageInfo: `CANNOT GET USER ${request.data.userId}`,
 				requestCode: RequestCode.RES_CODE_INTERNAL_ERROR,
 				session: "",
 			};
 		}
 		const normEntities = await DBNormManager.GetByCycle(
-			userEntity.cycle ? userEntity.cycle.id : 0
+			userEntity.cycle ? userEntity.cycle.id : 0,
+			request.data.year
 		);
+
 		return {
 			data: normEntities.map((ge) => ge.ToRequestObject()),
 			messageInfo: `SUCCESS`,

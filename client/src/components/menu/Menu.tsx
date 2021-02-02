@@ -18,6 +18,10 @@ import { ShowIndividualWorksPage } from "../pages/ShowIndividualWorksPage";
 import { User } from "../../types/user";
 import { AccountingTeacherPage } from "../pages/TeacherAccountingPage";
 
+import "../../animations/fade-in.css";
+import { ProfileEditPage } from "../login/EditProfile";
+import { SiteHREFS } from "../site/Site";
+
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
 
@@ -79,7 +83,7 @@ export const MainMenu: React.FC = (props: any) => {
 				<Content style={{ margin: "0 16px" }}>
 					<Route exact path={[HREFS.MAIN_MENU, "/"]}>
 						<div
-							className="site-layout-background"
+							className="fade-in-bottom"
 							style={{ width: "100%", height: "100%", marginTop: "5%" }}
 						>
 							<Button
@@ -135,6 +139,9 @@ export const MainMenu: React.FC = (props: any) => {
 					</Route>
 					<Route path={HREFS.MY_CLASSES}>
 						<MyClassesPage></MyClassesPage>
+					</Route>
+					<Route exact path={SiteHREFS.PROFILE_EDIT}>
+						<ProfileEditPage></ProfileEditPage>
 					</Route>
 					<Route
 						path={HREFS.SHOW_CLASS + ":id"}

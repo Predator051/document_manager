@@ -162,6 +162,9 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 			title: "ПІБ",
 			dataIndex: "fullname",
 			key: "fullname",
+			sorter: (a: ClassLookerTableData, b: ClassLookerTableData) =>
+				a.fullname < b.fullname ? -1 : 1,
+			defaultSortOrder: "ascend",
 		},
 		{
 			title: "Поточна оцінка",
@@ -170,7 +173,7 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 			render: (value, record: ClassLookerTableData) => {
 				return (
 					<EditableCell
-						editComponent={<InputNumber></InputNumber>}
+						editComponent={<InputNumber min={0} max={5}></InputNumber>}
 						onSave={(value: any) => {
 							record.presenceData.mark.current = value;
 						}}
@@ -186,7 +189,7 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 			render: (value, record: ClassLookerTableData) => {
 				return (
 					<EditableCell
-						editComponent={<InputNumber></InputNumber>}
+						editComponent={<InputNumber min={0} max={5}></InputNumber>}
 						onSave={(value: any) => {
 							record.presenceData.mark.topic = value;
 						}}
@@ -202,7 +205,7 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 			render: (value, record: ClassLookerTableData) => {
 				return (
 					<EditableCell
-						editComponent={<InputNumber></InputNumber>}
+						editComponent={<InputNumber min={0} max={5}></InputNumber>}
 						onSave={(value: any) => {
 							record.presenceData.mark.subject = value;
 						}}
@@ -361,7 +364,7 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 	};
 
 	return (
-		<div>
+		<div className="swing-in-top-fwd">
 			<Table
 				pagination={false}
 				bordered

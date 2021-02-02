@@ -89,7 +89,6 @@ export const UserList: React.FC<UserListProps> = (props: UserListProps) => {
 		key: u.id,
 		data: u,
 	}));
-
 	return (
 		<div>
 			<Table

@@ -1,6 +1,6 @@
 import { UserEntity } from "../entities/user.entity";
 import { getConnection, getRepository, SelectQueryBuilder } from "typeorm";
-import { DEFAULT_NAME_DB_CONNECION } from "../types/constants";
+import { DEFAULT_NAME_DB_CONNECION, ObjectStatus } from "../types/constants";
 import { User } from "../types/user";
 import { UserSessionEntity } from "../entities/session.entity";
 import { DBManager } from "./db_manager";
@@ -21,6 +21,7 @@ import { SubjectTopicEntity } from "../entities/subject.topic.entity";
 import { SubjectSelectPathEntity } from "../entities/subject.select.path";
 import { ClassEventEntity } from "../entities/class.event.entity";
 import { getStartEndOfYear } from "../helpers/dateHelper";
+import { SubjectTopicOccupationEntity } from "../entities/subject.topic.occupation.entity";
 
 export class DBSubjectManager {
 	private static addRelations(
@@ -51,10 +52,16 @@ export class DBSubjectManager {
 				if (pt.topics) {
 					for (let t of pt.topics) {
 						await getRepository(SubjectTopicEntity).save(t);
+						if (t.occupations) {
+							for (let occ of t.occupations) {
+								await getRepository(SubjectTopicOccupationEntity).save(occ);
+							}
+						}
 					}
 				}
 			}
 		}
+
 		return this.GetById(result.id);
 	}
 
@@ -73,7 +80,8 @@ export class DBSubjectManager {
 		const user = this.addRelations(
 			getRepository(SubjectEntity).createQueryBuilder("subject")
 		);
-		if (year) {
+		const isCurrentYear = year ? year === new Date().getFullYear() : false;
+		if (year && !isCurrentYear) {
 			const { start, end } = getStartEndOfYear(year);
 			user
 				.leftJoinAndSelect(
@@ -87,13 +95,16 @@ export class DBSubjectManager {
 					`classevent."selectPathId" = selectPath.id`
 				)
 				.leftJoinAndSelect("subject.norms", `norms`)
-				.leftJoinAndSelect("norms.marks", `marks`)
-				.leftJoinAndSelect("marks.process", `norm_process`)
+				.leftJoinAndSelect("norms.marks", `nmarks`)
+				.leftJoinAndSelect("nmarks.process", `norm_process`)
 				.where("cycle.id = :cycleId", { cycleId })
 				.andWhere("(classevent.date <= :end AND classevent.date >= :start)", {
 					end,
 					start,
 				})
+				// .andWhere("subject.status = :status", {
+				// 	status: ObjectStatus.NORMAL,
+				// })
 				.orWhere(
 					"(norm_process.date <= :end AND norm_process.date >= :start)",
 					{
@@ -102,6 +113,12 @@ export class DBSubjectManager {
 					}
 				);
 			console.log("sql", user.getSql());
+		} else if (year && isCurrentYear) {
+			user
+				.where("cycle.id = :cycleId", { cycleId })
+				.andWhere("subject.status = :status", {
+					status: ObjectStatus.NORMAL,
+				});
 		} else {
 			user.where("cycle.id = :cycleId", { cycleId });
 		}

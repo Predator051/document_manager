@@ -5,6 +5,7 @@ import {
 	Redirect,
 	useLocation,
 	useHistory,
+	RouteComponentProps,
 } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import { Login } from "../login/Login";
@@ -17,14 +18,28 @@ import { RequestType, RequestMessage, RequestCode } from "../../types/requests";
 import { Row, Col, Spin } from "antd";
 import { useDispatch } from "react-redux";
 import { ViewerMenu } from "../menu/ViewerMenu";
+import { ChangePassword } from "../login/ChangePassword";
+import { ErrorBoundary } from "./ErrorBoundary";
+
+import "../../animations/fade-in.css";
+
+export enum SiteHREFS {
+	NEED_CHANGE_PASSWORD = "/update/password",
+	PROFILE_EDIT = "/profile/edit",
+}
 
 // console.log("render main");
 export const Site: React.FC = () => {
 	const userJsonString = localStorage.getItem("user");
 
 	const dispatch = useDispatch();
+	const [isNeedChangePassword, setNeedChangePassword] = useState<boolean>(
+		false
+	);
 	const [initCompleted, setInitComplited] = useState<boolean>(false);
 	let [state, setState] = useState<AccountState>(User.EmptyUser());
+	const history = useHistory();
+
 	if (userJsonString !== null) {
 		const userAccount = JSON.parse(userJsonString) as AccountState;
 		if (userAccount.id !== 0) {
@@ -42,7 +57,13 @@ export const Site: React.FC = () => {
 					return;
 				}
 
-				console.log("init data", dataMessage);
+				if (
+					dataMessage.requestCode ===
+					RequestCode.RES_CODE_EQUAL_PASSWORD_AND_LOGIN
+				) {
+					setNeedChangePassword(true);
+					history.push(SiteHREFS.NEED_CHANGE_PASSWORD);
+				}
 
 				setInitComplited(true);
 				setState(dataMessage.data);
@@ -67,20 +88,65 @@ export const Site: React.FC = () => {
 								<Route path="/login">
 									<Login></Login>
 								</Route>
-								{state.userType === UserType.TEACHER && (
-									<Route path={["/main", "/"]}>
-										<MainMenu></MainMenu>
-									</Route>
+								<Route exact path={SiteHREFS.NEED_CHANGE_PASSWORD}>
+									<ChangePassword></ChangePassword>
+								</Route>
+								{state.userType === UserType.TEACHER ? (
+									<Route
+										path={["/main", "/"]}
+										render={(props: RouteComponentProps<any>) => {
+											if (
+												props.location.pathname ===
+												SiteHREFS.NEED_CHANGE_PASSWORD
+											) {
+												return "";
+											}
+											return (
+												<ErrorBoundary>
+													<MainMenu></MainMenu>
+												</ErrorBoundary>
+											);
+										}}
+									></Route>
+								) : (
+									""
 								)}
 								{state.userType === UserType.ADMIN && (
-									<Route path={["/main", "/"]}>
-										<AdminMainMenu></AdminMainMenu>
-									</Route>
+									<Route
+										path={["/main", "/"]}
+										render={(props: RouteComponentProps<any>) => {
+											if (
+												props.location.pathname ===
+												SiteHREFS.NEED_CHANGE_PASSWORD
+											) {
+												return "";
+											}
+											return (
+												<ErrorBoundary>
+													<AdminMainMenu></AdminMainMenu>
+												</ErrorBoundary>
+											);
+										}}
+									></Route>
 								)}
 								{state.userType === UserType.VIEWER && (
-									<Route path={["/main", "/"]}>
-										<ViewerMenu></ViewerMenu>
-									</Route>
+									<Route
+										path={["/main", "/"]}
+										render={(props: RouteComponentProps<any>) => {
+											if (
+												props.location.pathname ===
+												SiteHREFS.NEED_CHANGE_PASSWORD
+											) {
+												return "";
+											}
+
+											return (
+												<ErrorBoundary>
+													<ViewerMenu></ViewerMenu>
+												</ErrorBoundary>
+											);
+										}}
+									></Route>
 								)}
 							</div>
 						)}

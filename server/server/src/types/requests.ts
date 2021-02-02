@@ -40,12 +40,14 @@ export enum RequestType {
 	GET_STANDART_VALUES = "get_standart_values",
 	GET_ALL_RANKS = "get_all_ranks",
 	UPDATE_RANK = "update_rank",
+	UPDATE_GROUP = "update_group",
 }
 
 export enum RequestCode {
 	RES_CODE_SUCCESS = 200,
 	RES_CODE_INTERNAL_ERROR = 1,
 	RES_CODE_NOT_AUTHORIZED = 2,
+	RES_CODE_EQUAL_PASSWORD_AND_LOGIN = 3,
 }
 
 export class RequestMessage<T> {

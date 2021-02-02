@@ -6,16 +6,19 @@ import { BrowserRouter as Router } from "react-router-dom";
 
 import { Site } from "./components/site/Site";
 import { YearContext } from "./context/YearContext";
+import { ErrorBoundary } from "./components/site/ErrorBoundary";
 
 function App() {
 	return (
-		<YearContext.Provider value={{ year: new Date().getFullYear() }}>
-			<div>
-				<Router>
-					<Site></Site>
-				</Router>
-			</div>
-		</YearContext.Provider>
+		<ErrorBoundary>
+			<YearContext.Provider value={{ year: new Date().getFullYear() }}>
+				<div>
+					<Router>
+						<Site></Site>
+					</Router>
+				</div>
+			</YearContext.Provider>
+		</ErrorBoundary>
 	);
 }
 

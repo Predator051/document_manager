@@ -6,9 +6,10 @@ import {
 	UpOutlined,
 } from "@ant-design/icons";
 import { Button, Descriptions, Row, Select, Typography } from "antd";
-import React, { useEffect, useState, useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 
+import { YearContext, isYearCurrent } from "../../context/YearContext";
 import { GenerateGroupName } from "../../helpers/GroupHelper";
 import { ConnectionManager } from "../../managers/connetion/connectionManager";
 import { ClassEvent } from "../../types/classEvent";
@@ -21,7 +22,6 @@ import { GroupNormTable } from "../group/GroupNormTable";
 import { GroupSubjectTable } from "../group/GroupSubjectTable";
 import { GroupTable } from "../group/GroupTable";
 import { NormInfoDrawer } from "../norm/NormInfoDrawer";
-import { YearContext } from "../../context/YearContext";
 
 export interface TeacherGroupListProps {
 	userId: number;
@@ -90,6 +90,7 @@ export const TeacherGroupList: React.FC<TeacherGroupListProps> = (
 					return;
 				}
 				setNormProcesses(dataMessage.data);
+				console.log("GET_NORM_PROCESS_BY_USER ", dataMessage.data);
 
 				loadGroups(dataMessage.data.map((np) => np.group.id));
 			}
@@ -156,17 +157,19 @@ export const TeacherGroupList: React.FC<TeacherGroupListProps> = (
 			(data) => {
 				const dataMessage = data as RequestMessage<Norm[]>;
 				if (dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR) {
-					console.log(`Error: ${dataMessage.requestCode}`);
+					console.log(
+						`Error: ${RequestType.GET_NORMS_BY_USER_CYCLE} ${dataMessage.requestCode} ${dataMessage.messageInfo}`
+					);
 					return;
 				}
 				setUserCycleNorms(dataMessage.data);
 			}
 		);
 
-		ConnectionManager.getInstance().emit(
-			RequestType.GET_NORMS_BY_USER_CYCLE,
-			props.userId
-		); //TODO Add year to request
+		ConnectionManager.getInstance().emit(RequestType.GET_NORMS_BY_USER_CYCLE, {
+			userId: props.userId,
+			year: yearContext.year,
+		}); //TODO Add year to request
 
 		return () => {
 			ConnectionManager.getInstance().removeRegisteredHandler(
@@ -235,6 +238,7 @@ export const TeacherGroupList: React.FC<TeacherGroupListProps> = (
 						span={3}
 						labelStyle={descriptionItemLabelStyle}
 						contentStyle={descriptionItemContentStyle}
+						className="fade-in-top"
 					>
 						<Select style={{ width: "100%" }} onChange={onGroupSelectChanged}>
 							{groups.map((gr) => {
@@ -252,6 +256,7 @@ export const TeacherGroupList: React.FC<TeacherGroupListProps> = (
 							span={3}
 							labelStyle={descriptionItemLabelStyle}
 							contentStyle={descriptionItemContentStyle}
+							className="fade-in-top"
 						>
 							<div>
 								<Select
@@ -277,6 +282,7 @@ export const TeacherGroupList: React.FC<TeacherGroupListProps> = (
 							span={3}
 							labelStyle={descriptionItemLabelStyle}
 							contentStyle={descriptionItemContentStyle}
+							className="fade-in-top"
 						>
 							<div>
 								<Button
@@ -286,6 +292,7 @@ export const TeacherGroupList: React.FC<TeacherGroupListProps> = (
 									}}
 									style={{ width: "100%", height: "100%" }}
 									icon={<OrderedListOutlined></OrderedListOutlined>}
+									hidden={!isYearCurrent(yearContext)}
 								>
 									Показати список нормативів ЦК
 								</Button>
@@ -306,15 +313,15 @@ export const TeacherGroupList: React.FC<TeacherGroupListProps> = (
 				{selectedGroup &&
 					selectedNorm === false &&
 					selectedSubject === undefined && (
-						<div style={{ width: "50%" }}>
+						<div style={{ width: "90%" }} className="fade-in-top">
 							<GroupTable
-								userGroups={selectedGroup.users}
+								userGroups={selectedGroup}
 								title={getTitle}
 							></GroupTable>
 						</div>
 					)}
 				{selectedSubject && selectedNorm === false && (
-					<div style={{ width: "auto" }}>
+					<div style={{ width: "90%" }} className="fade-in-top">
 						<GroupSubjectTable
 							group={selectedGroup}
 							subject={selectedSubject}
@@ -332,12 +339,13 @@ export const TeacherGroupList: React.FC<TeacherGroupListProps> = (
 									"
 								</Row>
 							)}
+							userId={props.userId}
 						></GroupSubjectTable>
 					</div>
 				)}
 
 				{selectedNorm && (
-					<div style={{ width: "auto" }}>
+					<div style={{ width: "90%" }} className="fade-in-top">
 						<GroupNormTable
 							group={selectedGroup}
 							userId={props.userId}

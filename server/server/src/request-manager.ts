@@ -117,6 +117,14 @@ export class RequestManager {
 			socket.emit(RequestType.CREATE_GROUP, response);
 		});
 
+		socket.on(RequestType.UPDATE_GROUP, async (m: RequestMessage<Group>) => {
+			console.log("[server](message): %s", JSON.stringify(m));
+
+			const response = await GroupModel.updateGroup(m.data);
+
+			socket.emit(RequestType.UPDATE_GROUP, response);
+		});
+
 		socket.on(
 			RequestType.CREATE_CLASS,
 			async (m: RequestMessage<ClassEvent>) => {
@@ -275,7 +283,7 @@ export class RequestManager {
 
 		socket.on(
 			RequestType.GET_NORM_PROCESS_BY_DATE_AND_GROUP,
-			async (m: RequestMessage<{ gr: Group; date: Date }>) => {
+			async (m: RequestMessage<{ gr: Group; date: Date; year?: number }>) => {
 				console.log("[server](message): %s", JSON.stringify(m));
 
 				const response = await NormProcessModel.getProcessNorm(m);
@@ -333,7 +341,7 @@ export class RequestManager {
 
 		socket.on(
 			RequestType.GET_NORMS_BY_USER_CYCLE,
-			async (m: RequestMessage<number>) => {
+			async (m: RequestMessage<{ userId: number; year?: number }>) => {
 				console.log("[server](message): %s", JSON.stringify(m));
 
 				const response = await NormModel.getNormsByUserCycle(m);

@@ -1,14 +1,23 @@
-import React from "react";
-import { Table, Tag, Popover, Row, Typography, Empty } from "antd";
+import { Popover, Row, Table, Typography, Spin } from "antd";
 import { ColumnsType, ColumnType } from "antd/lib/table/interface";
-import { GroupUser } from "../../types/groupUser";
-import { Group } from "../../types/group";
-import { Subject } from "../../types/subject";
+import React, { useState, useEffect, useContext } from "react";
+
+import { GenerateGroupName } from "../../helpers/GroupHelper";
 import { ClassEvent } from "../../types/classEvent";
+import { Group } from "../../types/group";
+import { GroupUser } from "../../types/groupUser";
 import {
 	GroupUserPresence,
 	UserPresenceType,
 } from "../../types/groupUserPresence";
+import { Subject } from "../../types/subject";
+import { ExcelExporter } from "../ui/excel-exporter/ExcelExporter";
+import { GroupSubjectExport } from "../ui/excel-exporter/exporters/GroupSubjectExporter";
+import { User } from "../../types/user";
+import { ConnectionManager } from "../../managers/connetion/connectionManager";
+import { RequestType, RequestMessage, RequestCode } from "../../types/requests";
+import { YearContext } from "../../context/YearContext";
+import { GroupSubjectBillExport } from "../ui/excel-exporter/exporters/GroupSubjectBillExporter";
 
 interface EditableCellProps {
 	onSave: (newValue: any) => void;
@@ -23,6 +32,7 @@ interface GroupTableData {
 
 export interface GroupSubjectTableProps {
 	// userGroups: GroupUser[];
+	userId: number;
 	title?: (data: any[]) => React.ReactNode;
 	group: Group;
 	subject: Subject;
@@ -32,6 +42,10 @@ export interface GroupSubjectTableProps {
 export const PresenceShower: React.FC<{
 	presence: GroupUserPresence;
 }> = (props: { presence: GroupUserPresence }) => {
+	if (props.presence === undefined) {
+		return <div></div>;
+	}
+
 	let actualMark: number = 0;
 	let color: string = "";
 	let content: string = "Оцінка за заняття";
@@ -95,13 +109,38 @@ export const PresenceShower: React.FC<{
 export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 	props: GroupSubjectTableProps
 ) => {
+	const [userInfo, setUserInfo] = useState<User | undefined>();
+	const yearContext = useContext(YearContext);
+
+	useEffect(() => {
+		ConnectionManager.getInstance().registerResponseOnceHandler(
+			RequestType.GET_USER_INFO,
+			(data) => {
+				const dataMessage = data as RequestMessage<User>;
+				if (dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR) {
+					console.log(`Error: ${dataMessage.requestCode}`);
+					return;
+				}
+				setUserInfo(dataMessage.data);
+			}
+		);
+		ConnectionManager.getInstance().emit(
+			RequestType.GET_USER_INFO,
+			props.userId
+		);
+	}, []);
+
+	if (userInfo === undefined) {
+		return <Spin size="large"></Spin>;
+	}
+
 	const tableData: GroupTableData[] = props.group.users
 		.sort((a, b) => (a.fullname < b.fullname ? -1 : 1))
 		.map(
 			(ug, index) =>
 				({
 					data: ug,
-					index: index,
+					index: index + 1,
 				} as GroupTableData)
 		);
 
@@ -124,6 +163,9 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 			render: (value, record: GroupTableData) => {
 				return <div>{record.data.fullname}</div>;
 			},
+			sorter: (a: GroupTableData, b: GroupTableData) =>
+				a.data.fullname < b.data.fullname ? -1 : 1,
+			defaultSortOrder: "ascend",
 			fixed: "left",
 			width: "max-content",
 			ellipsis: true,
@@ -173,23 +215,60 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 		},
 	];
 
-	// const isHasData =
-	// 	props.classEvents.filter((classEvent) => {
-	// 		return classEvent.presences.some(
-	// 			(presence) =>
-	// 				presence.mark.current !== 0 ||
-	// 				presence.mark.topic !== 0 ||
-	// 				presence.mark.subject !== 0
-	// 		);
-	// 	}).length > 0;
-
-	// if (!isHasData) {
-	// 	return <Empty description="Не має даних"></Empty>;
-	// }
-	console.log("props", props);
-
 	return (
 		<div>
+			<Row justify="end">
+				<ExcelExporter
+					bufferFunction={() => {
+						return GroupSubjectExport(
+							props.group,
+							props.subject,
+							props.classEvents.filter((classEvent) => {
+								return classEvent.presences.some(
+									(presence) =>
+										presence.mark.current !== 0 ||
+										presence.mark.topic !== 0 ||
+										presence.mark.subject !== 0
+								);
+							})
+						);
+					}}
+					fileName={
+						userInfo.secondName +
+						" " +
+						userInfo.firstName +
+						": " +
+						GenerateGroupName(props.group) +
+						" облік з " +
+						props.subject.fullTitle +
+						" " +
+						yearContext.year
+					}
+					title="Поточні оцінки за предмет"
+				></ExcelExporter>
+
+				<ExcelExporter
+					bufferFunction={() => {
+						return GroupSubjectBillExport(
+							props.group,
+							props.subject,
+							props.classEvents.filter((classEvent) => {
+								return classEvent.presences.some(
+									(presence) =>
+										presence.mark.current !== 0 ||
+										presence.mark.topic !== 0 ||
+										presence.mark.subject !== 0
+								);
+							})
+						);
+					}}
+					fileName={
+						`Навчальна група: ${props.group.company} рота, ${props.group.platoon} взвод: ` +
+						yearContext.year
+					}
+					title="Експорт відомісті"
+				></ExcelExporter>
+			</Row>
 			<Table
 				title={props.title}
 				pagination={false}

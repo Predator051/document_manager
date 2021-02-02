@@ -1,6 +1,7 @@
 import { getConnection, getRepository, SelectQueryBuilder, Raw } from "typeorm";
 import { NormProcessEntity } from "../entities/norm.process.entity";
 import { getStartEndOfYear } from "../helpers/dateHelper";
+import { ObjectStatus } from "../types/constants";
 
 export class DBNormProcessManager {
 	private static addRelations(
@@ -77,6 +78,10 @@ export class DBNormProcessManager {
 				start,
 			});
 
+		// if (year === new Date().getFullYear()) {
+		// 	result.andWhere("norm.status = :status", { status: ObjectStatus.NORMAL });
+		// }
+
 		// console.log(result.getSql());
 		const r = result.getMany();
 
@@ -97,6 +102,12 @@ export class DBNormProcessManager {
 			.where("user.id = :userId", { userId })
 			.andWhere("normProcess.date <= :end", { end })
 			.andWhere("normProcess.date >= :start", { start });
+
+		if (year === new Date().getFullYear()) {
+			result.andWhere("group.status = :status", {
+				status: ObjectStatus.NORMAL,
+			});
+		}
 
 		// console.log(result.getSql());
 		const r = result.getMany();

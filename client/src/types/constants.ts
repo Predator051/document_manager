@@ -7,6 +7,17 @@ export enum ObjectStatus {
 	DELETE,
 }
 
+export const ObjectStatusToString = (status: ObjectStatus) => {
+	if (status === ObjectStatus.ARCHIVE) {
+		return "Не актуально";
+	}
+	if (status === ObjectStatus.DELETE) {
+		return "Видалено";
+	}
+
+	return "Використовується";
+};
+
 export enum STANDART_KEYS {
 	STANDART_POSITION = "standart_position",
 	STANDART_ADMIN = "standart_admin",

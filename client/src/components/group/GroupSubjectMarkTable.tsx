@@ -20,6 +20,9 @@ import { GroupUserMark } from "../../types/groupUserMark";
 import "../../animations/fade-in-bck.css";
 import "../../animations/text-focus-in.css";
 import { YearContext } from "../../context/YearContext";
+import { ExcelExporter } from "../ui/excel-exporter/ExcelExporter";
+import { GroupSubjectMarkExport } from "../ui/excel-exporter/exporters/GroupSubjectMarkExporter";
+import { GenerateGroupName } from "../../helpers/GroupHelper";
 
 interface GroupTableData {
 	data: GroupUser;
@@ -31,18 +34,18 @@ interface GroupSubjectMarkTableProps {
 	title?: (data: GroupTableData[]) => React.ReactNode;
 }
 
-interface MarkObj {
+export interface MarkObj {
 	current: {
-		sum: 0;
-		count: 0;
+		sum: number;
+		count: number;
 	};
 	subject: {
-		sum: 0;
-		count: 0;
+		sum: number;
+		count: number;
 	};
 	topic: {
-		sum: 0;
-		count: 0;
+		sum: number;
+		count: number;
 	};
 }
 
@@ -131,7 +134,7 @@ export const GroupSubjectMarkTable: React.FC<GroupSubjectMarkTableProps> = (
 			(ug, index) =>
 				({
 					data: ug,
-					index: index,
+					index: index + 1,
 				} as GroupTableData)
 		);
 
@@ -154,6 +157,9 @@ export const GroupSubjectMarkTable: React.FC<GroupSubjectMarkTableProps> = (
 			render: (value, record: GroupTableData) => {
 				return <div className="text-focus-in">{record.data.fullname}</div>;
 			},
+			sorter: (a: GroupTableData, b: GroupTableData) =>
+				a.data.fullname < b.data.fullname ? -1 : 1,
+			defaultSortOrder: "ascend",
 			fixed: "left",
 			width: "max-content",
 			ellipsis: true,
@@ -173,13 +179,15 @@ export const GroupSubjectMarkTable: React.FC<GroupSubjectMarkTableProps> = (
 						);
 
 						const allMarksByUser: GroupUserMark[] = [];
-						ceBySubject.forEach((ce) =>
-							allMarksByUser.push(
-								...ce.presences
-									.filter((pr) => pr.userId === record.data.id)
-									.map((pr) => pr.mark)
-							)
-						);
+						ceBySubject
+							.sort((a, b) => (a.date < b.date ? -1 : 1))
+							.forEach((ce) =>
+								allMarksByUser.push(
+									...ce.presences
+										.filter((pr) => pr.userId === record.data.id)
+										.map((pr) => pr.mark)
+								)
+							);
 
 						const markObj: MarkObj = {
 							current: {
@@ -198,8 +206,8 @@ export const GroupSubjectMarkTable: React.FC<GroupSubjectMarkTableProps> = (
 
 						allMarksByUser.forEach((mark) => {
 							if (mark.subject !== 0) {
-								markObj.subject.count += 1;
-								markObj.subject.sum += mark.subject;
+								markObj.subject.count = 1;
+								markObj.subject.sum = mark.subject;
 							} else if (mark.topic !== 0) {
 								markObj.topic.count += 1;
 								markObj.topic.sum += mark.topic;
@@ -224,6 +232,17 @@ export const GroupSubjectMarkTable: React.FC<GroupSubjectMarkTableProps> = (
 
 	return (
 		<div className="fade-in-bck">
+			<Row justify="end">
+				<ExcelExporter
+					bufferFunction={() => {
+						return GroupSubjectMarkExport(props.group, subjects, classEvents);
+					}}
+					fileName={
+						`Навчальна група: ${props.group.company} рота, ${props.group.platoon} взвод: ` +
+						yearContext.year
+					}
+				></ExcelExporter>
+			</Row>
 			<Table
 				className="text-focus-in"
 				title={props.title}

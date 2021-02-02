@@ -12,7 +12,12 @@ import {
 } from "antd";
 import * as momentSpace from "moment";
 import moment from "moment";
-import React, { useEffect, useState, ChangeEventHandler } from "react";
+import React, {
+	useEffect,
+	useState,
+	ChangeEventHandler,
+	useContext,
+} from "react";
 
 import { Group } from "../../types/group";
 import { ConnectionManager } from "../../managers/connetion/connectionManager";
@@ -22,6 +27,7 @@ import { IndividualWork } from "../../types/individualWork";
 import { TransferDirection } from "antd/lib/transfer";
 import { Button } from "antd";
 import { group } from "console";
+import { YearContext } from "../../context/YearContext";
 
 momentSpace.locale("uk");
 
@@ -51,6 +57,8 @@ export const IndividualWorkCreator: React.FC<IndividualWorkCreatorProps> = (
 		groupId: 0,
 	});
 
+	const yearContext = useContext(YearContext);
+
 	const loadAllGroups = () => {
 		ConnectionManager.getInstance().registerResponseOnceHandler(
 			RequestType.GET_ALL_GROUPS,
@@ -67,7 +75,9 @@ export const IndividualWorkCreator: React.FC<IndividualWorkCreatorProps> = (
 				setGroups(dataMessage.data);
 			}
 		);
-		ConnectionManager.getInstance().emit(RequestType.GET_ALL_GROUPS, {});
+		ConnectionManager.getInstance().emit(RequestType.GET_ALL_GROUPS, {
+			year: yearContext.year,
+		});
 	};
 	useEffect(() => {
 		loadAllGroups();
@@ -154,10 +164,12 @@ export const IndividualWorkCreator: React.FC<IndividualWorkCreatorProps> = (
 						contentStyle={descriptionItemContentStyle}
 					>
 						<Transfer
-							dataSource={selectedGroup?.users.map((groupUser) => ({
-								key: groupUser.id.toString(),
-								title: groupUser.fullname,
-							}))}
+							dataSource={selectedGroup?.users
+								.sort((a, b) => (a.fullname < b.fullname ? -1 : 1))
+								.map((groupUser) => ({
+									key: groupUser.id.toString(),
+									title: groupUser.fullname,
+								}))}
 							render={(item) => (
 								<span className="custom-item">{item.title}</span>
 							)}

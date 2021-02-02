@@ -17,10 +17,14 @@ import {
 	Row,
 	Typography,
 	Empty,
+	Col,
 } from "antd";
 import { Group } from "../../types/group";
 import { GenerateGroupName } from "../../helpers/GroupHelper";
 import { YearContext } from "../../context/YearContext";
+import { ExcelExporter } from "../ui/excel-exporter/ExcelExporter";
+import { IndividualWorkExport } from "../ui/excel-exporter/exporters/IndividualWorkExporter";
+import { BackPage } from "../ui/BackPage";
 
 export interface StudentProcessProps {
 	userId: number;
@@ -36,6 +40,7 @@ export const TeacherIndividualWorks: React.FC<StudentProcessProps> = (
 ) => {
 	const [individualWorks, setIndividualWorks] = useState<IndividualWork[]>([]);
 	const [groups, setGroups] = useState<Group[]>([]);
+	const [userInfo, setUserInfo] = useState<User | undefined>(undefined);
 	const yearContext = useContext(YearContext);
 
 	const isAllWorksHasGroup = () => {
@@ -87,6 +92,21 @@ export const TeacherIndividualWorks: React.FC<StudentProcessProps> = (
 
 	useEffect(() => {
 		loadAllIndividualWorks();
+		ConnectionManager.getInstance().registerResponseOnceHandler(
+			RequestType.GET_USER_INFO,
+			(data) => {
+				const dataMessage = data as RequestMessage<User>;
+				if (dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR) {
+					console.log(`Error: ${dataMessage.requestCode}`);
+					return;
+				}
+				setUserInfo(dataMessage.data);
+			}
+		);
+		ConnectionManager.getInstance().emit(
+			RequestType.GET_USER_INFO,
+			props.userId
+		);
 	}, []);
 
 	if (
@@ -107,9 +127,9 @@ export const TeacherIndividualWorks: React.FC<StudentProcessProps> = (
 			title: "Навчальна група",
 			dataIndex: "group",
 			key: "group",
-			ellipsis: true,
-			width: "max-content",
-			fixed: "left",
+			// ellipsis: true,
+			// width: "max-content",
+			// fixed: "left",
 			render: (value, record: StudentProcessTableData) => {
 				return (
 					<Button type="link" style={{ width: "auto" }}>
@@ -124,8 +144,8 @@ export const TeacherIndividualWorks: React.FC<StudentProcessProps> = (
 			title: "Прізвища та ініціали",
 			dataIndex: "fullnames",
 			key: "fullnames",
-			ellipsis: true,
-			width: "max-content",
+			// ellipsis: true,
+			// width: "max-content",
 			render: (value, record: StudentProcessTableData) => {
 				return (
 					<div>
@@ -154,8 +174,13 @@ export const TeacherIndividualWorks: React.FC<StudentProcessProps> = (
 							})}
 						</Row>
 						<Row>
-							<Typography.Text strong>Зміст:</Typography.Text>{" "}
-							{record.work.content}
+							<Typography.Text strong>Зміст:</Typography.Text>
+							<Typography.Paragraph
+								ellipsis={{ rows: 3, symbol: "показати", expandable: true }}
+								style={{ wordBreak: "break-word", whiteSpace: "pre-wrap" }}
+							>
+								{record.work.content}
+							</Typography.Paragraph>
 						</Row>
 					</div>
 				);
@@ -163,6 +188,7 @@ export const TeacherIndividualWorks: React.FC<StudentProcessProps> = (
 			sorter: (a: StudentProcessTableData, b: StudentProcessTableData) =>
 				a.work.date < b.work.date ? -1 : 1,
 			defaultSortOrder: "descend",
+			width: "70%",
 		},
 	];
 
@@ -176,14 +202,37 @@ export const TeacherIndividualWorks: React.FC<StudentProcessProps> = (
 	);
 
 	return (
-		<div>
-			<Table
-				dataSource={tableData}
-				columns={columns}
-				bordered
-				style={{ width: "auto" }}
-				scroll={{ x: "max-content" }}
-			></Table>
+		<div style={{ margin: "1%" }} className="swing-in-top-fwd">
+			<Row justify="end">
+				<Col flex="10%">
+					<ExcelExporter
+						bufferFunction={() => {
+							return IndividualWorkExport(
+								tableData.map((d) =>
+									groups.find((gr) => gr.id === d.work.groupId)
+								),
+								tableData.map((d) => d.work)
+							);
+						}}
+						fileName={
+							userInfo.secondName +
+							" " +
+							userInfo.firstName +
+							": індивідуальна робота з курсантами"
+						}
+					></ExcelExporter>
+				</Col>
+			</Row>
+			<Divider></Divider>
+			<Row justify="center" style={{ marginBottom: "1" }}>
+				<Table
+					pagination={false}
+					dataSource={tableData}
+					columns={columns}
+					bordered
+					style={{ width: "90%" }}
+				></Table>
+			</Row>
 		</div>
 	);
 };

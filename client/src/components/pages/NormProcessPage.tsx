@@ -1,11 +1,13 @@
 import { Button, Col, DatePicker, Descriptions, Row, Select } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { GenerateGroupName } from "../../helpers/GroupHelper";
 import { ConnectionManager } from "../../managers/connetion/connectionManager";
 import { Group } from "../../types/group";
 import { RequestCode, RequestMessage, RequestType } from "../../types/requests";
 import { NormGroupProcessShower } from "../norm/NormGroupProcessShower";
 import { NormInfoDrawer } from "../norm/NormInfoDrawer";
+import { YearContext } from "../../context/YearContext";
+import { BackPage } from "../ui/BackPage";
 
 export const NormProcessPage: React.FC = () => {
 	const [rerender, setRerender] = useState<boolean>(false);
@@ -17,6 +19,7 @@ export const NormProcessPage: React.FC = () => {
 	const [selectedGroup, setSelectedGroup] = useState<Group | undefined>(
 		undefined
 	);
+	const yearContext = useContext(YearContext);
 
 	const loadAllGroups = () => {
 		ConnectionManager.getInstance().registerResponseOnceHandler(
@@ -31,7 +34,9 @@ export const NormProcessPage: React.FC = () => {
 				setGroups(dataMessage.data);
 			}
 		);
-		ConnectionManager.getInstance().emit(RequestType.GET_ALL_GROUPS, {});
+		ConnectionManager.getInstance().emit(RequestType.GET_ALL_GROUPS, {
+			year: yearContext.year,
+		});
 	};
 
 	useEffect(() => {
@@ -62,10 +67,10 @@ export const NormProcessPage: React.FC = () => {
 			setSelectedDate(undefined);
 		}
 	};
-
 	return (
 		<div>
-			<Row style={{ marginTop: "1%" }}>
+			<BackPage></BackPage>
+			<Row style={{ marginTop: "1%" }} className="swing-in-top-fwd">
 				<Col flex={"50%"}>
 					<Descriptions bordered style={{ width: "100%" }}>
 						<Descriptions.Item

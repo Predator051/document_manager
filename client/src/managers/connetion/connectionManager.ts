@@ -3,6 +3,7 @@ import { RequestType, RequestMessage, RequestCode } from "../../types/requests";
 import store from "../../app/store";
 import { setUserData } from "../../redux/slicers/accountSlice";
 import { User } from "../../types/user";
+import { message } from "antd";
 
 export class ConnectionManager {
 	private static instance: ConnectionManager;
@@ -28,6 +29,23 @@ export class ConnectionManager {
 					window.location.assign("/login");
 				}
 			});
+			ConnectionManager.instance.m_socket.on("disconnect", (reason: string) => {
+				setTimeout(() => {
+					if (!ConnectionManager.instance.m_socket.connected) {
+						message.error("Не має підключення до серверу!");
+					}
+				}, 2000);
+			});
+			ConnectionManager.instance.m_socket.on(
+				"connect_error",
+				(reason: string) => {
+					setTimeout(() => {
+						if (!ConnectionManager.instance.m_socket.connected) {
+							message.error("Не має підключення до серверу!");
+						}
+					}, 2000);
+				}
+			);
 		}
 
 		return ConnectionManager.instance;

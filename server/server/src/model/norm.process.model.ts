@@ -29,7 +29,7 @@ import e from "express";
 
 export class NormProcessModel {
 	public static async getProcessNorm(
-		request: RequestMessage<{ gr: Group; date: Date }>
+		request: RequestMessage<{ gr: Group; date: Date; year?: number }>
 	): Promise<RequestMessage<NormProcess | undefined>> {
 		const userEntity = await DBSessionManager.GetSession(request.session);
 		if (userEntity === undefined) {
@@ -43,7 +43,7 @@ export class NormProcessModel {
 		const normProcessEntities = await DBNormProcessManager.GetByUserAndGroup(
 			userEntity.user.id,
 			request.data.gr.id,
-			new Date(request.data.date).getFullYear()
+			request.data.year
 		);
 
 		const groupEntity = await DBGroupManager.GetById(request.data.gr.id);

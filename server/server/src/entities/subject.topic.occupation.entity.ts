@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
 import { SubjectTopicEntity } from "./subject.topic.entity";
 import { SubjectTopicOccupation } from "../types/subjectTopicOccupation";
+import { ObjectStatus } from "../types/constants";
 
 @Entity()
 export class SubjectTopicOccupationEntity {
@@ -13,6 +14,13 @@ export class SubjectTopicOccupationEntity {
 	@Column()
 	number: number;
 
+	@Column({
+		type: "enum",
+		enum: ObjectStatus,
+		default: ObjectStatus.NORMAL,
+	})
+	status: ObjectStatus;
+
 	@ManyToOne((type) => SubjectTopicEntity, (topic) => topic.occupations)
 	topic?: SubjectTopicEntity;
 
@@ -21,6 +29,7 @@ export class SubjectTopicOccupationEntity {
 			id: this.id,
 			number: this.number,
 			title: this.title,
+			status: this.status,
 		};
 	}
 }

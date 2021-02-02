@@ -91,6 +91,7 @@ export const MyClassesPage: React.FC = () => {
 	if (subjects.length < 1 || classEvents.length < 1 || groups.length < 1) {
 		return (
 			<div>
+				<BackPage></BackPage>
 				<Spin></Spin>
 			</div>
 		);
@@ -197,7 +198,7 @@ export const MyClassesPage: React.FC = () => {
 			},
 			filterMultiple: true,
 			sorter: (a: MyClassTableData, b: MyClassTableData) =>
-				a.data.date.getMilliseconds() - b.data.date.getMilliseconds(),
+				a.data.date < b.data.date ? -1 : 1,
 		},
 		{
 			title: "Дії",
@@ -235,13 +236,15 @@ export const MyClassesPage: React.FC = () => {
 	});
 
 	return (
-		<div>
+		<div className="swing-in-top-fwd">
 			<BackPage></BackPage>
 			<Row justify={"center"}>
 				<Table
 					columns={tableColumns}
 					dataSource={tableData}
 					style={{ width: "50%" }}
+					pagination={false}
+					size={"small"}
 				></Table>
 			</Row>
 		</div>

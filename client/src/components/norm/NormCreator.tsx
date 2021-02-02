@@ -7,13 +7,14 @@ import {
 	Select,
 	Tag,
 } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 
 import { ConnectionManager } from "../../managers/connetion/connectionManager";
 import { Norm } from "../../types/norm";
 import { RequestCode, RequestMessage, RequestType } from "../../types/requests";
 import { Subject } from "../../types/subject";
 import { ObjectStatus } from "../../types/constants";
+import { YearContext } from "../../context/YearContext";
 
 export interface NormCreatorProps {
 	onCreate: (norm: Norm) => void;
@@ -33,6 +34,7 @@ export const NormCreator: React.FC<NormCreatorProps> = (
 		status: ObjectStatus.NORMAL,
 	});
 	const [subjects, setSubjects] = useState<Subject[]>([]);
+	const yearContext = useContext(YearContext);
 
 	const loadAllSubjects = () => {
 		ConnectionManager.getInstance().registerResponseOnceHandler(
@@ -47,7 +49,9 @@ export const NormCreator: React.FC<NormCreatorProps> = (
 				setSubjects(dataMessage.data);
 			}
 		);
-		ConnectionManager.getInstance().emit(RequestType.GET_ALL_SUBJECTS, {});
+		ConnectionManager.getInstance().emit(RequestType.GET_ALL_SUBJECTS, {
+			year: yearContext.year,
+		});
 	};
 
 	useEffect(() => {

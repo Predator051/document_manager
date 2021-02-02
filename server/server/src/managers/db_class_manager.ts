@@ -2,6 +2,8 @@ import { getConnection, getRepository, SelectQueryBuilder } from "typeorm";
 import { ClassEventEntity } from "../entities/class.event.entity";
 import { GroupUserMarkEntity } from "../entities/group.user.mark.entity";
 import { getStartEndOfYear } from "../helpers/dateHelper";
+import { SubjectEntity } from "../entities/subject.entity";
+import { ObjectStatus } from "../types/constants";
 
 export class DBClassManager {
 	private static addRelations(
@@ -69,10 +71,19 @@ export class DBClassManager {
 			.where("user.id = :id", { id })
 			// TODO .andWhere()
 			.andWhere("class.date <= :end", { end })
-			.andWhere("class.date >= :start", { start })
-			.getMany();
+			.andWhere("class.date >= :start", { start });
 
-		return result;
+		if (year && year === new Date().getFullYear()) {
+			result
+				.leftJoinAndSelect(
+					SubjectEntity,
+					"subject",
+					"selectPath.subject = subject.id"
+				)
+				.andWhere("subject.status = :status", { status: ObjectStatus.NORMAL });
+		}
+
+		return result.getMany();
 	}
 
 	public static async GetClassesByGroupId(

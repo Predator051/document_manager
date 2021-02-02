@@ -9,6 +9,7 @@ import { SubjectTopicOccupationEntity } from "./subject.topic.occupation.entity"
 import { SubjectEntity } from "./subject.entity";
 import { SubjectTopic } from "../types/subjectTopic";
 import { SubjectTrainingProgramEntity } from "./subject.training.program.entity";
+import { ObjectStatus } from "../types/constants";
 
 @Entity()
 export class SubjectTopicEntity {
@@ -31,12 +32,20 @@ export class SubjectTopicEntity {
 	)
 	occupations: SubjectTopicOccupationEntity[];
 
+	@Column({
+		type: "enum",
+		enum: ObjectStatus,
+		default: ObjectStatus.NORMAL,
+	})
+	status: ObjectStatus;
+
 	public ToRequestObject(): SubjectTopic {
 		return {
 			id: this.id,
 			number: this.number,
 			title: this.title,
 			occupation: this.occupations.map((occ) => occ.ToRequestObject()),
+			status: this.status,
 		};
 	}
 }

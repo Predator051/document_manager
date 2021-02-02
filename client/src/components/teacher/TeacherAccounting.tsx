@@ -1,25 +1,28 @@
-import React, { useEffect, useState, useContext } from "react";
-import { User, UserType } from "../../types/user";
-import { ConnectionManager } from "../../managers/connetion/connectionManager";
-import { RequestType, RequestMessage, RequestCode } from "../../types/requests";
-import { AccountingTeacher } from "../../types/accountingTeacher";
-import { ColumnsType } from "antd/lib/table/interface";
-import {
-	Table,
-	Button,
-	Row,
-	Affix,
-	Modal,
-	message,
-	Typography,
-	Empty,
-	Spin,
-} from "antd";
 import "../../../node_modules/hover.css/css/hover.css";
-import { AccountingTeacherCreator } from "../accounting/AccountingTeacherCreator";
-import { STANDART_VALUES, STANDART_KEYS } from "../../types/constants";
 import "../../animations/text-focus-in.css";
+
+import {
+	Affix,
+	Button,
+	message,
+	Modal,
+	Row,
+	Spin,
+	Table,
+	Typography,
+} from "antd";
+import { ColumnsType } from "antd/lib/table/interface";
+import React, { useContext, useEffect, useState } from "react";
+
 import { isYearCurrent, YearContext } from "../../context/YearContext";
+import { ConnectionManager } from "../../managers/connetion/connectionManager";
+import { AccountingTeacher } from "../../types/accountingTeacher";
+import { STANDART_KEYS, STANDART_VALUES } from "../../types/constants";
+import { RequestCode, RequestMessage, RequestType } from "../../types/requests";
+import { User, UserType } from "../../types/user";
+import { AccountingTeacherCreator } from "../accounting/AccountingTeacherCreator";
+import { ExcelExporter } from "../ui/excel-exporter/ExcelExporter";
+import { TeacherAccountingExport } from "../ui/excel-exporter/exporters/TeacherAccountingExporter";
 
 export interface TeacherAccountingProps {
 	userId: number;
@@ -150,7 +153,11 @@ export const TeacherAccounting: React.FC<TeacherAccountingProps> = (
 				return (
 					<div
 						className="text-focus-in"
-						style={{ wordBreak: "break-word", width: "100%" }}
+						style={{
+							wordBreak: "break-word",
+							width: "100%",
+							whiteSpace: "pre-wrap",
+						}}
 					>
 						<Typography.Paragraph
 							ellipsis={{
@@ -288,27 +295,45 @@ export const TeacherAccounting: React.FC<TeacherAccountingProps> = (
 		});
 	};
 
+	if (user === undefined) {
+		return <Spin></Spin>;
+	}
+
 	return (
 		<div className="text-focus-in">
-			{me.userType === UserType.VIEWER && isYearCurrent(yearContext) ? (
-				<Row
-					justify="end"
-					align="bottom"
-					style={{ height: "auto", marginRight: "1%", marginBottom: "1%" }}
-				>
-					<Affix offsetTop={10}>
+			<Row
+				justify="end"
+				align="bottom"
+				style={{ height: "auto", marginRight: "1%", marginBottom: "1%" }}
+			>
+				<ExcelExporter
+					bufferFunction={() => {
+						return TeacherAccountingExport(
+							accountingTeachers,
+							standartValues.get(STANDART_KEYS.STANDART_VIEWER)
+						);
+					}}
+					fileName={
+						user.secondName +
+						" " +
+						user.firstName +
+						": результати контролю за ходом підготовки та ведення обліку"
+					}
+				></ExcelExporter>
+				{me.userType === UserType.VIEWER && isYearCurrent(yearContext) ? (
+					<Affix offsetTop={10} style={{ marginLeft: "1%" }}>
 						<Button
 							type="primary"
-							className="hvr-backward"
+							// className="hvr-backward"
 							onClick={onCreateClick}
 						>
 							Додати зауваження чи вказівку
 						</Button>
 					</Affix>
-				</Row>
-			) : (
-				<div></div>
-			)}
+				) : (
+					<div></div>
+				)}
+			</Row>
 			<Row justify="center" style={{ marginBottom: "1%" }}>
 				<Table
 					columns={columns}

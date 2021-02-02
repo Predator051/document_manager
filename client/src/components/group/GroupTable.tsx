@@ -1,7 +1,10 @@
-import { Table } from "antd";
+import { Table, Row } from "antd";
 import { ColumnsType } from "antd/lib/table/interface";
 import React from "react";
 import { GroupUser } from "../../types/groupUser";
+import { ExcelExporter } from "../ui/excel-exporter/ExcelExporter";
+import { GroupExport } from "../ui/excel-exporter/exporters/GroupExporter";
+import { Group } from "../../types/group";
 
 interface EditableCellProps {
 	onSave: (newValue: any) => void;
@@ -31,6 +34,9 @@ const GroupColumns = () => {
 			render: (current: any, record: GroupTableData) => {
 				return <div>{record.data.fullname}</div>;
 			},
+			sorter: (a: GroupTableData, b: GroupTableData) =>
+				a.data.fullname < b.data.fullname ? -1 : 1,
+			defaultSortOrder: "ascend",
 		},
 		{
 			title: "Військове звання",
@@ -62,25 +68,33 @@ const GroupColumns = () => {
 };
 
 export interface GroupTableProps {
-	userGroups: GroupUser[];
+	userGroups: Group;
 	title?: (data: any[]) => React.ReactNode;
 }
 
 export const GroupTable: React.FC<GroupTableProps> = (
 	props: GroupTableProps
 ) => {
-	const tableData: GroupTableData[] = props.userGroups
+	const tableData: GroupTableData[] = props.userGroups.users
 		.sort((a, b) => (a.fullname < b.fullname ? -1 : 1))
 		.map(
 			(ug, index) =>
 				({
 					data: ug,
-					index: index,
+					index: index + 1,
 				} as GroupTableData)
 		);
 
 	return (
 		<div>
+			<Row justify="end">
+				<ExcelExporter
+					bufferFunction={() => {
+						return GroupExport(props.userGroups);
+					}}
+					fileName={`${props.userGroups.company} рота, ${props.userGroups.platoon} взвод, ВОС ${props.userGroups.mrs}`}
+				></ExcelExporter>
+			</Row>
 			<Table
 				title={props.title}
 				pagination={false}

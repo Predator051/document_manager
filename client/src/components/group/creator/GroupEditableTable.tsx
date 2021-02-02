@@ -177,7 +177,7 @@ export const EditableGroupTable: React.FC<EditableGroupTableProps> = (
 			(ug, index) =>
 				({
 					data: ug,
-					index: index,
+					index: index + 1,
 				} as EditableGroupTableData)
 		);
 

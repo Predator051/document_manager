@@ -1,16 +1,18 @@
-import React, { useState } from "react";
-import { Button, Form, Input } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
-import logo from "./title.png";
-import { ConnectionManager } from "../../managers/connetion/connectionManager";
-import { useDispatch, useSelector } from "react-redux";
-import { selectAccount, setUserData } from "../../redux/slicers/accountSlice";
+import { Button, Form, Input } from "antd";
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import styles from "./login.module.css";
+
+import { ConnectionManager } from "../../managers/connetion/connectionManager";
+import { setUserData } from "../../redux/slicers/accountSlice";
+import { RequestCode, RequestMessage, RequestType } from "../../types/requests";
 import { User } from "../../types/user";
-import { RequestMessage, RequestCode, RequestType } from "../../types/requests";
 import { ErrorBox } from "../error/Error";
 import { HREFS } from "../menu/Menu";
+import { SiteHREFS } from "../site/Site";
+import styles from "./login.module.css";
+import logo from "./title.png";
 
 export function Login() {
 	const dispatch = useDispatch();
@@ -34,8 +36,16 @@ export function Login() {
 				setErrorData("");
 				dispatch(setUserData(dataMessage.data));
 				localStorage.setItem("user", JSON.stringify(dataMessage.data));
-				history.push(HREFS.MAIN_MENU);
-				window.location.reload(true);
+				if (
+					dataMessage.requestCode ===
+					RequestCode.RES_CODE_EQUAL_PASSWORD_AND_LOGIN
+				) {
+					history.push(SiteHREFS.NEED_CHANGE_PASSWORD);
+					window.location.reload(true);
+				} else {
+					history.push(HREFS.MAIN_MENU);
+					window.location.reload(true);
+				}
 			}
 		);
 		ConnectionManager.getInstance().emit(RequestType.LOGIN, data);
