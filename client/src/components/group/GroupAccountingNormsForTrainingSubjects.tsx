@@ -35,7 +35,7 @@ interface GroupTableData {
 }
 
 export interface GroupAccountingNormsForTrainingSubjectsProps {
-	title?: (data: any[]) => React.ReactNode;
+	title?: (data: any) => React.ReactNode;
 	group: Group;
 }
 
@@ -199,89 +199,108 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 			width: "auto",
 		},
 	];
-	const filteredNormProcesses = normProcesses.filter((normProcess) => {
-		normProcess.marks = normProcess.marks.filter((mark) =>
-			norms.some((norm) => norm.id === mark.normId)
-		);
 
-		return normProcess.marks.length > 0;
-	});
+	if (selectedSubject) {
+		console.log();
 
-	if (filteredNormProcesses.length > 0 && selectedSubject) {
-		normProcessColumns = filteredNormProcesses.map((process) => {
-			const date = new Date(process.date);
-			const foundUser = users.find((u) => u.id === process.user);
-			return {
-				title: (
-					<div>
-						<Tooltip
-							title={
-								<div>
-									<Row>
-										Викладач: {foundUser.secondName} {foundUser.firstName} -{" "}
-										{foundUser.cycle.title}
-									</Row>
-								</div>
-							}
-							style={{
-								width: "auto",
-							}}
-						>
-							{date.toLocaleDateString("uk", {
-								year: "2-digit",
-								month: "2-digit",
-								day: "2-digit",
-							})}
-						</Tooltip>
-					</div>
-				),
-				key: date.toLocaleDateString(),
-				dataIndex: date.toLocaleDateString(),
-				children: [
-					{
-						title: "Оцінка за норматив",
-						key: process.id,
-						dataIndex: process.id,
-						children: [
-							...norms
-								.filter((n) => {
-									return (
-										process.marks.findIndex((m) => m.normId === n.id) >= 0 &&
-										n.subjectId === selectedSubject.id
-									);
-								})
-								.map((norm, index, self) => {
-									return {
-										title: (
-											<div>
-												<Tooltip title="Клік для подробиць">
-													<Button
-														type="link"
-														onClick={() => {
-															onNormClick(norm.id);
-														}}
-													>
-														№ {norm.number}
-													</Button>
-												</Tooltip>
-											</div>
-										),
-										key: norm.number + process.id,
-										dataIndex: norm.number + process.id,
-										render: (value, record: GroupTableData) => {
-											const currMark = process.marks.find(
-												(m) =>
-													m.normId === norm.id && m.userId === record.data.id
-											);
-											return <div>{currMark?.mark}</div>;
-										},
-									} as ColumnGroupType<any> | ColumnType<any>;
-								}),
-						],
-					},
-				],
-			} as ColumnGroupType<any> | ColumnType<any>;
+		const filteredNormProcesses = normProcesses.filter((normProcess) => {
+			const marks = normProcess.marks.filter(
+				(mark) =>
+					norms.some(
+						(norm) =>
+							norm.id === mark.normId && norm.subjectId === selectedSubject.id
+					) && props.group.users.findIndex((u) => u.id === mark.userId) >= 0
+			);
+
+			return marks.length > 0;
 		});
+
+		console.log(
+			"filteredNormProcesses",
+			filteredNormProcesses,
+			"selected subject",
+			selectedSubject,
+			"group",
+			props.group,
+			"norms",
+			norms
+		);
+		if (filteredNormProcesses.length > 0) {
+			normProcessColumns = filteredNormProcesses.map((process) => {
+				const date = new Date(process.date);
+				const foundUser = users.find((u) => u.id === process.user);
+				return {
+					title: (
+						<div>
+							<Tooltip
+								title={
+									<div>
+										<Row>
+											Викладач: {foundUser.secondName} {foundUser.firstName} -{" "}
+											{foundUser.cycle.title}
+										</Row>
+									</div>
+								}
+								style={{
+									width: "auto",
+								}}
+							>
+								{date.toLocaleDateString("uk", {
+									year: "2-digit",
+									month: "2-digit",
+									day: "2-digit",
+								})}
+							</Tooltip>
+						</div>
+					),
+					key: date.toLocaleDateString(),
+					dataIndex: date.toLocaleDateString(),
+					children: [
+						{
+							title: "Оцінка за норматив",
+							key: process.id,
+							dataIndex: process.id,
+							children: [
+								...norms
+									.filter((n) => {
+										return (
+											n.subjectId === selectedSubject.id &&
+											process.marks.findIndex((m) => m.normId === n.id) >= 0
+										);
+									})
+									.map((norm, index, self) => {
+										return {
+											title: (
+												<div>
+													<Tooltip title="Клік для подробиць">
+														<Button
+															type="link"
+															onClick={() => {
+																onNormClick(norm.id);
+															}}
+														>
+															№ {norm.number}
+														</Button>
+													</Tooltip>
+												</div>
+											),
+											key: norm.number + process.id,
+											dataIndex: norm.number + process.id,
+											render: (value, record: GroupTableData) => {
+												const currMark = process.marks.find(
+													(m) =>
+														m.normId === norm.id && m.userId === record.data.id
+												);
+												return <div>{currMark?.mark}</div>;
+											},
+										} as ColumnGroupType<any> | ColumnType<any>;
+									}),
+							],
+						},
+					],
+				} as ColumnGroupType<any> | ColumnType<any>;
+			});
+		}
 	}
 
 	const columns: ColumnsType<any> = [
@@ -311,6 +330,7 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 		},
 		...normProcessColumns,
 	];
+	console.log("normProcessColumns", normProcessColumns);
 
 	const descriptionItemLabelStyle: React.CSSProperties = {
 		width: "45%",
@@ -358,11 +378,19 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 									selectedSubject,
 									norms,
 									normProcesses.filter((normProcess) => {
-										normProcess.marks = normProcess.marks.filter((mark) =>
-											norms.some((norm) => norm.id === mark.normId)
+										const marks = normProcess.marks.filter(
+											(mark) =>
+												norms.some(
+													(norm) =>
+														norm.id === mark.normId &&
+														norm.subjectId === selectedSubject.id
+												) &&
+												props.group.users.findIndex(
+													(u) => u.id === mark.userId
+												) >= 0
 										);
 
-										return normProcess.marks.length > 0;
+										return marks.length > 0;
 									})
 								);
 							}}

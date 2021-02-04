@@ -7,7 +7,7 @@ import React, { useEffect, useState } from "react";
 import { GroupUser } from "../../../types/groupUser";
 
 interface EditableCellProps {
-	onSave: (newValue: any) => void;
+	onChange: (newValue: any) => void;
 	editComponent: JSX.Element;
 	value: any;
 }
@@ -27,9 +27,9 @@ const EditableCell: React.FC<EditableCellProps> = (
 		wrapperCol: { offset: 0, span: 0 },
 	};
 	const onFinish = (values: any) => {
-		props.onSave(values.note);
+		props.onChange(values.note);
 		setOldValue(values.note);
-		setEditing(false);
+		// setEditing(false);
 	};
 
 	const onCancel = () => {
@@ -47,35 +47,23 @@ const EditableCell: React.FC<EditableCellProps> = (
 		setOldValue(props.value);
 	}, []);
 
+	const onValuesChange = (changedValues: any, values: any) => {
+		onFinish(values);
+	};
+
 	return (
 		<div>
-			{editing ? (
-				<Form
-					{...layout}
-					form={form}
-					name="control-hooks"
-					onFinish={onFinish}
-					size="small"
-					layout="inline"
-				>
-					<Form.Item name="note">{props.editComponent}</Form.Item>
-					<Form.Item {...tailLayout}>
-						<Button
-							// type="primary"
-							htmlType="submit"
-							icon={<CheckOutlined />}
-						></Button>
-						<Button
-							htmlType="button"
-							icon={<CloseOutlined />}
-							danger
-							onClick={onCancel}
-						></Button>
-					</Form.Item>
-				</Form>
-			) : (
-				<div onClick={() => setEditing(true)}>{form.getFieldValue("note")}</div>
-			)}
+			<Form
+				{...layout}
+				form={form}
+				name="control-hooks"
+				onFinish={onFinish}
+				size="small"
+				layout="inline"
+				onValuesChange={onValuesChange}
+			>
+				<Form.Item name="note">{props.editComponent}</Form.Item>
+			</Form>
 		</div>
 	);
 };
@@ -102,8 +90,8 @@ const EditableGroupColumns = () => {
 			render: (current: any, record: EditableGroupTableData) => {
 				return (
 					<EditableCell
-						editComponent={<Input></Input>}
-						onSave={(value: any) => {
+						editComponent={<Input bordered={false}></Input>}
+						onChange={(value: any) => {
 							record.data.fullname = value;
 						}}
 						value={record.data.fullname}
@@ -118,8 +106,8 @@ const EditableGroupColumns = () => {
 			render: (current: any, record: EditableGroupTableData) => {
 				return (
 					<EditableCell
-						editComponent={<Input></Input>}
-						onSave={(value: any) => {
+						editComponent={<Input bordered={false}></Input>}
+						onChange={(value: any) => {
 							record.data.rank = value;
 						}}
 						value={record.data.rank}
@@ -134,8 +122,8 @@ const EditableGroupColumns = () => {
 			render: (current: any, record: EditableGroupTableData) => {
 				return (
 					<EditableCell
-						editComponent={<Input></Input>}
-						onSave={(value: any) => {
+						editComponent={<Input bordered={false}></Input>}
+						onChange={(value: any) => {
 							record.data.birthday = value;
 						}}
 						value={record.data.birthday}
@@ -150,8 +138,8 @@ const EditableGroupColumns = () => {
 			render: (current: any, record: EditableGroupTableData) => {
 				return (
 					<EditableCell
-						editComponent={<Input></Input>}
-						onSave={(value: any) => {
+						editComponent={<Input bordered={false}></Input>}
+						onChange={(value: any) => {
 							record.data.education = value;
 						}}
 						value={record.data.education}

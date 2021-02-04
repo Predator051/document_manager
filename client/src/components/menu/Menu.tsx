@@ -1,27 +1,35 @@
-import { HomeOutlined } from "@ant-design/icons";
-import { Button, Col, Layout, Menu, Row } from "antd";
+import "../../animations/fade-in.css";
+
+import {
+	HomeOutlined,
+	FileTextOutlined,
+	AppstoreAddOutlined,
+	FolderAddOutlined,
+	PushpinOutlined,
+	AppstoreOutlined,
+} from "@ant-design/icons";
+import { Col, Layout, Menu, Row, Typography } from "antd";
 import React from "react";
 import { Route, useHistory } from "react-router-dom";
 
+import { User } from "../../types/user";
 import { CreateNewClassPage } from "../class/create.new.class/CreateNewClass";
+import { ProfileEditPage } from "../login/EditProfile";
 import { ExtractClassesPage } from "../pages/ExtractClassesPage";
 import { MyClassesPage } from "../pages/MyClassesPage";
 import { MyJournalPage } from "../pages/MyJournalPage";
 import { NormProcessPage } from "../pages/NormProcessPage";
 import { ShowClassPage } from "../pages/ShowClassPage";
+import { ShowIndividualWorksPage } from "../pages/ShowIndividualWorksPage";
+import { AccountingTeacherPage } from "../pages/TeacherAccountingPage";
+import { TeacherGroupsNormPage } from "../pages/TeacherGroupsNormPage";
 import { TeacherGroupsSubjectPage } from "../pages/TeacherGroupsSubjectPage";
+import { SiteHREFS } from "../site/Site";
+import { StudentProcess } from "../student/StudentProcess";
 import { TeacherJournalHREFS } from "../teacher/TeacherJournal";
 import { UserMenu } from "../user/menu/UserMenu";
-import styles from "./menu.module.css";
-import { StudentProcess } from "../student/StudentProcess";
-import { ShowIndividualWorksPage } from "../pages/ShowIndividualWorksPage";
-import { User } from "../../types/user";
-import { AccountingTeacherPage } from "../pages/TeacherAccountingPage";
 
-import "../../animations/fade-in.css";
-import { ProfileEditPage } from "../login/EditProfile";
-import { SiteHREFS } from "../site/Site";
-import { TeacherGroupsNormPage } from "../pages/TeacherGroupsNormPage";
+import { ReactComponent as IconNotepad } from "../../images/icons/Notepad.svg";
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -71,9 +79,9 @@ export const MainMenu: React.FC = (props: any) => {
 								defaultSelectedKeys={["1"]}
 								style={headerStyle}
 							>
-								<Menu.Item key="2">
+								{/* <Menu.Item key="2">
 									<a href={HREFS.MY_CLASSES}>Мої заняття</a>
-								</Menu.Item>
+								</Menu.Item> */}
 								<Menu.Item key="1">
 									<UserMenu name={me.login}></UserMenu>
 								</Menu.Item>
@@ -81,60 +89,73 @@ export const MainMenu: React.FC = (props: any) => {
 						</Col>
 					</Row>
 				</Header>
-				<Content style={{ margin: "0 16px" }}>
-					<Route exact path={[HREFS.MAIN_MENU, "/"]}>
-						<div
-							className="fade-in-bottom"
-							style={{ width: "100%", height: "100%", marginTop: "5%" }}
+				<Content style={{ margin: "0 0" }}>
+					<Menu
+						theme="light"
+						mode="horizontal"
+						defaultSelectedKeys={[window.location.pathname]}
+						style={{
+							display: "flex",
+							justifyContent: "space-between",
+						}}
+					>
+						<Menu.Item
+							onClick={() => {
+								history.push(HREFS.MY_JOURNAL_PAGE);
+							}}
+							key={HREFS.MY_JOURNAL_PAGE}
+							icon={<FileTextOutlined></FileTextOutlined>}
 						>
-							<Button
-								className={styles.mainMenuButton}
-								style={{ backgroundColor: "#52c41a" }}
-								onClick={() => {
-									history.push(HREFS.MY_JOURNAL_PAGE);
-								}}
-							>
-								Переглянути мій журнал
-							</Button>
-							<Button
-								className={styles.mainMenuButton}
-								style={{ backgroundColor: "#2f54eb" }}
-								onClick={() => {
-									history.push(HREFS.CREATE_NEW_CLASS);
-								}}
-							>
-								Створити нове заняття
-							</Button>
-							<Button
-								className={styles.mainMenuButton}
-								style={{ backgroundColor: "#fadb14" }}
-								onClick={() => {
-									history.push(HREFS.NORM_PROCESS_PAGE);
-								}}
-							>
-								Заповнити виконання нормативів
-							</Button>
-							<Button
-								className={styles.mainMenuButton}
-								style={{ backgroundColor: "#722ed1" }}
-								onClick={() => {
-									history.push(HREFS.STUDENT_PROCESS);
-								}}
-							>
-								Додаткова робота з курсантами
-							</Button>
+							<Typography.Text strong>
+								{"Переглянути мій журнал".toUpperCase()}
+							</Typography.Text>
+						</Menu.Item>
+						<Menu.Item
+							onClick={() => {
+								history.push(HREFS.CREATE_NEW_CLASS);
+							}}
+							key={HREFS.CREATE_NEW_CLASS}
+							icon={<AppstoreAddOutlined></AppstoreAddOutlined>}
+						>
+							<Typography.Text strong>
+								{"Створити нове заняття".toUpperCase()}
+							</Typography.Text>
+						</Menu.Item>
+						<Menu.Item
+							onClick={() => {
+								history.push(HREFS.NORM_PROCESS_PAGE);
+							}}
+							key={HREFS.NORM_PROCESS_PAGE}
+							icon={<FolderAddOutlined></FolderAddOutlined>}
+						>
+							<Typography.Text strong>
+								{"Заповнити виконання нормативів".toUpperCase()}
+							</Typography.Text>
+						</Menu.Item>
+						<Menu.Item
+							onClick={() => {
+								history.push(HREFS.STUDENT_PROCESS);
+							}}
+							key={HREFS.STUDENT_PROCESS}
+							icon={<PushpinOutlined></PushpinOutlined>}
+						>
+							<Typography.Text strong>
+								{"Додаткова робота з курсантами".toUpperCase()}
+							</Typography.Text>
+						</Menu.Item>
 
-							<Button
-								className={styles.mainMenuButton}
-								style={{ backgroundColor: "#13c2c2" }}
-								onClick={() => {
-									history.push(HREFS.MY_CLASSES);
-								}}
-							>
-								Мої заняття
-							</Button>
-						</div>
-					</Route>
+						<Menu.Item
+							onClick={() => {
+								history.push(HREFS.MY_CLASSES);
+							}}
+							key={HREFS.MY_CLASSES}
+							icon={<AppstoreOutlined></AppstoreOutlined>}
+						>
+							<Typography.Text strong>
+								{"Мої заняття".toUpperCase()}
+							</Typography.Text>
+						</Menu.Item>
+					</Menu>
 					<Route path={HREFS.CREATE_NEW_CLASS}>
 						<CreateNewClassPage></CreateNewClassPage>
 					</Route>
@@ -181,7 +202,7 @@ export const MainMenu: React.FC = (props: any) => {
 					<Route path={HREFS.NORM_PROCESS_PAGE}>
 						<NormProcessPage></NormProcessPage>
 					</Route>
-					<Route path={HREFS.MY_JOURNAL_PAGE}>
+					<Route path={[HREFS.MY_JOURNAL_PAGE, "/main"]}>
 						<MyJournalPage></MyJournalPage>
 					</Route>
 					<Route path={HREFS.STUDENT_PROCESS}>

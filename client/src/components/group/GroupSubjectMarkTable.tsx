@@ -31,7 +31,7 @@ interface GroupTableData {
 
 interface GroupSubjectMarkTableProps {
 	group: Group;
-	title?: (data: GroupTableData[]) => React.ReactNode;
+	title?: (data: any) => React.ReactNode;
 }
 
 export interface MarkObj {

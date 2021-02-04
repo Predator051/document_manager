@@ -157,7 +157,7 @@ export const StudentProcess: React.FC<StudentProcessProps> = (
 		return (
 			<div>
 				<BackPage></BackPage>
-				<Row style={{ width: "30%" }}>
+				<Row style={{ width: "100%" }} justify="center">
 					<Col flex="auto">
 						<Button
 							type={"dashed"}

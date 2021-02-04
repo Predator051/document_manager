@@ -1,7 +1,8 @@
 import "../../../node_modules/hover.css/css/hover.css";
 import "../../animations/fade-in.css";
+import "./fixes.css";
 
-import { PageHeader } from "antd";
+import { PageHeader, Typography } from "antd";
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 
@@ -16,7 +17,7 @@ export const BackPage: React.FC = () => {
 						onBack={() => {
 							window.history.back();
 						}}
-						title={"Назад"}
+						title={<Typography.Text>Назад</Typography.Text>}
 					></PageHeader>
 				</div>
 			)}

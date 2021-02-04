@@ -42,7 +42,7 @@ interface GroupTableData {
 }
 
 export interface GroupAccountingClassesFromTrainingSubjectsProps {
-	title?: (data: any[]) => React.ReactNode;
+	title?: () => React.ReactNode;
 	group: Group;
 }
 

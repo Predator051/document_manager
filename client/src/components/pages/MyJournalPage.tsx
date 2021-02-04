@@ -7,8 +7,8 @@ import { BackPage } from "../ui/BackPage";
 export const MyJournalPage: React.FC = () => {
 	const me = JSON.parse(localStorage.getItem("user")) as User;
 	return (
-		<div>
-			<BackPage></BackPage>
+		<div style={{ marginTop: "1%" }}>
+			{/* <BackPage></BackPage> */}
 			<TeacherJournal userId={me.id}></TeacherJournal>
 		</div>
 	);

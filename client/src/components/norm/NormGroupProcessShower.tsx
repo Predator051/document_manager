@@ -13,7 +13,13 @@ import {
 	Tooltip,
 } from "antd";
 import { ColumnsType } from "antd/lib/table/interface";
-import React, { useEffect, useState, useRef, useContext } from "react";
+import React, {
+	useEffect,
+	useState,
+	useRef,
+	useContext,
+	ReactText,
+} from "react";
 
 import { ConnectionManager } from "../../managers/connetion/connectionManager";
 import { Group } from "../../types/group";
@@ -29,83 +35,36 @@ import { YearContext } from "../../context/YearContext";
 import { NormInfoShower } from "./NormInfoShower";
 
 interface EditableCellProps {
-	onSave: (newValue: any) => void;
-	editComponent: JSX.Element;
+	onChange: (newValue: any) => void;
 	value: any;
 }
 
 const EditableCell: React.FC<EditableCellProps> = (
 	props: EditableCellProps
 ) => {
-	const [editing, setEditing] = useState<boolean>(false);
-	const [form] = Form.useForm();
-	const [oldValue, setOldValue] = useState<typeof props.value>();
+	const [counter, setCounter] = useState<number>(props.value);
 
-	const layout = {
-		labelCol: { span: 0 },
-		wrapperCol: { span: 0 },
-	};
-	const tailLayout = {
-		wrapperCol: { offset: 0, span: 0 },
-	};
-	const onFinish = (values: any) => {
-		props.onSave(values.note);
-		setOldValue(values.note);
-		setEditing(false);
-	};
-
-	const onCancel = () => {
-		form.setFieldsValue({ note: oldValue });
-		setEditing(false);
-	};
-
-	useEffect(() => {
-		setOldValue(props.value);
-		form.setFieldsValue({ note: props.value });
-	}, []);
-
-	const colorByMark = (mark: number) => {
-		if (mark === 5) return "#87d068";
-		if (mark === 4) return "#108ee9";
-		if (mark === 3) return "#2db7f5";
-		if (mark === 2) return "#f50";
-		if (mark === 1) return "#cd201f";
-		return "default";
+	const onValuesChange = (value: React.ReactText) => {
+		if (value && value.toString() !== "") {
+			const intValue = parseInt(value.toString());
+			if (intValue <= 5 && intValue >= 0) {
+				props.onChange(intValue);
+				setCounter(intValue);
+			}
+		}
 	};
 
 	return (
 		<div>
-			{editing ? (
-				<Form
-					{...layout}
-					form={form}
-					name="control-hooks"
-					onFinish={onFinish}
-					size="small"
-					layout="inline"
-				>
-					<Form.Item name="note">{props.editComponent}</Form.Item>
-					<Form.Item {...tailLayout}>
-						<Button
-							// type="primary"
-							htmlType="submit"
-							icon={<CheckOutlined />}
-						></Button>
-						<Button
-							htmlType="button"
-							icon={<CloseOutlined />}
-							danger
-							onClick={onCancel}
-						></Button>
-					</Form.Item>
-				</Form>
-			) : (
-				<div onClick={() => setEditing(true)}>
-					<Tag color={colorByMark(form.getFieldValue("note"))}>
-						{form.getFieldValue("note")}
-					</Tag>
-				</div>
-			)}
+			<InputNumber
+				min={0}
+				max={5}
+				bordered={false}
+				onChange={onValuesChange}
+				value={counter}
+				style={{ width: "100%" }}
+				size="small"
+			></InputNumber>
 		</div>
 	);
 };
@@ -339,18 +298,19 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 				if (!foundMark) return <div>Не заватажилось</div>;
 				return (
 					<EditableCell
-						editComponent={<InputNumber min={0} max={5}></InputNumber>}
 						value={foundMark.mark}
-						onSave={(value: number) => {
+						onChange={(value: number) => {
+							console.log("value", value);
+
 							foundMark.mark = value;
 							buttonUpdateRef.current.focus();
-							setNormProcess({
-								...normProcess,
-								marks: [
-									...normProcess.marks.filter((m) => m.id !== foundMark.id),
-									foundMark,
-								],
-							});
+							// setNormProcess({
+							// 	...normProcess,
+							// 	marks: [
+							// 		...normProcess.marks.filter((m) => m.id !== foundMark.id),
+							// 		foundMark,
+							// 	],
+							// });
 						}}
 					></EditableCell>
 				);
@@ -385,9 +345,6 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 					type="primary"
 					onClick={onUpdateProcessClick}
 					className="hvr-buzz-out"
-					onAnimationEnd={(event) => {
-						console.log("target anim", event.currentTarget);
-					}}
 					ref={buttonUpdateRef}
 				>
 					ОНОВИТИ ЗМІНИ ЗА ОБРАНУ ДАТУ

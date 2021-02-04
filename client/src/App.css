@@ -31,10 +31,19 @@
   0% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(10px)
   }
+
   100% {
     transform: translateY(0px)
   }
+}
+
+.ant-layout {
+  background: rgba(0, 242, 245, 0);
+  background-color: "none" !important;
+  background-image: url(/25928.jpg) !important;
+  background-size: 100% 100% !important;
 }

@@ -69,7 +69,7 @@ const GroupColumns = () => {
 
 export interface GroupTableProps {
 	userGroups: Group;
-	title?: (data: any[]) => React.ReactNode;
+	title?: (data: any) => React.ReactNode;
 }
 
 export const GroupTable: React.FC<GroupTableProps> = (

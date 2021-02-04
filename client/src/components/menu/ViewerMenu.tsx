@@ -154,8 +154,8 @@ export const ViewerMenu: React.FC = (props: any) => {
 								<Tabs.TabPane
 									tab={
 										<span>
-											<OrderedListOutlined></OrderedListOutlined>Список
-											навчальних груп
+											<OrderedListOutlined></OrderedListOutlined>Облік занять з
+											предметів підготовки
 										</span>
 									}
 									key="2"
@@ -212,6 +212,7 @@ export const ViewerMenu: React.FC = (props: any) => {
 							</Tabs>
 						</div>
 					</Route>
+
 					<Route
 						path={VIEWER_HREFS.JOURNAL + ":id"}
 						render={(props) => <JournalPage {...props}></JournalPage>}

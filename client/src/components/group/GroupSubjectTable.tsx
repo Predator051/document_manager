@@ -33,7 +33,7 @@ interface GroupTableData {
 export interface GroupSubjectTableProps {
 	// userGroups: GroupUser[];
 	userId: number;
-	title?: (data: any[]) => React.ReactNode;
+	title?: (data: any) => React.ReactNode;
 	group: Group;
 	subject: Subject;
 	classEvents: ClassEvent[];

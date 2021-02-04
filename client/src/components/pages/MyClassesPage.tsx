@@ -199,6 +199,7 @@ export const MyClassesPage: React.FC = () => {
 			filterMultiple: true,
 			sorter: (a: MyClassTableData, b: MyClassTableData) =>
 				a.data.date < b.data.date ? -1 : 1,
+			defaultSortOrder: "descend",
 		},
 		{
 			title: "Дії",
@@ -236,7 +237,7 @@ export const MyClassesPage: React.FC = () => {
 	});
 
 	return (
-		<div className="swing-in-top-fwd">
+		<div className="swing-in-top-fwd" style={{ margin: "5px" }}>
 			<BackPage></BackPage>
 			<Row justify={"center"}>
 				<Table

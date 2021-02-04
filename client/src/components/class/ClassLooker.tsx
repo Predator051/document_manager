@@ -23,78 +23,42 @@ import {
 } from "../../types/groupUserPresence";
 import { RequestCode, RequestMessage, RequestType } from "../../types/requests";
 import { Subject } from "../../types/subject";
+import Checkbox from "antd/lib/checkbox/Checkbox";
 
 interface EditableCellProps {
-	onSave: (newValue: any) => void;
-	editComponent: JSX.Element;
+	onChange: (newValue: any) => void;
 	value: any;
 }
 
 const EditableCell: React.FC<EditableCellProps> = (
 	props: EditableCellProps
 ) => {
-	const [editing, setEditing] = useState<boolean>(false);
-	const [form] = Form.useForm();
-	const [oldValue, setOldValue] = useState<typeof props.value>();
+	const [counter, setCounter] = useState<number>(props.value);
 
-	const layout = {
-		labelCol: { span: 0 },
-		wrapperCol: { span: 0 },
+	const onValuesChange = (value: React.ReactText) => {
+		if (value && value.toString() !== "") {
+			const intValue = parseInt(value.toString());
+			if (intValue <= 5 && intValue >= 0) {
+				props.onChange(intValue);
+				setCounter(intValue);
+			}
+		}
 	};
-	const tailLayout = {
-		wrapperCol: { offset: 0, span: 0 },
-	};
-	const onFinish = (values: any) => {
-		props.onSave(values.note);
-		setOldValue(values.note);
-		setEditing(false);
-	};
-
-	const onCancel = () => {
-		form.setFieldsValue({ note: oldValue });
-		setEditing(false);
-	};
-
-	useEffect(() => {
-		setOldValue(props.value);
-		form.setFieldsValue({ note: props.value });
-	}, []);
 
 	return (
 		<div>
-			{editing ? (
-				<Form
-					{...layout}
-					form={form}
-					name="control-hooks"
-					onFinish={onFinish}
-					size="small"
-					layout="inline"
-				>
-					<Form.Item name="note">{props.editComponent}</Form.Item>
-					<Form.Item {...tailLayout}>
-						<Button
-							// type="primary"
-							htmlType="submit"
-							icon={<CheckOutlined />}
-						></Button>
-						<Button
-							htmlType="button"
-							icon={<CloseOutlined />}
-							danger
-							onClick={onCancel}
-						></Button>
-					</Form.Item>
-				</Form>
-			) : (
-				<div style={{ width: "100%" }} onClick={() => setEditing(true)}>
-					{form.getFieldValue("note")}
-				</div>
-			)}
+			<InputNumber
+				min={0}
+				max={5}
+				bordered={false}
+				onChange={onValuesChange}
+				value={counter}
+				style={{ width: "100%" }}
+				size="small"
+			></InputNumber>
 		</div>
 	);
 };
-
 interface ClassLookerProps {
 	class: ClassEvent;
 }
@@ -173,8 +137,7 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 			render: (value, record: ClassLookerTableData) => {
 				return (
 					<EditableCell
-						editComponent={<InputNumber min={0} max={5}></InputNumber>}
-						onSave={(value: any) => {
+						onChange={(value: any) => {
 							record.presenceData.mark.current = value;
 						}}
 						value={record.presenceData.mark.current}
@@ -189,8 +152,7 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 			render: (value, record: ClassLookerTableData) => {
 				return (
 					<EditableCell
-						editComponent={<InputNumber min={0} max={5}></InputNumber>}
-						onSave={(value: any) => {
+						onChange={(value: any) => {
 							record.presenceData.mark.topic = value;
 						}}
 						value={record.presenceData.mark.topic}
@@ -205,8 +167,7 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 			render: (value, record: ClassLookerTableData) => {
 				return (
 					<EditableCell
-						editComponent={<InputNumber min={0} max={5}></InputNumber>}
-						onSave={(value: any) => {
+						onChange={(value: any) => {
 							record.presenceData.mark.subject = value;
 						}}
 						value={record.presenceData.mark.subject}
@@ -220,13 +181,17 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 			key: "outfit",
 			render: (value, record: ClassLookerTableData) => {
 				return (
-					<Radio
+					<Checkbox
 						checked={record.presenceData.type === UserPresenceType.OUTFIT}
 						onClick={() => {
-							record.presenceData.type = UserPresenceType.OUTFIT;
+							if (record.presenceData.type === UserPresenceType.OUTFIT) {
+								record.presenceData.type = UserPresenceType.PRESENCE;
+							} else {
+								record.presenceData.type = UserPresenceType.OUTFIT;
+							}
 							setRerender(!rerender);
 						}}
-					></Radio>
+					></Checkbox>
 				);
 			},
 		},
@@ -236,13 +201,17 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 			key: "vacation",
 			render: (value, record) => {
 				return (
-					<Radio
+					<Checkbox
 						checked={record.presenceData.type === UserPresenceType.VACATION}
 						onClick={() => {
-							record.presenceData.type = UserPresenceType.VACATION;
+							if (record.presenceData.type === UserPresenceType.VACATION) {
+								record.presenceData.type = UserPresenceType.PRESENCE;
+							} else {
+								record.presenceData.type = UserPresenceType.VACATION;
+							}
 							setRerender(!rerender);
 						}}
-					></Radio>
+					></Checkbox>
 				);
 			},
 		},
@@ -252,15 +221,21 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 			key: "bussiness_trip",
 			render: (value, record) => {
 				return (
-					<Radio
+					<Checkbox
 						checked={
 							record.presenceData.type === UserPresenceType.BUSSINESS_TRIP
 						}
 						onClick={() => {
-							record.presenceData.type = UserPresenceType.BUSSINESS_TRIP;
+							if (
+								record.presenceData.type === UserPresenceType.BUSSINESS_TRIP
+							) {
+								record.presenceData.type = UserPresenceType.PRESENCE;
+							} else {
+								record.presenceData.type = UserPresenceType.BUSSINESS_TRIP;
+							}
 							setRerender(!rerender);
 						}}
-					></Radio>
+					></Checkbox>
 				);
 			},
 		},
@@ -270,13 +245,17 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 			key: "sick",
 			render: (value, record) => {
 				return (
-					<Radio
+					<Checkbox
 						checked={record.presenceData.type === UserPresenceType.SICK}
 						onClick={() => {
-							record.presenceData.type = UserPresenceType.SICK;
+							if (record.presenceData.type === UserPresenceType.SICK) {
+								record.presenceData.type = UserPresenceType.PRESENCE;
+							} else {
+								record.presenceData.type = UserPresenceType.SICK;
+							}
 							setRerender(!rerender);
 						}}
-					></Radio>
+					></Checkbox>
 				);
 			},
 		},
