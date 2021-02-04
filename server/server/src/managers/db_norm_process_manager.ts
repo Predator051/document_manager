@@ -13,6 +13,7 @@ export class DBNormProcessManager {
 		query.leftJoinAndSelect("group.trainingType", "trainingType");
 		query.leftJoinAndSelect("normProcess.marks", "marks");
 		query.leftJoinAndSelect("marks.norm", "norm");
+		query.leftJoinAndSelect("norm.subject", "subject");
 		query.leftJoinAndSelect("marks.process", "process");
 		query.leftJoinAndSelect("marks.user", "groupUser");
 
@@ -108,6 +109,27 @@ export class DBNormProcessManager {
 				status: ObjectStatus.NORMAL,
 			});
 		}
+
+		// console.log(result.getSql());
+		const r = result.getMany();
+
+		return r;
+	}
+
+	public static async GetByGroup(
+		groupId: number,
+		year: number
+	): Promise<NormProcessEntity[]> {
+		const { start, end } = getStartEndOfYear(
+			year ? year : new Date().getFullYear()
+		);
+
+		const result = this.addRelations(
+			getRepository(NormProcessEntity).createQueryBuilder("normProcess")
+		)
+			.where("group.id = :groupId", { groupId })
+			.andWhere("normProcess.date <= :end", { end })
+			.andWhere("normProcess.date >= :start", { start });
 
 		// console.log(result.getSql());
 		const r = result.getMany();

@@ -79,6 +79,17 @@ export class RequestManager {
 		});
 
 		socket.on(
+			RequestType.GET_USERS_BY_ID,
+			async (m: RequestMessage<number[]>) => {
+				console.log("[server](message): %s", JSON.stringify(m));
+
+				const response = await UserModel.getUsersById(m.data);
+
+				socket.emit(RequestType.GET_USERS_BY_ID, response);
+			}
+		);
+
+		socket.on(
 			RequestType.GET_ALL_GROUPS,
 			async (m: RequestMessage<{ year?: number }>) => {
 				console.log("[server](message): %s", JSON.stringify(m));
@@ -305,6 +316,10 @@ export class RequestManager {
 				console.log("[server](message): %s", JSON.stringify(m));
 
 				const response = await NormProcessModel.getProcessNormByUserAndGroup(m);
+				console.log(
+					"GET_NORM_PROCESSES_BY_GROUP_AND_USER",
+					response.data.map((p) => p.marks)
+				);
 
 				socket.emit(RequestType.GET_NORM_PROCESSES_BY_GROUP_AND_USER, response);
 			}
@@ -318,6 +333,17 @@ export class RequestManager {
 				const response = await NormProcessModel.getProcessNormByUser(m);
 
 				socket.emit(RequestType.GET_NORM_PROCESS_BY_USER, response);
+			}
+		);
+
+		socket.on(
+			RequestType.GET_NORM_PROCESSES_BY_GROUP,
+			async (m: RequestMessage<{ groupId: number; year: number }>) => {
+				console.log("[server](message): %s", JSON.stringify(m));
+
+				const response = await NormProcessModel.getProcessNormByGroup(m);
+
+				socket.emit(RequestType.GET_NORM_PROCESSES_BY_GROUP, response);
 			}
 		);
 

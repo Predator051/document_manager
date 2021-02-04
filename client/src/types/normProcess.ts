@@ -6,4 +6,5 @@ export class NormProcess {
 	date: Date;
 	group: Group;
 	marks: NormMark[];
+	user: number;
 }

@@ -110,14 +110,61 @@ export class NormProcessModel {
 		};
 	}
 
+	public static async getProcessNormByGroup(
+		request: RequestMessage<{ groupId: number; year: number }>
+	): Promise<RequestMessage<NormProcess[]>> {
+		const normProcessEntities = await DBNormProcessManager.GetByGroup(
+			request.data.groupId,
+			request.data.year
+		);
+
+		return {
+			data: normProcessEntities.map((en) => en.ToRequestObject()),
+			messageInfo: `SUCCESS`,
+			requestCode: RequestCode.RES_CODE_SUCCESS,
+			session: "",
+		};
+	}
+
 	public static async getProcessNormByUserAndGroup(
-		request: RequestMessage<{ userId: number; groupId: number; year: number }>
+		request: RequestMessage<{
+			userId: number;
+			groupId: number;
+			year: number;
+			subjectId: number;
+		}>
 	): Promise<RequestMessage<NormProcess[]>> {
 		const normProcessEntities = await DBNormProcessManager.GetByUserAndGroup(
 			request.data.userId,
 			request.data.groupId,
 			request.data.year
 		);
+
+		if (request.data.subjectId) {
+			const result: NormProcessEntity[] = [];
+			for (const normProcess of normProcessEntities) {
+				for (const mark of normProcess.marks) {
+					if (mark.norm.subject.id === request.data.subjectId) {
+						const foundNP = result.find((np) => np.id === normProcess.id);
+						if (foundNP === undefined) {
+							result.push({
+								...normProcess,
+								marks: [mark],
+								ToRequestObject: normProcess.ToRequestObject,
+							});
+						} else {
+							foundNP.marks.push(mark);
+						}
+					}
+				}
+			}
+			return {
+				data: result.map((en) => en.ToRequestObject()),
+				messageInfo: `SUCCESS`,
+				requestCode: RequestCode.RES_CODE_SUCCESS,
+				session: "",
+			};
+		}
 
 		return {
 			data: normProcessEntities.map((en) => en.ToRequestObject()),

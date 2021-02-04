@@ -41,6 +41,8 @@ export enum RequestType {
 	GET_ALL_RANKS = "get_all_ranks",
 	UPDATE_RANK = "update_rank",
 	UPDATE_GROUP = "update_group",
+	GET_NORM_PROCESSES_BY_GROUP = "get_norm_processes_by_group",
+	GET_USERS_BY_ID = "get_users_by_ids",
 }
 
 export enum RequestCode {

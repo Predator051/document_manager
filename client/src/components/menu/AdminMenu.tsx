@@ -1,34 +1,24 @@
+import "./adminFix.css";
+
 import {
+	AppstoreAddOutlined,
 	HomeOutlined,
+	MonitorOutlined,
 	UserAddOutlined,
 	UsergroupAddOutlined,
-	AppstoreAddOutlined,
-	MonitorOutlined,
 } from "@ant-design/icons";
-import { Button, Col, Layout, Menu, Row } from "antd";
+import { Col, Layout, Menu, Row } from "antd";
 import React from "react";
 import { Route, useHistory } from "react-router-dom";
 
-import { CreateNewClassPage } from "../class/create.new.class/CreateNewClass";
-import { ExtractClassesPage } from "../pages/ExtractClassesPage";
-import { MyClassesPage } from "../pages/MyClassesPage";
-import { MyJournalPage } from "../pages/MyJournalPage";
-import { NormProcessPage } from "../pages/NormProcessPage";
-import { ShowClassPage } from "../pages/ShowClassPage";
-import { TrainingGroupsPage } from "../pages/TrainingGroupsPage";
-import { TeacherJournalHREFS } from "../teacher/TeacherJournal";
-import { UserMenu } from "../user/menu/UserMenu";
-import styles from "./menu.module.css";
-import { StudentProcess } from "../student/StudentProcess";
-import { ShowIndividualWorksPage } from "../pages/ShowIndividualWorksPage";
-import "./adminFix.css";
+import { User } from "../../types/user";
+import { GroupManipulationPage } from "../admin/pages/GroupManipulationPage";
 import { PositionEditPage } from "../admin/pages/PositionEditPage";
 import { SubdivisionEditPage } from "../admin/pages/SubdivisionEditPage";
 import { UserEditPage } from "../admin/pages/UserEditPage";
-import { User } from "../../types/user";
-import { GroupManipulationPage } from "../admin/pages/GroupManipulationPage";
 import { ProfileEditPage } from "../login/EditProfile";
 import { SiteHREFS } from "../site/Site";
+import { UserMenu } from "../user/menu/UserMenu";
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;

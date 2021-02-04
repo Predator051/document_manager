@@ -63,6 +63,12 @@ export class SubjectModel {
 			userEntity.cycle.id,
 			request.data.year
 		);
+		console.log(
+			"GET_SUBJECTS_BY_USER_CYCLE",
+			subjectsEntities,
+			"user",
+			userEntity
+		);
 
 		return {
 			data: subjectsEntities.map((ge) => ge.ToRequestObject()),

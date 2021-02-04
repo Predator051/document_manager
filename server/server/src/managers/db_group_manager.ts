@@ -58,6 +58,7 @@ export class DBGroupManager {
 			const { start, end } = getStartEndOfYear(year);
 			groups
 				.leftJoinAndSelect("group.classEvents", "classevent")
+				.leftJoinAndSelect("group.normProcesses", "normprocesses")
 				.leftJoinAndSelect("classevent.presenses", "presenses")
 				.leftJoinAndSelect("presenses.mark", "mark")
 				// .leftJoinAndSelect("group.normProcesses", "normprocess")
@@ -65,7 +66,14 @@ export class DBGroupManager {
 					end,
 					start,
 				})
-				.andWhere("(mark.current > 0 OR mark.topic > 0 OR mark.subject > 0)");
+				.orWhere(
+					"(normprocesses.date <= :end AND normprocesses.date >= :start)",
+					{
+						end,
+						start,
+					}
+				);
+			// .andWhere("(mark.current > 0 OR mark.topic > 0 OR mark.subject > 0)");
 			// .orWhere("(normprocess.date <= :end AND normprocess.date >= :start)", {
 			// 	end,
 			// 	start,

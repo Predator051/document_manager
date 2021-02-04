@@ -1,24 +1,15 @@
 import "../../../node_modules/hover.css/css/hover.css";
 
-import {
-	DownOutlined,
-	OrderedListOutlined,
-	UpOutlined,
-} from "@ant-design/icons";
-import { Button, Descriptions, Row, Select, Typography } from "antd";
+import { Descriptions, Row, Select, Typography } from "antd";
 import React, { useContext, useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
 
-import { YearContext, isYearCurrent } from "../../context/YearContext";
+import { YearContext } from "../../context/YearContext";
 import { GenerateGroupName } from "../../helpers/GroupHelper";
 import { ConnectionManager } from "../../managers/connetion/connectionManager";
 import { ClassEvent } from "../../types/classEvent";
 import { Group } from "../../types/group";
-import { Norm } from "../../types/norm";
-import { NormProcess } from "../../types/normProcess";
 import { RequestCode, RequestMessage, RequestType } from "../../types/requests";
 import { Subject } from "../../types/subject";
-import { GroupNormTable } from "../group/GroupNormTable";
 import { GroupSubjectTable } from "../group/GroupSubjectTable";
 import { GroupTable } from "../group/GroupTable";
 import { NormInfoDrawer } from "../norm/NormInfoDrawer";
@@ -32,31 +23,23 @@ interface TeacherGroupListData {
 	group: Group;
 }
 
-export const TeacherGroupList: React.FC<TeacherGroupListProps> = (
+export const TeacherGroupSubjectList: React.FC<TeacherGroupListProps> = (
 	props: TeacherGroupListProps
 ) => {
-	const history = useHistory();
 	const yearContext = useContext(YearContext);
 	const [classEvents, setClassEvents] = useState<ClassEvent[]>([]);
-	const [normProcesses, setNormProcesses] = useState<NormProcess[]>([]);
 	const [groups, setGroups] = useState<Group[]>([]);
 	const [selectedGroup, setSelectedGroup] = useState<Group | undefined>(
 		undefined
 	);
 	const [userCycleSubjects, setUserCycleSubjects] = useState<Subject[]>([]);
-	const [userCycleNorms, setUserCycleNorms] = useState<Norm[]>([]);
 	const [normInfoDrawerVisible, setNormInfoDrawerVisible] = useState<boolean>(
 		false
 	);
 
-	const loadGroups = (data: number[]) => {
-		ConnectionManager.getInstance().emit(RequestType.GET_GROUP_BY_ID, data);
-	};
-
 	const [selectedSubject, setSelectedSubject] = useState<Subject | undefined>(
 		undefined
 	);
-	const [selectedNorm, setSelectedNorm] = useState<boolean>(false);
 
 	useEffect(() => {
 		ConnectionManager.getInstance().registerResponseOnceHandler(
@@ -69,30 +52,25 @@ export const TeacherGroupList: React.FC<TeacherGroupListProps> = (
 				}
 				console.log("recieve classes", dataMessage.data);
 
+				// dataMessage.data = dataMessage.data.filter((classEvent) => {
+				// 	return classEvent.presences.some(
+				// 		(presence) =>
+				// 			presence.mark.current !== 0 ||
+				// 			presence.mark.topic !== 0 ||
+				// 			presence.mark.subject !== 0
+				// 	);
+				// });
 				dataMessage.data.forEach(
 					(classEvent) => (classEvent.date = new Date(classEvent.date))
 				);
 				setClassEvents(dataMessage.data);
 
-				loadGroups(
+				ConnectionManager.getInstance().emit(
+					RequestType.GET_GROUP_BY_ID,
 					dataMessage.data
 						.map((ce) => ce.groupId)
 						.filter((value, index, self) => self.indexOf(value) === index)
 				);
-			}
-		);
-		ConnectionManager.getInstance().registerResponseOnceHandler(
-			RequestType.GET_NORM_PROCESS_BY_USER,
-			(data) => {
-				const dataMessage = data as RequestMessage<NormProcess[]>;
-				if (dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR) {
-					console.log(`Error: ${dataMessage.requestCode}`);
-					return;
-				}
-				setNormProcesses(dataMessage.data);
-				console.log("GET_NORM_PROCESS_BY_USER ", dataMessage.data);
-
-				loadGroups(dataMessage.data.map((np) => np.group.id));
 			}
 		);
 
@@ -115,17 +93,12 @@ export const TeacherGroupList: React.FC<TeacherGroupListProps> = (
 			setGroups([...groups]);
 		};
 
-		ConnectionManager.getInstance().registerResponseHandler(
+		ConnectionManager.getInstance().registerResponseOnceHandler(
 			RequestType.GET_GROUP_BY_ID,
 			getGroupByIds
 		);
 
 		ConnectionManager.getInstance().emit(RequestType.GET_CLASSES_BY_USER, {
-			userId: props.userId,
-			year: yearContext.year,
-		});
-
-		ConnectionManager.getInstance().emit(RequestType.GET_NORM_PROCESS_BY_USER, {
 			userId: props.userId,
 			year: yearContext.year,
 		});
@@ -151,43 +124,7 @@ export const TeacherGroupList: React.FC<TeacherGroupListProps> = (
 				year: yearContext.year,
 			}
 		);
-
-		ConnectionManager.getInstance().registerResponseOnceHandler(
-			RequestType.GET_NORMS_BY_USER_CYCLE,
-			(data) => {
-				const dataMessage = data as RequestMessage<Norm[]>;
-				if (dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR) {
-					console.log(
-						`Error: ${RequestType.GET_NORMS_BY_USER_CYCLE} ${dataMessage.requestCode} ${dataMessage.messageInfo}`
-					);
-					return;
-				}
-				setUserCycleNorms(dataMessage.data);
-			}
-		);
-
-		ConnectionManager.getInstance().emit(RequestType.GET_NORMS_BY_USER_CYCLE, {
-			userId: props.userId,
-			year: yearContext.year,
-		}); //TODO Add year to request
-
-		return () => {
-			ConnectionManager.getInstance().removeRegisteredHandler(
-				RequestType.GET_GROUP_BY_ID,
-				getGroupByIds
-			);
-		};
 	}, []);
-
-	// if (groups.length < 1) {
-	// 	console.log("NOT DATA");
-
-	// 	return (
-	// 		<div>
-	// 			<Spin></Spin>
-	// 		</div>
-	// 	);
-	// }
 
 	const descriptionItemLabelStyle: React.CSSProperties = {
 		width: "45%",
@@ -205,17 +142,10 @@ export const TeacherGroupList: React.FC<TeacherGroupListProps> = (
 	const onGroupSelectChanged = (value: number) => {
 		setSelectedGroup(groups.find((gr) => gr.id === value));
 		setSelectedSubject(undefined);
-		setSelectedNorm(false);
 	};
 
 	const onSubjectSelectChanged = (value: number) => {
 		setSelectedSubject(userCycleSubjects.find((s) => s.id === value));
-		setSelectedNorm(false);
-	};
-
-	const onNormSelectChanged = () => {
-		setSelectedNorm(!selectedNorm);
-		// setSelectedSubject(undefined);
 	};
 
 	const getTitle = (records: any[]) => {
@@ -276,51 +206,18 @@ export const TeacherGroupList: React.FC<TeacherGroupListProps> = (
 							</div>
 						</Descriptions.Item>
 					)}
-					{selectedGroup && selectedSubject && (
-						<Descriptions.Item
-							label="Відобразити нормативи"
-							span={3}
-							labelStyle={descriptionItemLabelStyle}
-							contentStyle={descriptionItemContentStyle}
-							className="fade-in-top"
-						>
-							<div>
-								<Button
-									type={"default"}
-									onClick={() => {
-										setNormInfoDrawerVisible(true);
-									}}
-									style={{ width: "100%", height: "100%" }}
-									icon={<OrderedListOutlined></OrderedListOutlined>}
-									hidden={!isYearCurrent(yearContext)}
-								>
-									Показати список нормативів ЦК
-								</Button>
-								<Button
-									type={"dashed"}
-									onClick={onNormSelectChanged}
-									style={{ width: "100%", height: "100%" }}
-									icon={selectedNorm ? <UpOutlined /> : <DownOutlined />}
-								>
-									{selectedNorm ? "Сховати" : "Відобразити"}
-								</Button>
-							</div>
-						</Descriptions.Item>
-					)}
 				</Descriptions>
 			</Row>
 			<Row justify="center" style={{ marginTop: "1%", marginBottom: "1%" }}>
-				{selectedGroup &&
-					selectedNorm === false &&
-					selectedSubject === undefined && (
-						<div style={{ width: "90%" }} className="fade-in-top">
-							<GroupTable
-								userGroups={selectedGroup}
-								title={getTitle}
-							></GroupTable>
-						</div>
-					)}
-				{selectedSubject && selectedNorm === false && (
+				{selectedGroup && selectedSubject === undefined && (
+					<div style={{ width: "90%" }} className="fade-in-top">
+						<GroupTable
+							userGroups={selectedGroup}
+							title={getTitle}
+						></GroupTable>
+					</div>
+				)}
+				{selectedSubject && (
 					<div style={{ width: "90%" }} className="fade-in-top">
 						<GroupSubjectTable
 							group={selectedGroup}
@@ -341,24 +238,6 @@ export const TeacherGroupList: React.FC<TeacherGroupListProps> = (
 							)}
 							userId={props.userId}
 						></GroupSubjectTable>
-					</div>
-				)}
-
-				{selectedNorm && (
-					<div style={{ width: "90%" }} className="fade-in-top">
-						<GroupNormTable
-							group={selectedGroup}
-							userId={props.userId}
-							subject={selectedSubject}
-							title={() => (
-								<Row>
-									<Typography.Text strong>
-										Облік виконання нормативів з "{selectedSubject.fullTitle}
-									</Typography.Text>
-									"
-								</Row>
-							)}
-						></GroupNormTable>
 					</div>
 				)}
 			</Row>

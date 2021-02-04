@@ -98,7 +98,7 @@ export class DBSubjectManager {
 				.leftJoinAndSelect("norms.marks", `nmarks`)
 				.leftJoinAndSelect("nmarks.process", `norm_process`)
 				.where("cycle.id = :cycleId", { cycleId })
-				.andWhere("(classevent.date <= :end AND classevent.date >= :start)", {
+				.andWhere("((classevent.date <= :end AND classevent.date >= :start)", {
 					end,
 					start,
 				})
@@ -106,7 +106,7 @@ export class DBSubjectManager {
 				// 	status: ObjectStatus.NORMAL,
 				// })
 				.orWhere(
-					"(norm_process.date <= :end AND norm_process.date >= :start)",
+					"(norm_process.date <= :end AND norm_process.date >= :start))",
 					{
 						end,
 						start,

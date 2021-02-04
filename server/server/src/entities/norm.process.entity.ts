@@ -45,6 +45,7 @@ export class NormProcessEntity {
 			date: new Date(this.date),
 			group: this.group.ToRequestObject(),
 			marks: this.marks.map((mr) => mr.ToRequestObject()),
+			user: this.user.id,
 		};
 	}
 }

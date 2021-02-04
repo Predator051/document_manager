@@ -1,4 +1,4 @@
-import { Popover, Row, Table, Typography, Spin } from "antd";
+import { Popover, Row, Table, Typography, Spin, Tooltip } from "antd";
 import { ColumnsType, ColumnType } from "antd/lib/table/interface";
 import React, { useState, useEffect, useContext } from "react";
 
@@ -144,6 +144,17 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 				} as GroupTableData)
 		);
 
+	const filteredClassEvents = props.classEvents;
+	// .filter((classEvent) => {
+	// 	return classEvent.presences.some(
+	// 		(presence) =>
+	// 			presence.mark.current !== 0 ||
+	// 			presence.mark.topic !== 0 ||
+	// 			presence.mark.subject !== 0
+	// 	);
+	// });
+	// console.log("filtered", filteredClassEvents.length);
+
 	const columns: ColumnsType<any> = [
 		{
 			title: "№ з/п",
@@ -153,8 +164,7 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 				return <div>{record.index}</div>;
 			},
 			fixed: "left",
-			width: "max-content",
-			ellipsis: true,
+			width: "40px",
 		},
 		{
 			title: "Прізвище, ім’я та по батькові",
@@ -167,7 +177,7 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 				a.data.fullname < b.data.fullname ? -1 : 1,
 			defaultSortOrder: "ascend",
 			fixed: "left",
-			width: "max-content",
+			width: "20%",
 			ellipsis: true,
 		},
 		{
@@ -175,42 +185,62 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 			key: "data",
 			align: "center",
 			dataIndex: "data",
-			width: "max-content",
-			ellipsis: true,
+			width: filteredClassEvents.length > 1 ? "max-content" : "auto",
+			// ellipsis: true,
 			children: [
-				...props.classEvents
-					.filter((classEvent) => {
-						return classEvent.presences.some(
-							(presence) =>
-								presence.mark.current !== 0 ||
-								presence.mark.topic !== 0 ||
-								presence.mark.subject !== 0
-						);
-					})
-					.map((classEvent) => {
-						return {
-							title: classEvent.date.toLocaleDateString("uk", {
-								year: "2-digit",
-								month: "2-digit",
-								day: "2-digit",
-							}),
-							key: classEvent.date.toLocaleDateString(),
-							dataIndex: classEvent.date.toLocaleDateString(),
-							align: "center",
-							width: "max-content",
-							render: (value, record: GroupTableData) => {
-								const presence = classEvent.presences.find(
-									(pr) => pr.userId === record.data.id
-								);
+				...filteredClassEvents.map((classEvent) => {
+					const foundTopic = props.subject.programTrainings
+						.find((pt) => pt.id === classEvent.selectPath.programTraining)
+						.topics.find((t) => t.id === classEvent.selectPath.topic);
 
-								return (
-									<div>
-										<PresenceShower presence={presence}></PresenceShower>
-									</div>
-								);
-							},
-						} as ColumnType<any>;
-					}),
+					const foundOccupation = foundTopic.occupation.find(
+						(occ) => occ.id === classEvent.selectPath.occupation
+					);
+
+					return {
+						title: (
+							<div>
+								<Tooltip
+									title={
+										<div>
+											<Row>
+												Тема {foundTopic.number}: {foundTopic.title}
+											</Row>
+											<Row>
+												Заняття {foundOccupation.number}:{" "}
+												{foundOccupation.title}
+											</Row>
+										</div>
+									}
+									style={{
+										width: "auto",
+									}}
+								>
+									{classEvent.date.toLocaleDateString("uk", {
+										year: "2-digit",
+										month: "2-digit",
+										day: "2-digit",
+									})}
+								</Tooltip>
+							</div>
+						),
+						key: classEvent.date.toLocaleDateString(),
+						dataIndex: classEvent.date.toLocaleDateString(),
+						align: "center",
+						// width: "max-content",
+						render: (value, record: GroupTableData) => {
+							const presence = classEvent.presences.find(
+								(pr) => pr.userId === record.data.id
+							);
+
+							return (
+								<div>
+									<PresenceShower presence={presence}></PresenceShower>
+								</div>
+							);
+						},
+					} as ColumnType<any>;
+				}),
 			],
 		},
 	];
@@ -223,14 +253,7 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 						return GroupSubjectExport(
 							props.group,
 							props.subject,
-							props.classEvents.filter((classEvent) => {
-								return classEvent.presences.some(
-									(presence) =>
-										presence.mark.current !== 0 ||
-										presence.mark.topic !== 0 ||
-										presence.mark.subject !== 0
-								);
-							})
+							props.classEvents
 						);
 					}}
 					fileName={
@@ -275,7 +298,7 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 				rowKey={(gu: GroupTableData) => gu.data.id.toString()}
 				dataSource={tableData}
 				columns={columns}
-				size="middle"
+				size="small"
 				bordered
 				scroll={{ x: "max-content" }}
 			></Table>

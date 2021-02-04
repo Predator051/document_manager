@@ -69,6 +69,31 @@ export class UserModel {
 		};
 	}
 
+	public static async getUsersById(
+		userIds: number[]
+	): Promise<RequestMessage<User[]>> {
+		const users: UserEntity[] = [];
+		for (const id of userIds) {
+			const userEntity = await DBUserManager.GetUserById(id);
+
+			if (userEntity === undefined) {
+				return {
+					data: [],
+					messageInfo: `Cannot get user by id ${id}`,
+					requestCode: RequestCode.RES_CODE_SUCCESS,
+					session: "",
+				};
+			}
+			users.push(userEntity);
+		}
+		return {
+			data: users.map((u) => u.ToRequestObject()),
+			messageInfo: "OK",
+			requestCode: RequestCode.RES_CODE_SUCCESS,
+			session: "",
+		};
+	}
+
 	public static async getAllUsers(): Promise<RequestMessage<User[]>> {
 		const userEntity = await DBUserManager.GetAll();
 

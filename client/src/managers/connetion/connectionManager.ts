@@ -5,14 +5,62 @@ import { setUserData } from "../../redux/slicers/accountSlice";
 import { User } from "../../types/user";
 import { message } from "antd";
 
+enum ConnectionStatus {
+	DISCONNECT,
+	CONNECTING,
+	CONNECTED,
+}
+
 export class ConnectionManager {
 	private static instance: ConnectionManager;
 	private m_socket: SocketIOClient.Socket;
 	private m_registeredResponseHandler: Array<RequestType>;
 
+	private static connectionStatus: ConnectionStatus =
+		ConnectionStatus.CONNECTED;
+
 	private constructor(socket: SocketIOClient.Socket) {
 		this.m_socket = socket;
 		this.m_registeredResponseHandler = new Array<RequestType>();
+	}
+
+	private static changeConnectionStatus(newStatus: ConnectionStatus): void {
+		this.connectionStatus = newStatus;
+		this.onChangeConnectionStatus();
+	}
+
+	private static onChangeConnectionStatus() {
+		switch (this.connectionStatus) {
+			case ConnectionStatus.CONNECTED: {
+				// message.success("Підключено!");
+				break;
+			}
+			case ConnectionStatus.DISCONNECT: {
+				message.error("Не може підлючитися до серверу!", 5);
+				this.changeConnectionStatus(ConnectionStatus.CONNECTING);
+				break;
+			}
+			case ConnectionStatus.CONNECTING: {
+				const tempFunc = () => {
+					if (this.connectionStatus !== ConnectionStatus.CONNECTED) {
+						message.loading({
+							content: "Підключення до серверу!",
+							key: "connectinMessage",
+							duration: 0,
+						});
+						setTimeout(tempFunc, 2000);
+					} else {
+						message.success({
+							content: "Підключено!",
+							key: "connectinMessage",
+							duration: 1,
+						});
+					}
+				};
+				tempFunc();
+				break;
+			}
+		}
 	}
 
 	public static getInstance(): ConnectionManager {
@@ -30,22 +78,27 @@ export class ConnectionManager {
 				}
 			});
 			ConnectionManager.instance.m_socket.on("disconnect", (reason: string) => {
-				setTimeout(() => {
-					if (!ConnectionManager.instance.m_socket.connected) {
-						message.error("Не має підключення до серверу!");
-					}
-				}, 2000);
+				// setTimeout(() => {
+				// 	if (!ConnectionManager.instance.m_socket.connected) {
+				// 		message.error("Не має підключення до серверу!");
+				// 	}
+				// }, 2000);
+				this.changeConnectionStatus(ConnectionStatus.DISCONNECT);
 			});
 			ConnectionManager.instance.m_socket.on(
 				"connect_error",
 				(reason: string) => {
-					setTimeout(() => {
-						if (!ConnectionManager.instance.m_socket.connected) {
-							message.error("Не має підключення до серверу!");
-						}
-					}, 2000);
+					// setTimeout(() => {
+					// 	if (!ConnectionManager.instance.m_socket.connected) {
+					// 		message.error("Не має підключення до серверу!");
+					// 		message.loading("Підключення до серверу");
+					// 	}
+					// }, 2000);
 				}
 			);
+			ConnectionManager.instance.m_socket.on("connect", () => {
+				this.changeConnectionStatus(ConnectionStatus.CONNECTED);
+			});
 		}
 
 		return ConnectionManager.instance;

@@ -231,7 +231,7 @@ export const GroupSubjectMarkTable: React.FC<GroupSubjectMarkTableProps> = (
 	];
 
 	return (
-		<div className="fade-in-bck">
+		<div className="fade-in-top">
 			<Row justify="end">
 				<ExcelExporter
 					bufferFunction={() => {
@@ -244,7 +244,7 @@ export const GroupSubjectMarkTable: React.FC<GroupSubjectMarkTableProps> = (
 				></ExcelExporter>
 			</Row>
 			<Table
-				className="text-focus-in"
+				// className="text-focus-in"
 				title={props.title}
 				pagination={false}
 				rowKey={(gu: GroupTableData) => gu.data.id.toString()}

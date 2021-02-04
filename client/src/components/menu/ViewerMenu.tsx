@@ -21,7 +21,7 @@ import { UserMenu } from "../user/menu/UserMenu";
 import { UserList } from "../viewer/UserList";
 import { JournalPage } from "../pages/JournalPage";
 import { ExtractClassesPage } from "../pages/ExtractClassesPage";
-import { TrainingGroupsPage } from "../pages/TrainingGroupsPage";
+import { TeacherGroupsSubjectPage } from "../pages/TeacherGroupsSubjectPage";
 import { ShowIndividualWorksPage } from "../pages/ShowIndividualWorksPage";
 import { TeacherJournalHREFS } from "../teacher/TeacherJournal";
 import { GroupList } from "../viewer/GroupList";
@@ -35,6 +35,7 @@ import moment from "moment";
 import "../../animations/fade-in.css";
 import { ProfileEditPage } from "../login/EditProfile";
 import { SiteHREFS } from "../site/Site";
+import { TeacherGroupsNormPage } from "../pages/TeacherGroupsNormPage";
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -222,9 +223,15 @@ export const ViewerMenu: React.FC = (props: any) => {
 						)}
 					></Route>
 					<Route
-						path={TeacherJournalHREFS.TRAINING_GROUPS_PAGE + ":userId"}
+						path={TeacherJournalHREFS.TEACHER_GROUPS_SUBJECT_PAGE + ":userId"}
 						render={(props) => (
-							<TrainingGroupsPage {...props}></TrainingGroupsPage>
+							<TeacherGroupsSubjectPage {...props}></TeacherGroupsSubjectPage>
+						)}
+					></Route>
+					<Route
+						path={TeacherJournalHREFS.TEACHER_GROUPS_NORM_PAGE + ":userId"}
+						render={(props) => (
+							<TeacherGroupsNormPage {...props}></TeacherGroupsNormPage>
 						)}
 					></Route>
 					<Route

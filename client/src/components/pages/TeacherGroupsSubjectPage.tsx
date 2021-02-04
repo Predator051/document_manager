@@ -1,14 +1,14 @@
 import { PageHeader } from "antd";
 import React from "react";
 import { RouteComponentProps, useHistory } from "react-router-dom";
-import { TeacherGroupList } from "../teacher/TeacherGroupList";
+import { TeacherGroupSubjectList } from "../teacher/TeacherGroupSubjectList";
 import { BackPage } from "../ui/BackPage";
 
 export interface TrainingGroupsPageProps {
 	userId: string;
 }
 
-export const TrainingGroupsPage: React.FC<
+export const TeacherGroupsSubjectPage: React.FC<
 	RouteComponentProps<TrainingGroupsPageProps>
 > = ({ match }: RouteComponentProps<TrainingGroupsPageProps>) => {
 	const history = useHistory();
@@ -17,9 +17,9 @@ export const TrainingGroupsPage: React.FC<
 	return (
 		<div>
 			<BackPage></BackPage>
-			<TeacherGroupList
+			<TeacherGroupSubjectList
 				userId={parseInt(match.params.userId)}
-			></TeacherGroupList>
+			></TeacherGroupSubjectList>
 		</div>
 	);
 };

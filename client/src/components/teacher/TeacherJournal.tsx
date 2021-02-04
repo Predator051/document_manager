@@ -14,7 +14,8 @@ export interface TeacherJournalProps {
 
 export enum TeacherJournalHREFS {
 	EXTRACT_CLASSES_PAGE = "/extract/",
-	TRAINING_GROUPS_PAGE = "/groups/list/",
+	TEACHER_GROUPS_SUBJECT_PAGE = "/groups/subject/list/",
+	TEACHER_GROUPS_NORM_PAGE = "/groups/norm/list/",
 	INDIVIDUAL_WORKS = "/individual/works/",
 	TEACHER_ACCOUNTING = "/teacher/accounting/",
 }
@@ -76,14 +77,15 @@ export const TeacherJournal: React.FC<TeacherJournalProps> = (
 					</Row>
 				</div>
 				<div
-					className={"hvr-sweep-to-left swing-in-right-fwd"}
+					className={"hvr-shutter-out-horizontal swing-in-right-fwd"}
 					style={{
 						height: "25vh",
 						width: "25vw",
 					}}
 					onClick={() => {
 						history.push(
-							TeacherJournalHREFS.TRAINING_GROUPS_PAGE + props.userId.toString()
+							TeacherJournalHREFS.TEACHER_GROUPS_SUBJECT_PAGE +
+								props.userId.toString()
 						);
 					}}
 				>
@@ -93,6 +95,27 @@ export const TeacherJournal: React.FC<TeacherJournalProps> = (
 						justify="center"
 					>
 						Списки навчальних груп
+					</Row>
+				</div>
+				<div
+					className={"hvr-sweep-to-left swing-in-right-fwd"}
+					style={{
+						height: "25vh",
+						width: "25vw",
+					}}
+					onClick={() => {
+						history.push(
+							TeacherJournalHREFS.TEACHER_GROUPS_NORM_PAGE +
+								props.userId.toString()
+						);
+					}}
+				>
+					<Row
+						align="middle"
+						style={{ width: "100%", height: "100%" }}
+						justify="center"
+					>
+						Облік виконання нормативів з предметів підготовки
 					</Row>
 				</div>
 			</Row>
