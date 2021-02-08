@@ -29,7 +29,6 @@ import { User } from "../../types/user";
 import { ExcelExporter } from "../ui/excel-exporter/ExcelExporter";
 import { GroupSubjectBillExport } from "../ui/excel-exporter/exporters/GroupSubjectBillExporter";
 import { GroupAccountingClassesFromTrainingSubjectsExport } from "../ui/excel-exporter/exporters/GroupAccountingClassesFromTrainingSubjectsExport";
-import { VirtualTable } from "../ui/VirtualTable";
 
 interface EditableCellProps {
 	onSave: (newValue: any) => void;
@@ -376,7 +375,7 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 						className="fade-in-top"
 					>
 						<div style={{ width: "95%" }}>
-							{/* <Table
+							<Table
 								title={props.title}
 								pagination={false}
 								rowKey={(gu: GroupTableData) => gu.data.id.toString()}
@@ -385,19 +384,7 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 								size="small"
 								bordered
 								scroll={{ x: "max-content" }}
-							></Table> */}
-							<VirtualTable
-								title={props.title}
-								pagination={false}
-								rowKey={(gu: object) =>
-									(gu as GroupTableData).data.id.toString()
-								}
-								dataSource={tableData}
-								columns={columns}
-								size="small"
-								bordered
-								scroll={{ x: "max-content" }}
-							></VirtualTable>
+							></Table>
 						</div>
 					</Row>
 				</div>

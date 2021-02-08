@@ -59,12 +59,12 @@ const MENU_ITEMS = [
 		component: <GroupManipulationPage></GroupManipulationPage>,
 		href: HREFS_ADMIN.GROUP,
 	},
-	{
-		content: "Групова статистика",
-		icon: <AreaChartOutlined></AreaChartOutlined>,
-		component: <GroupUsageStaticsPage></GroupUsageStaticsPage>,
-		href: HREFS_ADMIN.GROUP_USAGE_STATISTICS,
-	},
+	// {
+	// 	content: "Групова статистика",
+	// 	icon: <AreaChartOutlined></AreaChartOutlined>,
+	// 	component: <GroupUsageStaticsPage></GroupUsageStaticsPage>,
+	// 	href: HREFS_ADMIN.GROUP_USAGE_STATISTICS,
+	// },
 ];
 
 export const AdminMainMenu: React.FC = (props: any) => {

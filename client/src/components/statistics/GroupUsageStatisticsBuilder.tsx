@@ -4,13 +4,13 @@ import { ClassEvent } from "../../types/classEvent";
 import { NormProcess } from "../../types/normProcess";
 import { IndividualWork } from "../../types/individualWork";
 
-import { Line, Bar, Scatter } from "@ant-design/charts";
+// import { Line, Bar, Scatter } from "@ant-design/charts";
 import { YearContext } from "../../context/YearContext";
 import { ConnectionManager } from "../../managers/connetion/connectionManager";
 import { RequestType, RequestMessage, RequestCode } from "../../types/requests";
 import { Spin, Row, Badge } from "antd";
 import { group } from "console";
-import { ScatterConfig } from "@ant-design/charts/es/scatter";
+// import { ScatterConfig } from "@ant-design/charts/es/scatter";
 
 import ReactDOMServer from "react-dom/server";
 
@@ -146,73 +146,73 @@ export const GroupUsageStatisticsBuilder: React.FC<GroupUsageStatisticsBuilderPr
 		});
 	});
 
-	var config: ScatterConfig = {
-		appendPadding: 10,
-		data: data,
-		xField: "date",
-		yField: "value",
-		shape: "circle",
-		colorField: "category",
-		color: ({ category }: any) => {
-			if (category === StatisticsCategory.CLASSES) {
-				return "red";
-			}
-			return "green";
-		},
-		sizeField: "value",
-		size: ({ value }: any) => {
-			if (value <= 3) {
-				return value + 8;
-			}
+	// var config: ScatterConfig = {
+	// 	appendPadding: 10,
+	// 	data: data,
+	// 	xField: "date",
+	// 	yField: "value",
+	// 	shape: "circle",
+	// 	colorField: "category",
+	// 	color: ({ category }: any) => {
+	// 		if (category === StatisticsCategory.CLASSES) {
+	// 			return "red";
+	// 		}
+	// 		return "green";
+	// 	},
+	// 	sizeField: "value",
+	// 	size: ({ value }: any) => {
+	// 		if (value <= 3) {
+	// 			return value + 8;
+	// 		}
 
-			return value + 4;
-		},
-		tooltip: {
-			showCrosshairs: true,
-			customContent: (title, data: any[]) => {
-				const valueObj = data.find((d) => d.name === "value");
-				const categoryObj = data.find((d) => d.name === "category");
-				const dateObj = data.find((d) => d.name === "date");
+	// 		return value + 4;
+	// 	},
+	// 	tooltip: {
+	// 		showCrosshairs: true,
+	// 		customContent: (title, data: any[]) => {
+	// 			const valueObj = data.find((d) => d.name === "value");
+	// 			const categoryObj = data.find((d) => d.name === "category");
+	// 			const dateObj = data.find((d) => d.name === "date");
 
-				if (valueObj && categoryObj && dateObj) {
-					const htmlString = ReactDOMServer.renderToStaticMarkup(
-						<div style={{ padding: "10px" }}>
-							<Row style={{ padding: "3px" }}>
-								<Badge
-									color={valueObj.color}
-									text={`Кількість оцінок: ${valueObj.value}`}
-								></Badge>
-							</Row>
-							<Row style={{ padding: "3px" }}>
-								<Badge
-									color={categoryObj.color}
-									text={`${categoryObj.value}`}
-								></Badge>
-							</Row>
-							<Row style={{ padding: "3px" }}>
-								<Badge
-									color={dateObj.color}
-									text={`Дата: ${dateObj.value}`}
-								></Badge>
-							</Row>
-						</div>
-					);
+	// 			if (valueObj && categoryObj && dateObj) {
+	// 				const htmlString = ReactDOMServer.renderToStaticMarkup(
+	// 					<div style={{ padding: "10px" }}>
+	// 						<Row style={{ padding: "3px" }}>
+	// 							<Badge
+	// 								color={valueObj.color}
+	// 								text={`Кількість оцінок: ${valueObj.value}`}
+	// 							></Badge>
+	// 						</Row>
+	// 						<Row style={{ padding: "3px" }}>
+	// 							<Badge
+	// 								color={categoryObj.color}
+	// 								text={`${categoryObj.value}`}
+	// 							></Badge>
+	// 						</Row>
+	// 						<Row style={{ padding: "3px" }}>
+	// 							<Badge
+	// 								color={dateObj.color}
+	// 								text={`Дата: ${dateObj.value}`}
+	// 							></Badge>
+	// 						</Row>
+	// 					</div>
+	// 				);
 
-					return htmlString;
-				}
-				return "";
-			},
-		},
-		// yAxis: {
-		// 	nice: true,
-		// 	line: { style: { stroke: "#aaa" } },
-		// },
-		// xAxis: {
-		// 	min: -100,
-		// 	grid: { line: { style: { stroke: "#eee" } } },
-		// 	line: { style: { stroke: "#aaa" } },
-		// },
-	};
+	// 				return htmlString;
+	// 			}
+	// 			return "";
+	// 		},
+	// 	},
+	// 	// yAxis: {
+	// 	// 	nice: true,
+	// 	// 	line: { style: { stroke: "#aaa" } },
+	// 	// },
+	// 	// xAxis: {
+	// 	// 	min: -100,
+	// 	// 	grid: { line: { style: { stroke: "#eee" } } },
+	// 	// 	line: { style: { stroke: "#aaa" } },
+	// 	// },
+	// };
 
 	return (
 		<div>
@@ -236,7 +236,7 @@ export const GroupUsageStatisticsBuilder: React.FC<GroupUsageStatisticsBuilderPr
 				}}
 				isStack={true}
 			></Line> */}
-			<Scatter {...config}></Scatter>
+			{/* <Scatter {...config}></Scatter> */}
 		</div>
 	);
 };
