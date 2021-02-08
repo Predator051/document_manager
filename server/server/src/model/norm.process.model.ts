@@ -194,7 +194,9 @@ export class NormProcessModel {
 	public static async update(
 		request: RequestMessage<NormProcess>
 	): Promise<RequestMessage<NormProcess | undefined>> {
-		const userEntity = await DBSessionManager.GetSession(request.session);
+		const me = await DBSessionManager.GetSession(request.session);
+
+		const userEntity = await DBUserManager.GetUserById(request.data.user);
 		if (userEntity === undefined) {
 			return {
 				data: undefined,
@@ -215,8 +217,9 @@ export class NormProcessModel {
 			};
 		}
 
-		let normProcessEntity = await DBNormProcessManager.GetByDate(
-			new Date(request.data.date)
+		let normProcessEntity = await DBNormProcessManager.GetByDateAndUser(
+			new Date(request.data.date),
+			userEntity.id
 		);
 
 		if (normProcessEntity === undefined) {
@@ -231,7 +234,7 @@ export class NormProcessModel {
 
 		normProcessEntity.date = request.data.date;
 		normProcessEntity.group = groupEntity;
-		normProcessEntity.user = userEntity.user;
+		normProcessEntity.user = userEntity;
 
 		for (const inputNormMark of request.data.marks) {
 			let normMarkEntity = await DBNormMarkManager.GetById(inputNormMark.id);
@@ -282,17 +285,6 @@ export class NormProcessModel {
 					}))
 				);
 			}
-
-			// if (normMarkEntity.id !== 0) {
-			// 	console.log(
-			// 		"save mark",
-			// 		normMarkEntity.id,
-			// 		"mark",
-			// 		normMarkEntity.mark
-			// 	);
-			// 	const updated = await DBNormMarkManager.SaveEntity(normMarkEntity);
-			// 	console.log("updated id", updated?.id, "mark", updated?.mark);
-			// }
 		}
 		console.log("save marks", normProcessEntity.marks);
 

@@ -82,7 +82,7 @@ export const NormProcessPage: React.FC = () => {
 							<Select style={{ width: "100%" }} onChange={onGroupChange}>
 								{groups.map((gr) => (
 									<Select.Option value={gr.id}>
-										{GenerateGroupName(gr)}
+										{gr.id} {GenerateGroupName(gr)}
 									</Select.Option>
 								))}
 							</Select>

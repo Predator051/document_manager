@@ -7,6 +7,7 @@ import {
 	FolderAddOutlined,
 	PushpinOutlined,
 	AppstoreOutlined,
+	OrderedListOutlined,
 } from "@ant-design/icons";
 import { Col, Layout, Menu, Row, Typography } from "antd";
 import React from "react";
@@ -30,6 +31,9 @@ import { TeacherJournalHREFS } from "../teacher/TeacherJournal";
 import { UserMenu } from "../user/menu/UserMenu";
 
 import { ReactComponent as IconNotepad } from "../../images/icons/Notepad.svg";
+import { GroupList } from "../viewer/GroupList";
+import { GroupInfoPage } from "../viewer/GroupInfoPage";
+import { VIEWER_HREFS } from "./ViewerMenu";
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -42,6 +46,7 @@ export enum HREFS {
 	NORM_PROCESS_PAGE = "/norm/process",
 	MY_JOURNAL_PAGE = "/me/journal",
 	STUDENT_PROCESS = "/me/student/process",
+	GROUP_LIST = "/group/list",
 }
 
 export const MainMenu: React.FC = (props: any) => {
@@ -155,6 +160,17 @@ export const MainMenu: React.FC = (props: any) => {
 								{"Мої заняття".toUpperCase()}
 							</Typography.Text>
 						</Menu.Item>
+						<Menu.Item
+							onClick={() => {
+								history.push(HREFS.GROUP_LIST);
+							}}
+							key={HREFS.GROUP_LIST}
+							icon={<OrderedListOutlined></OrderedListOutlined>}
+						>
+							<Typography.Text strong>
+								{"Список груп".toUpperCase()}
+							</Typography.Text>
+						</Menu.Item>
 					</Menu>
 					<Route path={HREFS.CREATE_NEW_CLASS}>
 						<CreateNewClassPage></CreateNewClassPage>
@@ -208,6 +224,15 @@ export const MainMenu: React.FC = (props: any) => {
 					<Route path={HREFS.STUDENT_PROCESS}>
 						<StudentProcess></StudentProcess>
 					</Route>
+					<Route path={HREFS.GROUP_LIST}>
+						<div style={{ margin: "1%" }} className="fade-in-top">
+							<GroupList></GroupList>
+						</div>
+					</Route>
+					<Route
+						path={VIEWER_HREFS.GROUP_INFO + ":id"}
+						render={(props) => <GroupInfoPage {...props}></GroupInfoPage>}
+					></Route>
 				</Content>
 				<Footer style={{ textAlign: "center" }}>©2020 Created by BIUS</Footer>
 			</Layout>

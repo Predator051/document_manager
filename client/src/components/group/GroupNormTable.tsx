@@ -240,6 +240,7 @@ export const GroupNormTable: React.FC<GroupTableProps> = (
 										),
 										key: norm.number + process.id,
 										dataIndex: norm.number + process.id,
+										width: "10px",
 										render: (value, record: GroupTableData) => {
 											const currMark = process.marks.find(
 												(m) =>
@@ -253,6 +254,12 @@ export const GroupNormTable: React.FC<GroupTableProps> = (
 					},
 				],
 			} as ColumnGroupType<any> | ColumnType<any>;
+		});
+		normProcessColumns.push({
+			title: " ",
+			key: " ",
+			dataIndex: " ",
+			width: "auto",
 		});
 	}
 

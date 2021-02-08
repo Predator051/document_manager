@@ -267,7 +267,7 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 			) => (a.groupUser.fullname < b.groupUser.fullname ? -1 : 1),
 			defaultSortOrder: "ascend",
 			fixed: "left",
-			width: "max-content",
+			width: "20%",
 			ellipsis: true,
 		},
 		...norms.map<any>((norm) => ({
@@ -290,6 +290,7 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 					</Tooltip>
 				</div>
 			),
+			width: "10px",
 			render: (value: any, record: NormGroupProcessShowerTableData) => {
 				const foundMark = record.process.marks.find(
 					(mark) =>
@@ -316,6 +317,12 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 				);
 			},
 		})),
+		{
+			key: " ",
+			dataIndex: " ",
+			title: " ",
+			width: "auto",
+		},
 	];
 
 	const tableData: NormGroupProcessShowerTableData[] = props.group.users.map(

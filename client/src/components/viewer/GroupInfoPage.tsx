@@ -64,7 +64,7 @@ export const GroupInfoPage: React.FC<
 	}
 
 	return (
-		<div>
+		<div style={{ margin: "1%" }}>
 			<BackPage></BackPage>
 			<Tabs tabPosition="top" centered type="card">
 				<Tabs.TabPane

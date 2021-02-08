@@ -6,6 +6,7 @@ import {
 	MonitorOutlined,
 	UserAddOutlined,
 	UsergroupAddOutlined,
+	AreaChartOutlined,
 } from "@ant-design/icons";
 import { Col, Layout, Menu, Row } from "antd";
 import React from "react";
@@ -19,6 +20,7 @@ import { UserEditPage } from "../admin/pages/UserEditPage";
 import { ProfileEditPage } from "../login/EditProfile";
 import { SiteHREFS } from "../site/Site";
 import { UserMenu } from "../user/menu/UserMenu";
+import { GroupUsageStaticsPage } from "../admin/pages/GroupUsageStatisticsPage";
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -29,6 +31,7 @@ export enum HREFS_ADMIN {
 	EDIT_POSITIONS = "/position/edit",
 	EDIT_UNIT = "/unit/edit",
 	GROUP = "/groups",
+	GROUP_USAGE_STATISTICS = "/statistics/groups/usage/",
 }
 
 const MENU_ITEMS = [
@@ -55,6 +58,12 @@ const MENU_ITEMS = [
 		icon: <MonitorOutlined></MonitorOutlined>,
 		component: <GroupManipulationPage></GroupManipulationPage>,
 		href: HREFS_ADMIN.GROUP,
+	},
+	{
+		content: "Групова статистика",
+		icon: <AreaChartOutlined></AreaChartOutlined>,
+		component: <GroupUsageStaticsPage></GroupUsageStaticsPage>,
+		href: HREFS_ADMIN.GROUP_USAGE_STATISTICS,
 	},
 ];
 

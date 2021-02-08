@@ -29,6 +29,7 @@ import { User } from "../../types/user";
 import { ExcelExporter } from "../ui/excel-exporter/ExcelExporter";
 import { GroupSubjectBillExport } from "../ui/excel-exporter/exporters/GroupSubjectBillExporter";
 import { GroupAccountingClassesFromTrainingSubjectsExport } from "../ui/excel-exporter/exporters/GroupAccountingClassesFromTrainingSubjectsExport";
+import { VirtualTable } from "../ui/VirtualTable";
 
 interface EditableCellProps {
 	onSave: (newValue: any) => void;
@@ -96,18 +97,18 @@ export const PresenceShower: React.FC<{
 
 	return (
 		<Popover content={content}>
-			<Row style={{ width: "100%" }}>
-				{actualMark !== 0 ? (
-					<div>
-						<Typography.Text style={{ color: color }} strong>
-							{actualMark}
-						</Typography.Text>{" "}
-						{presenceSym}
-					</div>
-				) : (
-					<Typography.Text>{presenceSym}</Typography.Text>
-				)}
-			</Row>
+			{/* <Row style={{ width: "100%" }} justify="center"> */}
+			{actualMark !== 0 ? (
+				<div>
+					<Typography.Text style={{ color: color }} strong>
+						{actualMark}
+					</Typography.Text>{" "}
+					{presenceSym}
+				</div>
+			) : (
+				<Typography.Text>{presenceSym}</Typography.Text>
+			)}
+			{/* </Row> */}
 		</Popover>
 	);
 };
@@ -154,7 +155,14 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 					console.log(`Error: ${dataMessage.requestCode}`);
 					return;
 				}
-				dataMessage.data.forEach((ce) => (ce.date = new Date(ce.date)));
+				dataMessage.data.forEach((ce) => {
+					ce.date = new Date(ce.date);
+				});
+
+				// for (let index = 0; index < 100; index++) {
+				// 	dataMessage.data.push(dataMessage.data[0]);
+				// }
+
 				setClassEvents(dataMessage.data);
 
 				ConnectionManager.getInstance().emit(
@@ -187,7 +195,7 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 				} as GroupTableData)
 		);
 
-	const columns: ColumnsType<any> = [
+	let columns: ColumnsType<any> = [
 		{
 			title: "№ з/п",
 			key: "number",
@@ -196,7 +204,7 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 				return <div>{record.index}</div>;
 			},
 			fixed: "left",
-			width: "40px",
+			width: "2%",
 		},
 		{
 			title: "Прізвище, ім’я та по батькові",
@@ -251,8 +259,6 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 					key: "data",
 					align: "center",
 					dataIndex: "data",
-					width: filteredClasses.length > 1 ? "max-content" : "auto",
-					// ellipsis: true,
 					children: [
 						...filteredClasses.map((classEvent) => {
 							const foundTopic = selectedSubject.programTrainings
@@ -297,7 +303,8 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 								),
 								key: classEvent.date.toLocaleDateString(),
 								dataIndex: classEvent.date.toLocaleDateString(),
-								align: "center",
+								// align: "center",
+								width: "10px",
 								render: (value, record: GroupTableData) => {
 									const presence = classEvent.presences.find(
 										(pr) => pr.userId === record.data.id
@@ -311,6 +318,12 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 								},
 							} as ColumnGroupType<any> | ColumnType<any>;
 						}),
+						{
+							title: " ",
+							dataIndex: " ",
+							key: " ",
+							width: "auto",
+						},
 					],
 				},
 			];
@@ -318,6 +331,8 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 
 		columns.push(...dynamicColumns);
 	}
+	columns = columns.slice(0, 4);
+	console.log("columns", columns.length);
 
 	return (
 		<div>
@@ -361,7 +376,7 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 						className="fade-in-top"
 					>
 						<div style={{ width: "95%" }}>
-							<Table
+							{/* <Table
 								title={props.title}
 								pagination={false}
 								rowKey={(gu: GroupTableData) => gu.data.id.toString()}
@@ -370,7 +385,19 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 								size="small"
 								bordered
 								scroll={{ x: "max-content" }}
-							></Table>
+							></Table> */}
+							<VirtualTable
+								title={props.title}
+								pagination={false}
+								rowKey={(gu: object) =>
+									(gu as GroupTableData).data.id.toString()
+								}
+								dataSource={tableData}
+								columns={columns}
+								size="small"
+								bordered
+								scroll={{ x: "max-content" }}
+							></VirtualTable>
 						</div>
 					</Row>
 				</div>

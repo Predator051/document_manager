@@ -227,7 +227,7 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 						key: classEvent.date.toLocaleDateString(),
 						dataIndex: classEvent.date.toLocaleDateString(),
 						align: "center",
-						// width: "max-content",
+						width: "10px",
 						render: (value, record: GroupTableData) => {
 							const presence = classEvent.presences.find(
 								(pr) => pr.userId === record.data.id
@@ -241,6 +241,12 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 						},
 					} as ColumnType<any>;
 				}),
+				{
+					title: " ",
+					key: " ",
+					dataIndex: " ",
+					width: "auto",
+				},
 			],
 		},
 	];

@@ -147,7 +147,7 @@ export const GroupSubjectMarkTable: React.FC<GroupSubjectMarkTableProps> = (
 				return <div className="text-focus-in">{record.index}</div>;
 			},
 			fixed: "left",
-			width: "max-content",
+			width: "40px",
 			ellipsis: true,
 		},
 		{
@@ -161,7 +161,7 @@ export const GroupSubjectMarkTable: React.FC<GroupSubjectMarkTableProps> = (
 				a.data.fullname < b.data.fullname ? -1 : 1,
 			defaultSortOrder: "ascend",
 			fixed: "left",
-			width: "max-content",
+			width: "20%",
 			ellipsis: true,
 		},
 		{
@@ -173,6 +173,7 @@ export const GroupSubjectMarkTable: React.FC<GroupSubjectMarkTableProps> = (
 					title: subject.shortTitle,
 					key: subject.id,
 					dataIndex: subject.id,
+					width: "100px",
 					render: (value, record: GroupTableData) => {
 						const ceBySubject = classEvents.filter(
 							(ce) => ce.selectPath.subject === subject.id
@@ -217,8 +218,6 @@ export const GroupSubjectMarkTable: React.FC<GroupSubjectMarkTableProps> = (
 							}
 						});
 
-						console.log("marks", markObj);
-
 						return (
 							<div className="text-focus-in">
 								<MarkDrawer {...markObj}></MarkDrawer>
@@ -226,6 +225,12 @@ export const GroupSubjectMarkTable: React.FC<GroupSubjectMarkTableProps> = (
 						);
 					},
 				})),
+				{
+					title: " ",
+					dataIndex: " ",
+					key: " ",
+					width: "auto",
+				},
 			],
 		},
 	];

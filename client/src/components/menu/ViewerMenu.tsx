@@ -154,8 +154,7 @@ export const ViewerMenu: React.FC = (props: any) => {
 								<Tabs.TabPane
 									tab={
 										<span>
-											<OrderedListOutlined></OrderedListOutlined>Облік занять з
-											предметів підготовки
+											<OrderedListOutlined></OrderedListOutlined>Список груп
 										</span>
 									}
 									key="2"

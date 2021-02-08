@@ -90,9 +90,13 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 					console.log(`Error: ${dataMessage.requestCode}`);
 					return;
 				}
-				dataMessage.data.forEach(
-					(normP) => (normP.date = new Date(normP.date))
-				);
+				dataMessage.data.forEach((normP) => {
+					normP.date = new Date(normP.date);
+					normP.marks = normP.marks.filter(
+						(mark) =>
+							props.group.users.findIndex((u) => u.id === mark.userId) > -1
+					);
+				});
 				setNormProcesses(
 					dataMessage.data.sort((a, b) => (a.date < b.date ? -1 : 1))
 				);
@@ -216,6 +220,8 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 		});
 
 		console.log(
+			"normProcesses",
+			normProcesses,
 			"filteredNormProcesses",
 			filteredNormProcesses,
 			"selected subject",
@@ -255,6 +261,7 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 					),
 					key: date.toLocaleDateString(),
 					dataIndex: date.toLocaleDateString(),
+					width: "auto",
 					children: [
 						{
 							title: "Оцінка за норматив",
@@ -286,6 +293,7 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 											),
 											key: norm.number + process.id,
 											dataIndex: norm.number + process.id,
+											width: "10px",
 											render: (value, record: GroupTableData) => {
 												const currMark = process.marks.find(
 													(m) =>
@@ -299,6 +307,12 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 						},
 					],
 				} as ColumnGroupType<any> | ColumnType<any>;
+			});
+			normProcessColumns.push({
+				title: " ",
+				dataIndex: " ",
+				key: " ",
+				width: "auto",
 			});
 		}
 	}
