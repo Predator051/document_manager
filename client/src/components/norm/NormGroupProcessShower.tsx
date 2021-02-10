@@ -11,6 +11,8 @@ import {
 	Affix,
 	Modal,
 	Tooltip,
+	Row,
+	Input,
 } from "antd";
 import { ColumnsType } from "antd/lib/table/interface";
 import React, {
@@ -33,6 +35,17 @@ import "../../../node_modules/hover.css/css/hover.css";
 import { Subject } from "../../types/subject";
 import { YearContext } from "../../context/YearContext";
 import { NormInfoShower } from "./NormInfoShower";
+import DataGrid, {
+	Scrolling,
+	Paging,
+	Column,
+	LoadPanel,
+	Sorting,
+} from "devextreme-react/data-grid";
+import DataSource from "devextreme/data/data_source";
+
+import { locale, loadMessages } from "devextreme/localization";
+import ruMessages from "devextreme/localization/messages/ru.json";
 
 interface EditableCellProps {
 	onChange: (newValue: any) => void;
@@ -62,7 +75,7 @@ const EditableCell: React.FC<EditableCellProps> = (
 				bordered={false}
 				onChange={onValuesChange}
 				value={counter}
-				style={{ width: "100%" }}
+				style={{ width: "100%", margin: 0, padding: 0 }}
 				size="small"
 			></InputNumber>
 		</div>
@@ -94,6 +107,7 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 	const buttonUpdateRef = useRef(null);
 
 	const loadAllNorms = () => {
+		loadMessages(ruMessages);
 		ConnectionManager.getInstance().registerResponseOnceHandler(
 			RequestType.GET_SUBJECT_BY_ID,
 			(data) => {
@@ -205,10 +219,6 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 			...normProcess,
 			marks: normProcess.marks.filter((mark) => mark.mark !== 0),
 		});
-		console.log(
-			"send to update",
-			normProcess.marks.filter((mark) => mark.mark !== 0)
-		);
 	};
 
 	useEffect(() => {
@@ -324,7 +334,58 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 			width: "auto",
 		},
 	];
+	let extremeDynamicColumns: JSX.Element[] = [
+		...norms.map((norm) => {
+			const foundSubject = subjects.find((s) => s.id === norm.subjectId);
 
+			return (
+				<Column
+					width={(foundSubject?.shortTitle.length * 25).toString() + "px"}
+					key={norm.id}
+					allowResizing={true}
+					headerCellRender={() => {
+						return (
+							<div>
+								<Tooltip title="Клік для подробиць">
+									<Button
+										type="link"
+										onClick={() => {
+											onNormClick(norm.id);
+										}}
+									>
+										<Typography.Title level={5} style={{ margin: 0 }}>
+											№ {norm.number} {foundSubject?.shortTitle}
+										</Typography.Title>
+									</Button>
+								</Tooltip>
+							</div>
+						);
+					}}
+					cellRender={({ data }) => {
+						const record = data as NormGroupProcessShowerTableData;
+
+						const foundMark = record.process.marks.find(
+							(mark) =>
+								mark.normId === norm.id && mark.userId === record.groupUser.id
+						);
+						if (!foundMark) return <div>Не заватажилось</div>;
+						return (
+							<div style={{ maxHeight: "5px" }}>
+								<EditableCell
+									value={foundMark.mark}
+									onChange={(value: number) => {
+										foundMark.mark = value;
+										buttonUpdateRef.current.focus();
+									}}
+								></EditableCell>
+							</div>
+						);
+					}}
+				></Column>
+			);
+		}),
+		<Column width="auto" dataField=" " allowResizing={true}></Column>,
+	];
 	const tableData: NormGroupProcessShowerTableData[] = props.group.users.map(
 		(user) => {
 			return {
@@ -337,16 +398,79 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 			};
 		}
 	);
+
+	const extremeDataGridSource: DataSource = new DataSource({
+		store: {
+			type: "array",
+			key: "key",
+			data: tableData,
+		},
+	});
+
 	return (
 		<div className="swing-in-top-fwd">
-			<Table
+			{/* <Table
 				columns={columns}
 				dataSource={tableData}
 				bordered
 				pagination={false}
 				scroll={{ x: "max-content" }}
 				size="small"
-			></Table>
+			></Table> */}
+			<div style={{ margin: "1%" }}>
+				<DataGrid
+					elementAttr={{
+						id: "gridContainer",
+					}}
+					dataSource={extremeDataGridSource}
+					showBorders={true}
+					showColumnLines={true}
+					showRowLines={true}
+					style={{ width: "100%" }}
+					hoverStateEnabled={true}
+					loadPanel={{ enabled: true }}
+					wordWrapEnabled={true}
+				>
+					<LoadPanel enabled={true}></LoadPanel>
+					<Scrolling columnRenderingMode="virtual" preloadEnabled={true} />
+					<Paging enabled={false} />
+					<Sorting mode={"single"}></Sorting>
+
+					<Column
+						caption="ПІБ"
+						width={"300px"}
+						dataField="groupUser"
+						cellRender={({ data: { groupUser } }: any) => {
+							return (
+								<Row justify="start" style={{ maxHeight: "5px" }}>
+									{groupUser.fullname}
+								</Row>
+							);
+							// return (
+							// 	<Input value={groupUser.fullname} bordered={false}></Input>
+							// );
+						}}
+						sortingMethod={(a: GroupUser, b: GroupUser) => {
+							return a.fullname.localeCompare(b.fullname);
+						}}
+						defaultSortOrder="asc"
+						allowSorting={false}
+						fixed={true}
+						headerCellRender={() => {
+							return (
+								<div>
+									<Button type="link">
+										<Typography.Title level={5} style={{ margin: 0 }}>
+											{"ПІБ"}
+										</Typography.Title>
+									</Button>
+								</div>
+							);
+						}}
+					></Column>
+					{extremeDynamicColumns}
+				</DataGrid>
+			</div>
 			<Affix offsetBottom={10}>
 				<Button
 					type="primary"

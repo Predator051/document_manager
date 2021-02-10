@@ -146,7 +146,7 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 			},
 		},
 		{
-			title: "Залік або оцінка за предмет навчання",
+			title: "Оцінка за тему",
 			dataIndex: "topic_mark",
 			key: "topic_mark",
 			render: (value, record: ClassLookerTableData) => {

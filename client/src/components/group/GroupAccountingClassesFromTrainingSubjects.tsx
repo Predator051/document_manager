@@ -27,8 +27,14 @@ import { RequestCode, RequestMessage, RequestType } from "../../types/requests";
 import { Subject } from "../../types/subject";
 import { User } from "../../types/user";
 import { ExcelExporter } from "../ui/excel-exporter/ExcelExporter";
-import { GroupSubjectBillExport } from "../ui/excel-exporter/exporters/GroupSubjectBillExporter";
 import { GroupAccountingClassesFromTrainingSubjectsExport } from "../ui/excel-exporter/exporters/GroupAccountingClassesFromTrainingSubjectsExport";
+import DataGrid, {
+	Scrolling,
+	Paging,
+	Column,
+	LoadPanel,
+} from "devextreme-react/data-grid";
+import DataSource from "devextreme/data/data_source";
 
 interface EditableCellProps {
 	onSave: (newValue: any) => void;
@@ -95,8 +101,12 @@ export const PresenceShower: React.FC<{
 	}
 
 	return (
-		<Popover content={content}>
-			{/* <Row style={{ width: "100%" }} justify="center"> */}
+		<Popover
+			content={content}
+			style={{
+				width: "100%",
+			}}
+		>
 			{actualMark !== 0 ? (
 				<div>
 					<Typography.Text style={{ color: color }} strong>
@@ -105,9 +115,10 @@ export const PresenceShower: React.FC<{
 					{presenceSym}
 				</div>
 			) : (
-				<Typography.Text>{presenceSym}</Typography.Text>
+				<div>
+					<Typography.Text>{presenceSym}</Typography.Text>
+				</div>
 			)}
-			{/* </Row> */}
 		</Popover>
 	);
 };
@@ -158,7 +169,7 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 					ce.date = new Date(ce.date);
 				});
 
-				// for (let index = 0; index < 100; index++) {
+				// for (let index = 0; index < 1000; index++) {
 				// 	dataMessage.data.push(dataMessage.data[0]);
 				// }
 
@@ -246,92 +257,166 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 			width: "auto",
 		},
 	];
+
+	let extremeDynamicColumns: JSX.Element[] = [];
 	if (selectedSubject && users.length > 0) {
 		const filteredClasses = classEvents.filter(
 			(ce) => ce.selectPath.subject === selectedSubject.id
 		);
 
 		if (filteredClasses.length > 0) {
-			dynamicColumns = [
-				{
-					title: "Дата, присутність, успішність",
-					key: "data",
-					align: "center",
-					dataIndex: "data",
-					children: [
-						...filteredClasses.map((classEvent) => {
-							const foundTopic = selectedSubject.programTrainings
-								.find((pt) => pt.id === classEvent.selectPath.programTraining)
-								.topics.find((t) => t.id === classEvent.selectPath.topic);
+			// dynamicColumns = [
+			// 	{
+			// 		title: "Дата, присутність, успішність",
+			// 		key: "data",
+			// 		align: "center",
+			// 		dataIndex: "data",
+			// 		children: [
+			// 			...filteredClasses.map((classEvent) => {
+			// 				const foundTopic = selectedSubject.programTrainings
+			// 					.find((pt) => pt.id === classEvent.selectPath.programTraining)
+			// 					.topics.find((t) => t.id === classEvent.selectPath.topic);
 
-							const foundOccupation = foundTopic.occupation.find(
-								(occ) => occ.id === classEvent.selectPath.occupation
+			// 				const foundOccupation = foundTopic.occupation.find(
+			// 					(occ) => occ.id === classEvent.selectPath.occupation
+			// 				);
+			// 				const foundUser = users.find((u) => u.id === classEvent.userId);
+
+			// 				return {
+			// 					title: (
+			// 						<div>
+			// 							<Tooltip
+			// 								title={
+			// 									<div>
+			// 										<Row>
+			// 											Викладач: {foundUser.secondName}{" "}
+			// 											{foundUser.firstName} - {foundUser.cycle.title}
+			// 										</Row>
+			// 										<Row>
+			// 											Тема {foundTopic.number}: {foundTopic.title}
+			// 										</Row>
+			// 										<Row>
+			// 											Заняття {foundOccupation.number}:{" "}
+			// 											{foundOccupation.title}
+			// 										</Row>
+			// 									</div>
+			// 								}
+			// 								style={{
+			// 									width: "auto",
+			// 								}}
+			// 							>
+			// 								{classEvent.date.toLocaleDateString("uk", {
+			// 									year: "2-digit",
+			// 									month: "2-digit",
+			// 									day: "2-digit",
+			// 								})}
+			// 							</Tooltip>
+			// 						</div>
+			// 					),
+			// 					key: classEvent.date.toLocaleDateString(),
+			// 					dataIndex: classEvent.date.toLocaleDateString(),
+			// 					// align: "center",
+			// 					width: "10px",
+			// 					render: (value, record: GroupTableData) => {
+			// 						const presence = classEvent.presences.find(
+			// 							(pr) => pr.userId === record.data.id
+			// 						);
+
+			// 						return (
+			// 							<div>
+			// 								<PresenceShower presence={presence}></PresenceShower>
+			// 							</div>
+			// 						);
+			// 					},
+			// 				} as ColumnGroupType<any> | ColumnType<any>;
+			// 			}),
+			// 			{
+			// 				title: " ",
+			// 				dataIndex: " ",
+			// 				key: " ",
+			// 				width: "auto",
+			// 			},
+			// 		],
+			// 	},
+			// ];
+			extremeDynamicColumns = filteredClasses.map((classEvent) => {
+				const foundTopic = selectedSubject.programTrainings
+					.find((pt) => pt.id === classEvent.selectPath.programTraining)
+					.topics.find((t) => t.id === classEvent.selectPath.topic);
+
+				const foundOccupation = foundTopic.occupation.find(
+					(occ) => occ.id === classEvent.selectPath.occupation
+				);
+				const foundUser = users.find((u) => u.id === classEvent.userId);
+
+				return (
+					<Column
+						caption={classEvent.date.toLocaleDateString("uk", {
+							year: "2-digit",
+							month: "2-digit",
+							day: "2-digit",
+						})}
+						width="100px"
+						cellRender={({ data }) => {
+							const record = data as GroupTableData;
+
+							const presence = classEvent.presences.find(
+								(pr) => pr.userId === record.data.id
 							);
-							const foundUser = users.find((u) => u.id === classEvent.userId);
 
-							return {
-								title: (
-									<div>
-										<Tooltip
-											title={
-												<div>
-													<Row>
-														Викладач: {foundUser.secondName}{" "}
-														{foundUser.firstName} - {foundUser.cycle.title}
-													</Row>
-													<Row>
-														Тема {foundTopic.number}: {foundTopic.title}
-													</Row>
-													<Row>
-														Заняття {foundOccupation.number}:{" "}
-														{foundOccupation.title}
-													</Row>
-												</div>
-											}
-											style={{
-												width: "auto",
-											}}
-										>
-											{classEvent.date.toLocaleDateString("uk", {
-												year: "2-digit",
-												month: "2-digit",
-												day: "2-digit",
-											})}
-										</Tooltip>
-									</div>
-								),
-								key: classEvent.date.toLocaleDateString(),
-								dataIndex: classEvent.date.toLocaleDateString(),
-								// align: "center",
-								width: "10px",
-								render: (value, record: GroupTableData) => {
-									const presence = classEvent.presences.find(
-										(pr) => pr.userId === record.data.id
-									);
-
-									return (
-										<div>
-											<PresenceShower presence={presence}></PresenceShower>
-										</div>
-									);
-								},
-							} as ColumnGroupType<any> | ColumnType<any>;
-						}),
-						{
-							title: " ",
-							dataIndex: " ",
-							key: " ",
-							width: "auto",
-						},
-					],
-				},
-			];
+							return (
+								<div>
+									<PresenceShower presence={presence}></PresenceShower>
+								</div>
+							);
+						}}
+						headerCellRender={({ column: { caption } }) => {
+							return (
+								<div>
+									<Tooltip
+										title={
+											<div>
+												<Row>
+													Викладач: {foundUser.secondName} {foundUser.firstName}{" "}
+													- {foundUser.cycle.title}
+												</Row>
+												<Row>
+													Тема {foundTopic.number}: {foundTopic.title}
+												</Row>
+												<Row>
+													Заняття {foundOccupation.number}:{" "}
+													{foundOccupation.title}
+												</Row>
+											</div>
+										}
+										style={{
+											width: "100%",
+										}}
+									>
+										{caption}
+									</Tooltip>
+								</div>
+							);
+						}}
+					></Column>
+				);
+			});
+			extremeDynamicColumns.push(<Column caption={" "} width="auto"></Column>);
 		}
 
 		columns.push(...dynamicColumns);
 	}
-	columns = columns.slice(0, 4);
-	console.log("columns", columns.length);
+
+	const extremeDataGridSource: DataSource = new DataSource({
+		store: {
+			type: "array",
+			key: "index",
+			data: tableData,
+		},
+		onLoadingChanged: (isLoading) => {
+			console.log("loading", isLoading);
+		},
+	});
 
 	return (
 		<div>
@@ -375,7 +460,7 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 						className="fade-in-top"
 					>
 						<div style={{ width: "95%" }}>
-							<Table
+							{/* <Table
 								title={props.title}
 								pagination={false}
 								rowKey={(gu: GroupTableData) => gu.data.id.toString()}
@@ -384,7 +469,57 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 								size="small"
 								bordered
 								scroll={{ x: "max-content" }}
-							></Table>
+							></Table> */}
+							<DataGrid
+								elementAttr={{
+									id: "gridContainer",
+								}}
+								dataSource={extremeDataGridSource}
+								showBorders={true}
+								showColumnLines={true}
+								showRowLines={true}
+								style={{ width: "100%" }}
+								hoverStateEnabled={true}
+								renderAsync={true}
+								loadPanel={{ enabled: true }}
+								wordWrapEnabled={true}
+							>
+								<LoadPanel enabled={true}></LoadPanel>
+								<Scrolling
+									columnRenderingMode="virtual"
+									preloadEnabled={true}
+								/>
+								<Paging enabled={false} />
+
+								<Column
+									caption="№ з/п"
+									width={"40px"}
+									alignment="center"
+									dataField="index"
+									fixed={true}
+								></Column>
+								<Column
+									caption="ПІБ"
+									width={"300px"}
+									alignment="center"
+									cellRender={({ data: { data } }: any) => {
+										return <Row justify="start">{data.fullname}</Row>;
+									}}
+									fixed={true}
+									dataField="data"
+									sortingMethod={(a: GroupUser, b: GroupUser) => {
+										return a.fullname.localeCompare(b.fullname);
+									}}
+									defaultSortOrder="asc"
+									allowSorting={false}
+								></Column>
+								<Column
+									caption="Дата, присутність, успішність"
+									alignment="center"
+								>
+									{extremeDynamicColumns}
+								</Column>
+							</DataGrid>
 						</div>
 					</Row>
 				</div>

@@ -7,6 +7,7 @@ import {
 	Select,
 	Tooltip,
 	Button,
+	Col,
 } from "antd";
 import {
 	ColumnGroupType,
@@ -28,6 +29,13 @@ import { User } from "../../types/user";
 import { ExcelExporter } from "../ui/excel-exporter/ExcelExporter";
 import { GroupSubjectBillExport } from "../ui/excel-exporter/exporters/GroupSubjectBillExporter";
 import { GroupAccountingNormsForTrainingSubjectsExport } from "../ui/excel-exporter/exporters/GroupAccountingNormsForTrainingSubjectsExport";
+import DataGrid, {
+	Scrolling,
+	Paging,
+	Column,
+	LoadPanel,
+} from "devextreme-react/data-grid";
+import DataSource from "devextreme/data/data_source";
 
 interface GroupTableData {
 	data: GroupUser;
@@ -204,6 +212,9 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 		},
 	];
 
+	let extremeDynamicColumns: JSX.Element[] = [
+		<Column caption={" "} width="auto"></Column>,
+	];
 	if (selectedSubject) {
 		console.log();
 
@@ -219,132 +230,216 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 			return marks.length > 0;
 		});
 
-		console.log(
-			"normProcesses",
-			normProcesses,
-			"filteredNormProcesses",
-			filteredNormProcesses,
-			"selected subject",
-			selectedSubject,
-			"group",
-			props.group,
-			"norms",
-			norms
-		);
+		// console.log(
+		// 	"normProcesses",
+		// 	normProcesses,
+		// 	"filteredNormProcesses",
+		// 	filteredNormProcesses,
+		// 	"selected subject",
+		// 	selectedSubject,
+		// 	"group",
+		// 	props.group,
+		// 	"norms",
+		// 	norms
+		// );
 		if (filteredNormProcesses.length > 0) {
-			normProcessColumns = filteredNormProcesses.map((process) => {
+			// normProcessColumns = filteredNormProcesses.map((process) => {
+			// 	const date = new Date(process.date);
+			// 	const foundUser = users.find((u) => u.id === process.user);
+			// 	return {
+			// 		title: (
+			// 			<div>
+			// 				<Tooltip
+			// 					title={
+			// 						<div>
+			// 							<Row>
+			// 								Викладач: {foundUser.secondName} {foundUser.firstName} -{" "}
+			// 								{foundUser.cycle.title}
+			// 							</Row>
+			// 						</div>
+			// 					}
+			// 					style={{
+			// 						width: "auto",
+			// 					}}
+			// 				>
+			// 					{date.toLocaleDateString("uk", {
+			// 						year: "2-digit",
+			// 						month: "2-digit",
+			// 						day: "2-digit",
+			// 					})}
+			// 				</Tooltip>
+			// 			</div>
+			// 		),
+			// 		key: date.toLocaleDateString(),
+			// 		dataIndex: date.toLocaleDateString(),
+			// 		width: "auto",
+			// 		children: [
+			// 			{
+			// 				title: "Оцінка за норматив",
+			// 				key: process.id,
+			// 				dataIndex: process.id,
+			// 				children: [
+			// 					...norms
+			// 						.filter((n) => {
+			// 							return (
+			// 								n.subjectId === selectedSubject.id &&
+			// 								process.marks.findIndex((m) => m.normId === n.id) >= 0
+			// 							);
+			// 						})
+			// 						.map((norm, index, self) => {
+			// 							return {
+			// 								title: (
+			// 									<div>
+			// 										<Tooltip title="Клік для подробиць">
+			// 											<Button
+			// 												type="link"
+			// 												onClick={() => {
+			// 													onNormClick(norm.id);
+			// 												}}
+			// 											>
+			// 												№ {norm.number}
+			// 											</Button>
+			// 										</Tooltip>
+			// 									</div>
+			// 								),
+			// 								key: norm.number + process.id,
+			// 								dataIndex: norm.number + process.id,
+			// 								width: "10px",
+			// 								render: (value, record: GroupTableData) => {
+			// 									const currMark = process.marks.find(
+			// 										(m) =>
+			// 											m.normId === norm.id && m.userId === record.data.id
+			// 									);
+			// 									return <div>{currMark?.mark}</div>;
+			// 								},
+			// 							} as ColumnGroupType<any> | ColumnType<any>;
+			// 						}),
+			// 				],
+			// 			},
+			// 		],
+			// 	} as ColumnGroupType<any> | ColumnType<any>;
+			// });
+			// normProcessColumns.push({
+			// 	title: " ",
+			// 	dataIndex: " ",
+			// 	key: " ",
+			// 	width: "auto",
+			// });
+
+			extremeDynamicColumns = filteredNormProcesses.map((process) => {
 				const date = new Date(process.date);
 				const foundUser = users.find((u) => u.id === process.user);
-				return {
-					title: (
-						<div>
-							<Tooltip
-								title={
-									<div>
-										<Row>
-											Викладач: {foundUser.secondName} {foundUser.firstName} -{" "}
-											{foundUser.cycle.title}
-										</Row>
-									</div>
-								}
-								style={{
-									width: "auto",
-								}}
-							>
-								{date.toLocaleDateString("uk", {
-									year: "2-digit",
-									month: "2-digit",
-									day: "2-digit",
-								})}
-							</Tooltip>
-						</div>
-					),
-					key: date.toLocaleDateString(),
-					dataIndex: date.toLocaleDateString(),
-					width: "auto",
-					children: [
-						{
-							title: "Оцінка за норматив",
-							key: process.id,
-							dataIndex: process.id,
-							children: [
-								...norms
-									.filter((n) => {
-										return (
-											n.subjectId === selectedSubject.id &&
-											process.marks.findIndex((m) => m.normId === n.id) >= 0
-										);
-									})
-									.map((norm, index, self) => {
-										return {
-											title: (
-												<div>
-													<Tooltip title="Клік для подробиць">
-														<Button
-															type="link"
-															onClick={() => {
-																onNormClick(norm.id);
-															}}
-														>
-															№ {norm.number}
-														</Button>
-													</Tooltip>
-												</div>
-											),
-											key: norm.number + process.id,
-											dataIndex: norm.number + process.id,
-											width: "10px",
-											render: (value, record: GroupTableData) => {
+
+				return (
+					<Column
+						allowReordering={false}
+						key={process.id}
+						caption={date.toLocaleDateString("uk", {
+							year: "2-digit",
+							month: "2-digit",
+							day: "2-digit",
+						})}
+						headerCellRender={({ column: { caption } }) => {
+							return (
+								<div>
+									<Tooltip
+										title={
+											<div>
+												<Row>
+													Викладач: {foundUser.secondName} {foundUser.firstName}{" "}
+													- {foundUser.cycle.title}
+												</Row>
+											</div>
+										}
+										style={{
+											width: "auto",
+										}}
+									>
+										{caption}
+									</Tooltip>
+								</div>
+							);
+						}}
+					>
+						<Column caption="Оцінка за норматив" allowReordering={false}>
+							{norms
+								.filter((n) => {
+									return (
+										n.subjectId === selectedSubject.id &&
+										process.marks.findIndex((m) => m.normId === n.id) >= 0
+									);
+								})
+								.map((norm, index, self) => {
+									return (
+										<Column
+											headerCellRender={({ column: { caption } }) => {
+												return (
+													<div>
+														<Tooltip title="Клік для подробиць">
+															<Button
+																type="link"
+																onClick={() => {
+																	onNormClick(norm.id);
+																}}
+															>
+																№ {norm.number}
+															</Button>
+														</Tooltip>
+													</div>
+												);
+											}}
+											allowReordering={false}
+											cellRender={({ data }) => {
+												const record = data as GroupTableData;
+
 												const currMark = process.marks.find(
 													(m) =>
 														m.normId === norm.id && m.userId === record.data.id
 												);
 												return <div>{currMark?.mark}</div>;
-											},
-										} as ColumnGroupType<any> | ColumnType<any>;
-									}),
-							],
-						},
-					],
-				} as ColumnGroupType<any> | ColumnType<any>;
+											}}
+											width="80px"
+											key={norm.id + process.id}
+										></Column>
+									);
+								})}
+						</Column>
+					</Column>
+				);
 			});
-			normProcessColumns.push({
-				title: " ",
-				dataIndex: " ",
-				key: " ",
-				width: "auto",
-			});
+			extremeDynamicColumns.push(
+				<Column caption={" "} width="auto" dataField="asa"></Column>
+			);
 		}
 	}
 
-	const columns: ColumnsType<any> = [
-		{
-			title: "№ з/п",
-			key: "number",
-			dataIndex: "number",
-			render: (value, record: GroupTableData) => {
-				return <div>{record.index}</div>;
-			},
-			fixed: "left",
-			width: "40px",
-		},
-		{
-			title: "Прізвище, ім’я та по батькові",
-			key: "fullname",
-			dataIndex: "fullname",
-			render: (value, record: GroupTableData) => {
-				return <div>{record.data.fullname}</div>;
-			},
-			sorter: (a: GroupTableData, b: GroupTableData) =>
-				a.data.fullname < b.data.fullname ? -1 : 1,
-			defaultSortOrder: "ascend",
-			fixed: "left",
-			width: "20%",
-			ellipsis: true,
-		},
-		...normProcessColumns,
-	];
-	console.log("normProcessColumns", normProcessColumns);
+	// const columns: ColumnsType<any> = [
+	// 	{
+	// 		title: "№ з/п",
+	// 		key: "number",
+	// 		dataIndex: "number",
+	// 		render: (value, record: GroupTableData) => {
+	// 			return <div>{record.index}</div>;
+	// 		},
+	// 		fixed: "left",
+	// 		width: "40px",
+	// 	},
+	// 	{
+	// 		title: "Прізвище, ім’я та по батькові",
+	// 		key: "fullname",
+	// 		dataIndex: "fullname",
+	// 		render: (value, record: GroupTableData) => {
+	// 			return <div>{record.data.fullname}</div>;
+	// 		},
+	// 		sorter: (a: GroupTableData, b: GroupTableData) =>
+	// 			a.data.fullname < b.data.fullname ? -1 : 1,
+	// 		defaultSortOrder: "ascend",
+	// 		fixed: "left",
+	// 		width: "20%",
+	// 		ellipsis: true,
+	// 	},
+	// 	...normProcessColumns,
+	// ];
 
 	const descriptionItemLabelStyle: React.CSSProperties = {
 		width: "45%",
@@ -362,6 +457,14 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 	const onSubjectSelectChanged = (value: number) => {
 		setSelectedSubject(subjects.find((s) => s.id === value));
 	};
+
+	const extremeDataGridSource: DataSource = new DataSource({
+		store: {
+			type: "array",
+			key: "index",
+			data: tableData,
+		},
+	});
 
 	return (
 		<div>
@@ -418,7 +521,7 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 						className="fade-in-top"
 					>
 						<div style={{ width: "99%" }}>
-							<Table
+							{/* <Table
 								title={props.title}
 								pagination={false}
 								rowKey={(gu: GroupTableData) => gu.data.id.toString()}
@@ -427,7 +530,51 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 								size="small"
 								scroll={{ x: "max-content" }}
 								bordered
-							></Table>
+							></Table> */}
+							<DataGrid
+								elementAttr={{
+									id: "gridContainer",
+								}}
+								dataSource={extremeDataGridSource}
+								showBorders={true}
+								showColumnLines={true}
+								showRowLines={true}
+								style={{ width: "100%" }}
+								hoverStateEnabled={true}
+								loadPanel={{ enabled: true }}
+								wordWrapEnabled={true}
+							>
+								<LoadPanel enabled={true}></LoadPanel>
+								<Scrolling
+									columnRenderingMode="virtual"
+									preloadEnabled={true}
+								/>
+								<Paging enabled={false} />
+
+								<Column
+									caption="№ з/п"
+									width={"40px"}
+									alignment="center"
+									dataField="index"
+									fixed={true}
+								></Column>
+								<Column
+									caption="Прізвище, ім’я та по батькові"
+									width={"300px"}
+									alignment="center"
+									cellRender={({ data: { data } }: any) => {
+										return <Row justify="start">{data.fullname}</Row>;
+									}}
+									fixed={true}
+									dataField="data"
+									sortingMethod={(a: GroupUser, b: GroupUser) => {
+										return a.fullname.localeCompare(b.fullname);
+									}}
+									defaultSortOrder="asc"
+									allowSorting={false}
+								></Column>
+								{extremeDynamicColumns}
+							</DataGrid>
 						</div>
 					</Row>
 				</div>

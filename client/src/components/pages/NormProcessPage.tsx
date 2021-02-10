@@ -9,6 +9,12 @@ import { NormInfoDrawer } from "../norm/NormInfoDrawer";
 import { YearContext } from "../../context/YearContext";
 import { BackPage } from "../ui/BackPage";
 
+import "moment/locale/uk";
+import DatePickerLocal from "antd/es/date-picker/locale/uk_UA";
+import * as moment from "moment";
+
+moment.locale("uk");
+
 export const NormProcessPage: React.FC = () => {
 	const [rerender, setRerender] = useState<boolean>(false);
 	const [groups, setGroups] = useState<Group[]>([]);
@@ -82,7 +88,7 @@ export const NormProcessPage: React.FC = () => {
 							<Select style={{ width: "100%" }} onChange={onGroupChange}>
 								{groups.map((gr) => (
 									<Select.Option value={gr.id}>
-										{gr.id} {GenerateGroupName(gr)}
+										{GenerateGroupName(gr)}
 									</Select.Option>
 								))}
 							</Select>
@@ -97,6 +103,7 @@ export const NormProcessPage: React.FC = () => {
 								style={{ width: "100%" }}
 								onChange={onDateChange}
 								format="DD-MM-YYYY"
+								locale={DatePickerLocal}
 							></DatePicker>
 						</Descriptions.Item>
 					</Descriptions>

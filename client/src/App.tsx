@@ -1,6 +1,9 @@
 import "./App.css";
 import "antd/dist/antd.css";
 
+import "devextreme/dist/css/dx.common.css";
+import "devextreme/dist/css/dx.light.css";
+
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 

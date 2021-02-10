@@ -41,10 +41,14 @@ export const TeacherExtractClasses: React.FC<TeacherExtractClassesProps> = (
 					console.log(`Error: ${dataMessage.requestCode}`);
 					return;
 				}
-				console.log("receive", dataMessage.data);
 				dataMessage.data.forEach(
 					(classEvent) => (classEvent.date = new Date(classEvent.date))
 				);
+
+				// for (let index = 0; index < 1000; index++) {
+				// 	dataMessage.data.push(dataMessage.data[0]);
+				// }
+
 				setClassEvents(dataMessage.data);
 
 				ConnectionManager.getInstance().emit(
