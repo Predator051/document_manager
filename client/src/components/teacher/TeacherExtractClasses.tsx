@@ -13,6 +13,15 @@ import { Subject } from "../../types/subject";
 import { User } from "../../types/user";
 import { ExcelExporter } from "../ui/excel-exporter/ExcelExporter";
 import { ExtractClassesExport } from "../ui/excel-exporter/exporters/ExtractClassesExporter";
+import DataGrid, {
+	Scrolling,
+	Paging,
+	Column,
+	LoadPanel,
+} from "devextreme-react/data-grid";
+import DataSource from "devextreme/data/data_source";
+
+import "./TeacherExtractClasses.css";
 
 export interface TeacherExtractClassesProps {
 	userId: number;
@@ -21,6 +30,7 @@ export interface TeacherExtractClassesProps {
 interface TeacherExtractClassesTableData {
 	classEvent: ClassEvent;
 	group: Group;
+	id: number;
 }
 
 export const TeacherExtractClasses: React.FC<TeacherExtractClassesProps> = (
@@ -44,11 +54,6 @@ export const TeacherExtractClasses: React.FC<TeacherExtractClassesProps> = (
 				dataMessage.data.forEach(
 					(classEvent) => (classEvent.date = new Date(classEvent.date))
 				);
-
-				// for (let index = 0; index < 1000; index++) {
-				// 	dataMessage.data.push(dataMessage.data[0]);
-				// }
-
 				setClassEvents(dataMessage.data);
 
 				ConnectionManager.getInstance().emit(
@@ -135,6 +140,7 @@ export const TeacherExtractClasses: React.FC<TeacherExtractClassesProps> = (
 			title: "Дата",
 			dataIndex: "date",
 			key: "date",
+			width: "100px",
 			render: (value, record: TeacherExtractClassesTableData) => {
 				const date = new Date(record.classEvent.date);
 				return (
@@ -228,12 +234,22 @@ export const TeacherExtractClasses: React.FC<TeacherExtractClassesProps> = (
 
 	const tableData: TeacherExtractClassesTableData[] = classEvents.map(
 		(classEvent) => {
+			const group = groups.find((gr) => gr.id === classEvent.groupId);
 			return {
 				classEvent: classEvent,
-				group: groups.find((gr) => gr.id === classEvent.groupId),
+				group: group,
+				id: group.id,
 			};
 		}
 	);
+
+	const extremeDataGridSource: DataSource = new DataSource({
+		store: {
+			type: "array",
+			key: "id",
+			data: tableData,
+		},
+	});
 
 	return (
 		<div style={{ margin: "1%" }}>
@@ -251,12 +267,123 @@ export const TeacherExtractClasses: React.FC<TeacherExtractClassesProps> = (
 					}
 				></ExcelExporter>
 			</Row>
-			<Table
+			{/* <Table
 				columns={columns}
 				bordered
 				dataSource={tableData}
 				pagination={false}
-			></Table>
+			></Table> */}
+			<DataGrid
+				elementAttr={{
+					id: "gridContainer",
+				}}
+				dataSource={extremeDataGridSource}
+				showBorders={true}
+				showColumnLines={true}
+				showRowLines={true}
+				style={{ width: "100%" }}
+				hoverStateEnabled={true}
+				loadPanel={{ enabled: true }}
+				wordWrapEnabled={true}
+			>
+				<LoadPanel enabled={true}></LoadPanel>
+				<Scrolling
+					rowRenderingMode="virtual"
+					// mode="virtual"
+					preloadEnabled={true}
+				/>
+				<Paging enabled={false} />
+				<Column
+					caption="Дата"
+					width={"100px"}
+					alignment="center"
+					cellRender={({ data: { classEvent } }: any) => {
+						const date = new Date(classEvent.date);
+
+						return date.toLocaleDateString("uk", {
+							year: "numeric",
+							month: "2-digit",
+							day: "2-digit",
+						});
+					}}
+					dataField="classEvent"
+					sortingMethod={(a: ClassEvent, b: ClassEvent) => {
+						return new Date(a.date) < new Date(b.date) ? -1 : 1;
+					}}
+					defaultSortOrder="desc"
+					allowSorting={false}
+				></Column>
+				<Column caption="Проведення занять" width={"100px"} alignment="center">
+					<Column
+						caption="Години занять"
+						width={"100px"}
+						alignment="center"
+						cellRender={({ data: { classEvent } }: any) => {
+							return (classEvent as ClassEvent).hours;
+						}}
+					></Column>
+					<Column
+						caption="Підрозділ, ВОС"
+						width={"300px"}
+						cellRender={({ data }: any) => {
+							const record = data as TeacherExtractClassesTableData;
+							return (
+								<div>
+									{record.group.company} рота, {record.group.platoon} взвод,
+									ВОС: {record.group.mrs}
+								</div>
+							);
+						}}
+					></Column>
+				</Column>
+				<Column
+					caption="Предмети навчання, номер теми, її назва, номер заняття, його назва, номери нормативів, що відпрацьовуються"
+					width={"auto"}
+					alignment="center"
+					cellRender={({ data }: any) => {
+						const record = data as TeacherExtractClassesTableData;
+						const subject = subjects.find(
+							(s) => s.id === record.classEvent.selectPath.subject
+						);
+						const topic = subject.programTrainings
+							.find(
+								(pt) => pt.id === record.classEvent.selectPath.programTraining
+							)
+							.topics.find((t) => t.id === record.classEvent.selectPath.topic);
+
+						const occupation = topic.occupation.find(
+							(oc) => oc.id === record.classEvent.selectPath.occupation
+						);
+
+						return (
+							<div>
+								<Row>
+									<Typography.Text strong>{subject.fullTitle}</Typography.Text>
+								</Row>
+								<Row>
+									Тема {topic.number}: {topic.title}
+								</Row>
+								<Row>
+									Заняття {occupation.number}: {occupation.title}
+								</Row>
+							</div>
+						);
+					}}
+				></Column>
+				<Column
+					caption="Місце проведення заняття"
+					width={"auto"}
+					cellRender={({ data }: any) => {
+						const record = data as TeacherExtractClassesTableData;
+						return <div>{record.classEvent.place}</div>;
+					}}
+				></Column>
+				<Column
+					caption="Підпис викладача"
+					width={"auto"}
+					alignment="center"
+				></Column>
+			</DataGrid>
 		</div>
 	);
 };

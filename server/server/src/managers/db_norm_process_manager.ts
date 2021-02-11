@@ -139,7 +139,8 @@ export class DBNormProcessManager {
 
 	public static async GetByDateAndUser(
 		date: Date,
-		userId: number
+		userId: number,
+		groupId: number
 	): Promise<NormProcessEntity | undefined> {
 		// const result = getRepository(NormProcessEntity).findOne({
 		// 	relations: this.getRelations(),
@@ -171,7 +172,8 @@ export class DBNormProcessManager {
 				d.getFullYear() === date.getFullYear() &&
 				d.getMonth() === date.getMonth() &&
 				d.getDate() === date.getDate() &&
-				p.user.id === userId
+				p.user.id === userId &&
+				p.group.id === groupId
 			);
 		});
 

@@ -219,7 +219,8 @@ export class NormProcessModel {
 
 		let normProcessEntity = await DBNormProcessManager.GetByDateAndUser(
 			new Date(request.data.date),
-			userEntity.id
+			userEntity.id,
+			groupEntity.id
 		);
 
 		if (normProcessEntity === undefined) {

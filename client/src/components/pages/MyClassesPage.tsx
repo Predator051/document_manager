@@ -1,7 +1,7 @@
 import { Button, PageHeader, Row, Spin, Table } from "antd";
 import { ColumnsType } from "antd/lib/table/interface";
 import React, { useEffect, useState, useContext } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 import { GenerateGroupName } from "../../helpers/GroupHelper";
 import { ConnectionManager } from "../../managers/connetion/connectionManager";
 import { ClassEvent } from "../../types/classEvent";

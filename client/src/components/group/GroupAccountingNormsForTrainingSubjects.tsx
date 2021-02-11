@@ -372,6 +372,7 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 								.map((norm, index, self) => {
 									return (
 										<Column
+											dataField={norm.id + process.id}
 											headerCellRender={({ column: { caption } }) => {
 												return (
 													<div>
@@ -408,7 +409,7 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 				);
 			});
 			extremeDynamicColumns.push(
-				<Column caption={" "} width="auto" dataField="asa"></Column>
+				<Column caption={" "} width="auto" dataField=" "></Column>
 			);
 		}
 	}
