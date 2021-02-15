@@ -16,7 +16,7 @@ function App() {
 		<ErrorBoundary>
 			<YearContext.Provider value={{ year: new Date().getFullYear() }}>
 				<div>
-					<Router>
+					<Router basename="/">
 						<Site></Site>
 					</Router>
 				</div>

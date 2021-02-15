@@ -12,6 +12,7 @@ import { GroupTrainingTypeEntity } from "./group.training.type.entity";
 import { NormProcessEntity } from "./norm.process.entity";
 import { IndividualWorkEntity } from "./individual.work.entity";
 import { ObjectStatus } from "../types/constants";
+import { MRSEntity } from "./mrs.entity";
 
 @Entity()
 export class GroupEntity {
@@ -43,12 +44,8 @@ export class GroupEntity {
 	@ManyToOne((type) => GroupTrainingTypeEntity, (tt) => tt.group)
 	trainingType: GroupTrainingTypeEntity;
 
-	@Column({
-		type: "enum",
-		enum: MRSType,
-		default: MRSType.ASU,
-	})
-	mrs: MRSType;
+	@ManyToOne((type) => MRSEntity, (mrs) => mrs.groups, { cascade: true })
+	mrs: MRSEntity;
 
 	@Column({
 		type: "enum",
@@ -81,7 +78,7 @@ export class GroupEntity {
 			appeal: this.appeal,
 			mrs: this.mrs,
 			users: this.users.map((u) => u.ToRequestObject()),
-			status: this.status
+			status: this.status,
 		};
 	}
 }

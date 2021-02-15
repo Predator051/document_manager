@@ -166,7 +166,7 @@ export const TeacherGroupNormList: React.FC<TeacherGroupNormListProps> = (
 			<Row>
 				<Typography.Text strong>
 					{selectedGroup.company} рота, {selectedGroup.platoon} взвод, ВОС{" "}
-					{selectedGroup.mrs}
+					{selectedGroup.mrs.number}
 				</Typography.Text>
 			</Row>
 		);

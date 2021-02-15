@@ -1,7 +1,7 @@
 import "../../../node_modules/hover.css/css/hover.css";
 import React, { useEffect, useState } from "react";
 import { RouteComponentProps, useHistory } from "react-router-dom";
-import { Typography, Row, List, Tabs, Spin } from "antd";
+import { Typography, Row, List, Tabs, Spin, Popover } from "antd";
 import { Group } from "../../types/group";
 import { ConnectionManager } from "../../managers/connetion/connectionManager";
 import { RequestMessage, RequestType, RequestCode } from "../../types/requests";
@@ -53,7 +53,7 @@ export const GroupInfoPage: React.FC<
 		return (
 			<Row>
 				<Typography.Text strong>
-					{group.company} рота, {group.platoon} взвод, ВОС {group.mrs}
+					{group.company} рота, {group.platoon} взвод, ВОС {group.mrs.number}
 				</Typography.Text>
 			</Row>
 		);
@@ -119,10 +119,12 @@ export const GroupInfoPage: React.FC<
 				</Tabs.TabPane>
 				<Tabs.TabPane
 					tab={
-						<span>
-							<BarChartOutlined></BarChartOutlined> Облік занять з предметів
-							підготовки
-						</span>
+						<Popover content="Тут відображаються всі заняття з даною групою.">
+							<span>
+								<BarChartOutlined></BarChartOutlined> Облік занять з предметів
+								підготовки
+							</span>
+						</Popover>
 					}
 					key="2"
 				>
@@ -132,10 +134,12 @@ export const GroupInfoPage: React.FC<
 				</Tabs.TabPane>
 				<Tabs.TabPane
 					tab={
-						<span>
-							<DotChartOutlined></DotChartOutlined> Облік виконання нормативів з
-							предметів підготовки
-						</span>
+						<Popover content="Тут відображаються всі опрацьовані нормативи з даною групою.">
+							<span>
+								<DotChartOutlined></DotChartOutlined> Облік виконання нормативів
+								з предметів підготовки
+							</span>
+						</Popover>
 					}
 					key="3"
 				>

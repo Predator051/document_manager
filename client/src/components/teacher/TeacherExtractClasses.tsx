@@ -178,7 +178,7 @@ export const TeacherExtractClasses: React.FC<TeacherExtractClassesProps> = (
 						return (
 							<div>
 								{record.group.company} рота, {record.group.platoon} взвод, ВОС:{" "}
-								{record.group.mrs}
+								{record.group.mrs.number}
 							</div>
 						);
 					},
@@ -330,7 +330,7 @@ export const TeacherExtractClasses: React.FC<TeacherExtractClassesProps> = (
 							return (
 								<div>
 									{record.group.company} рота, {record.group.platoon} взвод,
-									ВОС: {record.group.mrs}
+									ВОС: {record.group.mrs.number}
 								</div>
 							);
 						}}

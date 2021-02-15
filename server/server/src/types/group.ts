@@ -1,5 +1,6 @@
 import { GroupUser } from "./groupUser";
 import { ObjectStatus } from "./constants";
+import { MRS } from "./mrs";
 
 export enum GroupTrainingType {
 	PROFESSIONAL_CONTRACT = "professional_contract",
@@ -30,6 +31,14 @@ export enum MRSType {
 	TS = "403, 460",
 	ZIKB = "474",
 	RZ = "423",
+	POI = "600",
+	BIUS = "603",
+	RR = "460",
+	TLF = "403",
+	FPS = "485",
+	REM = "769",
+	AVT = "790",
+	OTHER = "інше",
 }
 
 export class GroupTraining {
@@ -47,7 +56,7 @@ export class Group {
 	platoon: number;
 	quarter: number;
 	trainingType: GroupTraining;
-	mrs: MRSType;
+	mrs: MRS;
 	users: GroupUser[];
 	status: ObjectStatus;
 }
@@ -89,9 +98,25 @@ export function MRSToString(mrst: MRSType) {
 			return "РЗ";
 		case MRSType.TS:
 			return "ТС";
+		case MRSType.ZIKB:
+			return "ЗІКБ";
+		case MRSType.AVT:
+			return "АВТ";
+		case MRSType.BIUS:
+			return "БІУС";
+		case MRSType.FPS:
+			return "ФПС";
+		case MRSType.POI:
+			return "ПОІ";
+		case MRSType.REM:
+			return "РЕМ";
+		case MRSType.RR:
+			return "РР";
+		case MRSType.TLF:
+			return "ТЛФ";
 	}
 
-	return "ЗІКБ";
+	return "Інше";
 }
 
 export function CreateEmptyGroup(): Group {
@@ -108,7 +133,11 @@ export function CreateEmptyGroup(): Group {
 		},
 		users: [],
 		appeal: ConstripAppeal.AUTUMN,
-		mrs: MRSType.ASU,
+		mrs: {
+			id: 0,
+			name: "",
+			number: "",
+		},
 		quarter: 0,
 		status: ObjectStatus.NORMAL,
 	};

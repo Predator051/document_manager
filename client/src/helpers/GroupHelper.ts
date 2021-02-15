@@ -35,26 +35,10 @@ export function GenerateGroupName(gr: Group) {
 		}
 	}
 
-	result += gr.company.toString() + gr.platoon.toString();
-
-	switch (gr.mrs) {
-		case MRSType.ASU: {
-			result += "АСУ";
-			break;
-		}
-		case MRSType.RZ: {
-			result += "РЗ";
-			break;
-		}
-		case MRSType.TS: {
-			result += "ТС";
-			break;
-		}
-		case MRSType.ZIKB: {
-			result += "ЗІКБ";
-			break;
-		}
-	}
+	result +=
+		(gr.company !== 0 ? gr.company.toString() : "") +
+		(gr.platoon !== 0 ? gr.platoon.toString() : "");
+	result += gr.mrs.name;
 
 	return result;
 }

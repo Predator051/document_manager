@@ -92,7 +92,7 @@ export const GroupTable: React.FC<GroupTableProps> = (
 					bufferFunction={() => {
 						return GroupExport(props.userGroups);
 					}}
-					fileName={`${props.userGroups.company} рота, ${props.userGroups.platoon} взвод, ВОС ${props.userGroups.mrs}`}
+					fileName={`${props.userGroups.company} рота, ${props.userGroups.platoon} взвод, ВОС ${props.userGroups.mrs.number}`}
 				></ExcelExporter>
 			</Row>
 			<Table

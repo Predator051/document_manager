@@ -1,6 +1,6 @@
 import "../../../node_modules/hover.css/css/hover.css";
 
-import { Table, Button } from "antd";
+import { Table, Button, Card } from "antd";
 import { ColumnsType } from "antd/lib/table/interface";
 import React, { useEffect, useState, useContext } from "react";
 import { useHistory } from "react-router-dom";
@@ -283,11 +283,11 @@ export const GroupList: React.FC<GroupListProps> = (props: GroupListProps) => {
 			key: "fah",
 			dataIndex: "fah",
 			render: (value, record: GroupListTableData) => (
-				<div>{MRSToString(record.data.mrs)}</div>
+				<div>{record.data.mrs.name}</div>
 			),
 			sorter: (a: GroupListTableData, b: GroupListTableData) => {
-				const mrsA = a.data.mrs.toUpperCase();
-				const mrsB = b.data.mrs.toUpperCase();
+				const mrsA = a.data.mrs.id;
+				const mrsB = b.data.mrs.id;
 
 				if (mrsA < mrsB) {
 					return -1;
@@ -325,7 +325,7 @@ export const GroupList: React.FC<GroupListProps> = (props: GroupListProps) => {
 			key: "mrs",
 			dataIndex: "mrs",
 			render: (value, record: GroupListTableData) => (
-				<div>{record.data.mrs}</div>
+				<div>{record.data.mrs.number}</div>
 			),
 		},
 		{
@@ -381,13 +381,15 @@ export const GroupList: React.FC<GroupListProps> = (props: GroupListProps) => {
 
 	return (
 		<div>
-			<Table
-				pagination={false}
-				dataSource={tableData}
-				columns={columns}
-				bordered
-				size="small"
-			></Table>
+			<div>
+				<Table
+					pagination={false}
+					dataSource={tableData}
+					columns={columns}
+					bordered
+					size="small"
+				></Table>
+			</div>
 		</div>
 	);
 };

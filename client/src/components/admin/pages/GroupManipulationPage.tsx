@@ -24,7 +24,7 @@ import {
 } from "antd";
 import Avatar from "antd/lib/avatar/avatar";
 import { message } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import {
 	Group,
 	GroupTrainingType,
@@ -191,6 +191,34 @@ export const GroupManipulationPage: React.FC<GroupManipulationPageProps> = (
 	// 	return <Spin size="large"></Spin>;
 	// }
 
+	function onCreatedEditedGroupExist(
+		modal: ReturnType<typeof Modal.info>,
+		existedGroup: Group
+	) {
+		const createdModal = Modal.confirm({
+			title: (
+				<Typography.Text>
+					Група{" "}
+					<Typography.Text strong>
+						{GenerateGroupName(existedGroup)}
+					</Typography.Text>{" "}
+					вже існує. Переглянути існуючу групу?
+				</Typography.Text>
+			),
+			closable: true,
+			okText: "Так",
+			cancelText: "Ні",
+			zIndex: 1050,
+			icon: <CloseCircleOutlined></CloseCircleOutlined>,
+
+			onOk: () => {
+				// modal.destroy();
+				onGroupInfoClick(existedGroup.id);
+				createdModal.destroy();
+			},
+		});
+	}
+
 	function onGroupInfoClick(groupId: number) {
 		const modal = Modal.info({
 			title: "Інформація про групу",
@@ -230,6 +258,7 @@ export const GroupManipulationPage: React.FC<GroupManipulationPageProps> = (
 					<GroupCreator
 						onCreate={onGroupUpdate}
 						onClose={onSubjectCreatorClose}
+						onExist={onCreatedEditedGroupExist.bind(null, modal)}
 						group={groups.find((gr) => gr.id === groupId)}
 						createText="Оновити"
 						archiveButton
@@ -406,11 +435,11 @@ export const GroupManipulationPage: React.FC<GroupManipulationPageProps> = (
 			key: "fah",
 			dataIndex: "fah",
 			render: (value, record: GroupListTableData) => (
-				<div>{MRSToString(record.data.mrs)}</div>
+				<div>{record.data.mrs.name}</div>
 			),
 			sorter: (a: GroupListTableData, b: GroupListTableData) => {
-				const mrsA = a.data.mrs.toUpperCase();
-				const mrsB = b.data.mrs.toUpperCase();
+				const mrsA = a.data.mrs.id;
+				const mrsB = b.data.mrs.id;
 
 				if (mrsA < mrsB) {
 					return -1;
@@ -448,7 +477,7 @@ export const GroupManipulationPage: React.FC<GroupManipulationPageProps> = (
 			key: "mrs",
 			dataIndex: "mrs",
 			render: (value, record: GroupListTableData) => (
-				<div>{record.data.mrs}</div>
+				<div>{record.data.mrs.number}</div>
 			),
 		},
 		{
@@ -544,8 +573,58 @@ export const GroupManipulationPage: React.FC<GroupManipulationPageProps> = (
 		data: g,
 	}));
 
+	function onCreateGroupClick() {
+		const modal = Modal.info({
+			title: "Створення группи",
+			width: window.screen.width * 0.6,
+			style: { top: 20 },
+			closable: true,
+			okButtonProps: {
+				style: { visibility: "hidden" },
+			},
+			zIndex: 1050,
+		});
+		const onGroupCreate = (group: Group) => {
+			ConnectionManager.getInstance().registerResponseOnceHandler(
+				RequestType.CREATE_GROUP,
+				(data) => {
+					const dataMessage = data as RequestMessage<any>;
+					if (dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR) {
+						console.log(`Error: ${dataMessage.requestCode}`);
+						return;
+					}
+
+					loadAllGroups();
+				}
+			);
+			ConnectionManager.getInstance().emit(RequestType.CREATE_GROUP, group);
+			modal.destroy();
+		};
+		const onGroupCreatorClose = () => {};
+		modal.update({
+			content: (
+				<div
+					style={{
+						height: "auto",
+					}}
+				>
+					<GroupCreator
+						onCreate={onGroupCreate}
+						onClose={onGroupCreatorClose}
+						onExist={onCreatedEditedGroupExist.bind(null, modal)}
+					></GroupCreator>
+				</div>
+			),
+		});
+	}
+
 	return (
-		<div>
+		<div style={{ margin: "1%" }}>
+			<Row justify="end" style={{ margin: "3px" }}>
+				<Button type="primary" onClick={onCreateGroupClick}>
+					Створити групу
+				</Button>
+			</Row>
 			<Table dataSource={tableData} columns={columns} loading={loading}></Table>
 		</div>
 	);

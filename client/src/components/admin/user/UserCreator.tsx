@@ -1,6 +1,15 @@
 import "moment/locale/uk";
 
-import { Button, Descriptions, Input, Row, Select } from "antd";
+import {
+	Button,
+	Descriptions,
+	Input,
+	Row,
+	Select,
+	message,
+	Divider,
+	Modal,
+} from "antd";
 import * as moment from "moment";
 import React, { useEffect, useState } from "react";
 
@@ -15,6 +24,7 @@ import {
 import { Subdivision } from "../../../types/subdivision";
 import { Position, PositionType } from "../../../types/position";
 import { Rank, RankType } from "../../../types/rank";
+import { PlusOutlined } from "@ant-design/icons";
 
 moment.locale("uk");
 
@@ -189,6 +199,173 @@ export const UserCreator: React.FC<UserCreatorProps> = (
 		});
 	};
 
+	const updatePosition = (position: Position) => {
+		ConnectionManager.getInstance().registerResponseOnceHandler(
+			RequestType.UPDATE_POSITIONS,
+			(data) => {
+				const dataMessage = data as RequestMessage<any>;
+				if (dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR) {
+					console.log(`Error: ${dataMessage.requestCode}`);
+					message.error(
+						"Сталася помилка! Спробуйте ще раз чи зверніться до адміністратора!"
+					);
+					return;
+				}
+
+				message.success("Успішно");
+				loadAllPositions();
+			}
+		);
+		ConnectionManager.getInstance().emit(
+			RequestType.UPDATE_POSITIONS,
+			position
+		);
+	};
+
+	const updateRank = (rank: Rank) => {
+		ConnectionManager.getInstance().registerResponseOnceHandler(
+			RequestType.UPDATE_RANK,
+			(data) => {
+				const dataMessage = data as RequestMessage<any>;
+				if (dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR) {
+					console.log(`Error: ${dataMessage.requestCode}`);
+					message.error(
+						"Сталася помилка! Спробуйте ще раз чи зверніться до адміністратора!"
+					);
+					return;
+				}
+				message.success("Успішно");
+				loadAllRanks();
+			}
+		);
+		ConnectionManager.getInstance().emit(RequestType.UPDATE_RANK, rank);
+	};
+
+	const updateSubdivision = (subdivision: Subdivision) => {
+		ConnectionManager.getInstance().registerResponseOnceHandler(
+			RequestType.UPDATE_SUBDIVISION,
+			(data) => {
+				const dataMessage = data as RequestMessage<any>;
+				if (dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR) {
+					console.log(`Error: ${dataMessage.requestCode}`);
+					message.error(
+						"Сталася помилка! Спробуйте ще раз чи зверніться до адміністратора!"
+					);
+					return;
+				}
+
+				message.success("Успішно");
+				loadAllSubdivisions();
+			}
+		);
+		ConnectionManager.getInstance().emit(
+			RequestType.UPDATE_SUBDIVISION,
+			subdivision
+		);
+	};
+
+	const onCreateSubdivisionClick = () => {
+		var title = "";
+		const onChange: (event: React.ChangeEvent<HTMLInputElement>) => void = ({
+			target: { value },
+		}) => {
+			title = value;
+		};
+		const onCreate = () => {
+			updateSubdivision({ id: 0, title: title });
+		};
+		const modal = Modal.info({
+			title: "Створення підрозділу",
+			width: window.screen.width * 0.2,
+			style: { top: 20 },
+			closable: true,
+			onOk: onCreate,
+			zIndex: 1050,
+			content: (
+				<div
+					style={{
+						height: "auto",
+						// minHeight: "500px",
+					}}
+				>
+					<Input
+						style={{ width: "100%" }}
+						placeholder="Введіть назву підрозділу"
+						onChange={onChange}
+					></Input>
+				</div>
+			),
+		});
+	};
+
+	const onCreateRankClick = () => {
+		var title = "";
+		const onChangeTitle: (
+			event: React.ChangeEvent<HTMLInputElement>
+		) => void = ({ target: { value } }) => {
+			title = value;
+		};
+		const onCreate = () => {
+			updateRank({ id: 0, title, type: RankType.STANDART });
+		};
+		const modal = Modal.info({
+			title: "Додавання звання",
+			width: window.screen.width * 0.2,
+			style: { top: 20 },
+			closable: true,
+			onOk: onCreate,
+			zIndex: 1050,
+			content: (
+				<div
+					style={{
+						height: "auto",
+						// minHeight: "500px",
+					}}
+				>
+					<Input
+						style={{ width: "100%" }}
+						placeholder="Введіть звання"
+						onChange={onChangeTitle}
+					></Input>
+				</div>
+			),
+		});
+	};
+
+	const onCreatePositionClick = () => {
+		var title = "";
+		const onChange: (event: React.ChangeEvent<HTMLInputElement>) => void = ({
+			target: { value },
+		}) => {
+			title = value;
+		};
+		const onSubjectCreate = () => {
+			updatePosition({ id: 0, title: title, type: PositionType.STANDART });
+		};
+		const modal = Modal.info({
+			title: "Створення посади",
+			width: window.screen.width * 0.2,
+			style: { top: 20 },
+			closable: true,
+			onOk: onSubjectCreate,
+			zIndex: 1050,
+			content: (
+				<div
+					style={{
+						height: "auto",
+						// minHeight: "500px",
+					}}
+				>
+					<Input
+						style={{ width: "100%" }}
+						placeholder="Введіть назву посади"
+						onChange={onChange}
+					></Input>
+				</div>
+			),
+		});
+	};
+
 	return (
 		<div style={{ marginTop: "1%" }}>
 			<Row justify="center">
@@ -267,6 +444,27 @@ export const UserCreator: React.FC<UserCreatorProps> = (
 										subdivisions.find((s) => s.id === value)
 									);
 								}}
+								dropdownRender={(menu) => (
+									<div style={{ zIndex: 1000 }}>
+										{menu}
+										<Divider style={{ margin: "4px 0" }}></Divider>
+										<div
+											style={{
+												display: "flex",
+												flexWrap: "nowrap",
+												padding: 8,
+											}}
+										>
+											<Button
+												type="link"
+												onClick={onCreateSubdivisionClick}
+												icon={<PlusOutlined></PlusOutlined>}
+											>
+												Додати посаду
+											</Button>
+										</div>
+									</div>
+								)}
 							>
 								{subdivisions.map((sub) => (
 									<Select.Option value={sub.id}>{sub.title}</Select.Option>
@@ -286,6 +484,27 @@ export const UserCreator: React.FC<UserCreatorProps> = (
 								onChange={(value) => {
 									setSelectedPosition(positions.find((p) => p.id === value));
 								}}
+								dropdownRender={(menu) => (
+									<div style={{ zIndex: 1000 }}>
+										{menu}
+										<Divider style={{ margin: "4px 0" }}></Divider>
+										<div
+											style={{
+												display: "flex",
+												flexWrap: "nowrap",
+												padding: 8,
+											}}
+										>
+											<Button
+												type="link"
+												onClick={onCreatePositionClick}
+												icon={<PlusOutlined></PlusOutlined>}
+											>
+												Створити нову посаду
+											</Button>
+										</div>
+									</div>
+								)}
 							>
 								{positions
 									.filter((pos) => pos.type === PositionType.STANDART)
@@ -307,6 +526,27 @@ export const UserCreator: React.FC<UserCreatorProps> = (
 								onChange={(value) => {
 									setSelectedRank(ranks.find((p) => p.id === value));
 								}}
+								dropdownRender={(menu) => (
+									<div style={{ zIndex: 1000 }}>
+										{menu}
+										<Divider style={{ margin: "4px 0" }}></Divider>
+										<div
+											style={{
+												display: "flex",
+												flexWrap: "nowrap",
+												padding: 8,
+											}}
+										>
+											<Button
+												type="link"
+												onClick={onCreateRankClick}
+												icon={<PlusOutlined></PlusOutlined>}
+											>
+												Додати звання
+											</Button>
+										</div>
+									</div>
+								)}
 							>
 								{ranks
 									.filter((r) => r.type === RankType.STANDART)

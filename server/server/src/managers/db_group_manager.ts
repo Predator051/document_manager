@@ -23,6 +23,7 @@ export class DBGroupManager {
 	): SelectQueryBuilder<GroupEntity> {
 		query.leftJoinAndSelect("group.users", "users");
 		query.leftJoinAndSelect("group.trainingType", "trainingType");
+		query.leftJoinAndSelect("group.mrs", "mrs");
 
 		return query;
 	}
@@ -97,6 +98,40 @@ export class DBGroupManager {
 			.getOne();
 
 		return user;
+	}
+
+	public static async IsExist(group: Group): Promise<[boolean, GroupEntity]> {
+		const query = this.addRelations(
+			getRepository(GroupEntity).createQueryBuilder("group")
+		).where({
+			year: group.year,
+			company: group.company,
+			platoon: group.platoon,
+			status: ObjectStatus.NORMAL,
+			mrs: {
+				id: group.mrs.id,
+			},
+			trainingType: {
+				id: group.trainingType.id,
+			},
+		});
+
+		// query.andWhere("mrs.id = :id", { id: group.mrs.id });
+		if (group.trainingType.type === GroupTrainingType.PROFESSIONAL_CONTRACT) {
+			query.andWhere("group.cycle = :cycle", { cycle: group.cycle });
+		}
+
+		if (group.trainingType.type === GroupTrainingType.PROFESSIONAL_SERGEANTS) {
+			query.andWhere("group.quarter = :quarter", { quarter: group.quarter });
+		}
+
+		if (group.trainingType.type === GroupTrainingType.PROFESSIONAL_SERGEANTS) {
+			query.andWhere("group.appeal = :appeal", { appeal: group.appeal });
+		}
+
+		let result = await query.getOne();
+
+		return [result !== undefined, result];
 	}
 
 	public static async GetAllGroupTrainingTypes(): Promise<

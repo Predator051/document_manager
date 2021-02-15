@@ -7,6 +7,8 @@ import {
 	UserAddOutlined,
 	UsergroupAddOutlined,
 	AreaChartOutlined,
+	AimOutlined,
+	AuditOutlined,
 } from "@ant-design/icons";
 import { Col, Layout, Menu, Row } from "antd";
 import React from "react";
@@ -21,6 +23,8 @@ import { ProfileEditPage } from "../login/EditProfile";
 import { SiteHREFS } from "../site/Site";
 import { UserMenu } from "../user/menu/UserMenu";
 import { GroupUsageStaticsPage } from "../admin/pages/GroupUsageStatisticsPage";
+import { MRSEditPage } from "../admin/pages/MRCEditPage";
+import { RankEditPage } from "../admin/pages/RankEditPage";
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -32,6 +36,8 @@ export enum HREFS_ADMIN {
 	EDIT_UNIT = "/unit/edit",
 	GROUP = "/groups",
 	GROUP_USAGE_STATISTICS = "/statistics/groups/usage/",
+	EDIT_MRS = "/mrs/edit",
+	EDIT_RANKS = "/rank/edit",
 }
 
 const MENU_ITEMS = [
@@ -58,6 +64,18 @@ const MENU_ITEMS = [
 		icon: <MonitorOutlined></MonitorOutlined>,
 		component: <GroupManipulationPage></GroupManipulationPage>,
 		href: HREFS_ADMIN.GROUP,
+	},
+	{
+		content: "ВОС",
+		icon: <AimOutlined></AimOutlined>,
+		component: <MRSEditPage></MRSEditPage>,
+		href: HREFS_ADMIN.EDIT_MRS,
+	},
+	{
+		content: "Звання",
+		icon: <AuditOutlined></AuditOutlined>,
+		component: <RankEditPage></RankEditPage>,
+		href: HREFS_ADMIN.EDIT_RANKS,
 	},
 	// {
 	// 	content: "Групова статистика",
