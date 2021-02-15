@@ -13,6 +13,7 @@ import { DBGroupManager } from "../managers/db_group_manager";
 import { CreateEmptyGroup } from "../types/group";
 import { GroupUserEntity } from "../entities/group.user.entity";
 import { getTreeRepository } from "typeorm";
+import { DBMRSManager } from "../managers/db_mrs_manager";
 
 export class GroupModel {
 	public static async getAllGroups(
@@ -45,6 +46,33 @@ export class GroupModel {
 			requestCode: RequestCode.RES_CODE_SUCCESS,
 			session: "",
 		};
+	}
+
+	public static async checkGroupExist(
+		group: Group
+	): Promise<RequestMessage<[boolean, Group | undefined]>> {
+		try {
+			console.log("group", group);
+			console.log("mrs", group.mrs);
+
+			const [isExist, groupEntity] = await DBGroupManager.IsExist(group);
+
+			return {
+				data: [isExist, groupEntity?.ToRequestObject()],
+				messageInfo: `SUCCESS`,
+				requestCode: RequestCode.RES_CODE_SUCCESS,
+				session: "",
+			};
+		} catch (e) {
+			console.error(e);
+
+			return {
+				data: [false, undefined],
+				messageInfo: `ERROR`,
+				requestCode: RequestCode.RES_CODE_INTERNAL_ERROR,
+				session: "",
+			};
+		}
 	}
 
 	public static async getAllGroupTrainingTypes(): Promise<
@@ -94,7 +122,10 @@ export class GroupModel {
 		newGroupEntity.appeal = gr.appeal;
 		newGroupEntity.company = gr.company;
 		newGroupEntity.cycle = gr.cycle;
-		newGroupEntity.mrs = gr.mrs;
+
+		const mrsEntity = await DBMRSManager.GetById(gr.mrs.id);
+		newGroupEntity.mrs = mrsEntity;
+
 		newGroupEntity.platoon = gr.platoon;
 		newGroupEntity.quarter = gr.quarter;
 		newGroupEntity.year = gr.year;
@@ -150,7 +181,10 @@ export class GroupModel {
 		newGroupEntity.appeal = gr.appeal;
 		newGroupEntity.company = gr.company;
 		newGroupEntity.cycle = gr.cycle;
-		newGroupEntity.mrs = gr.mrs;
+
+		const mrsEntity = await DBMRSManager.GetById(gr.mrs.id);
+		newGroupEntity.mrs = mrsEntity;
+
 		newGroupEntity.platoon = gr.platoon;
 		newGroupEntity.quarter = gr.quarter;
 		newGroupEntity.year = gr.year;

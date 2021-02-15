@@ -149,9 +149,7 @@ export async function ExtractClassesExport(
 		row.getCell("B").value = defaultText(record.classEvent.hours.toString());
 		const group = record.group;
 		row.getCell("C").value = defaultText(
-			`${group.company} рота, ${
-				group.platoon
-			} взвод, ВОС: ${group.mrs.toString()}`
+			`${group.company} рота, ${group.platoon} взвод, ВОС: ${group.mrs.number}`
 		);
 
 		const subject = subjects.find(

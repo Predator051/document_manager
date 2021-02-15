@@ -9,6 +9,7 @@ export enum ObjectStatus {
 
 export enum STANDART_ONE_TIME_TASK {
 	CREATE_STANDART_RANKS,
+	CREATE_STANDART_MRS,
 }
 
 export enum STANDART_KEYS {

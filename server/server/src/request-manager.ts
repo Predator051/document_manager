@@ -25,6 +25,8 @@ import { AccountingTeacher } from "./types/accountingTeacher";
 import { STANDART_VALUES, STANDART_KEYS } from "./types/constants";
 import { RankModel } from "./model/rank.model";
 import { Rank } from "./types/rank";
+import { MRSModel } from "./model/mrs.model";
+import { MRS } from "./types/mrs";
 
 export class RequestManager {
 	public static m_sessionSocket: Map<string, string> = new Map<
@@ -520,6 +522,32 @@ export class RequestManager {
 				};
 
 				socket.emit(RequestType.GET_STANDART_VALUES, response);
+			}
+		);
+
+		socket.on(RequestType.GET_ALL_MRS, async (m: RequestMessage<any>) => {
+			console.log("[server](message): %s", JSON.stringify(m));
+
+			const response = await MRSModel.getAll();
+			socket.emit(RequestType.GET_ALL_MRS, response);
+		});
+
+		socket.on(RequestType.UPDATE_MRS, async (m: RequestMessage<MRS[]>) => {
+			console.log("[server](message): %s", JSON.stringify(m));
+
+			const response = await MRSModel.update(m);
+
+			socket.emit(RequestType.UPDATE_MRS, response);
+		});
+
+		socket.on(
+			RequestType.CHECK_GROUP_EXIST,
+			async (m: RequestMessage<Group>) => {
+				console.log("[server](message): %s", JSON.stringify(m));
+
+				const response = await GroupModel.checkGroupExist(m.data);
+
+				socket.emit(RequestType.CHECK_GROUP_EXIST, response);
 			}
 		);
 

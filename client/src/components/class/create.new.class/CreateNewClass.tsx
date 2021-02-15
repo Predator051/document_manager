@@ -6,6 +6,7 @@ import {
 	PlusOutlined,
 	EditOutlined,
 	ExclamationCircleOutlined,
+	CloseCircleOutlined,
 } from "@ant-design/icons";
 import {
 	Breadcrumb,
@@ -42,6 +43,7 @@ import { HREFS } from "../../menu/Menu";
 import { SubjectSelector } from "../../subject/create/SubjectSelector";
 import { BackPage } from "../../ui/BackPage";
 import { YearContext } from "../../../context/YearContext";
+import { group } from "console";
 
 moment.locale("uk");
 
@@ -89,6 +91,34 @@ export function CreateNewClassPage() {
 		setPlace(value);
 	};
 
+	function onCreatedEditedGroupExist(
+		modal: ReturnType<typeof Modal.info>,
+		existedGroup: Group
+	) {
+		const createdModal = Modal.confirm({
+			title: (
+				<Typography.Text>
+					Група{" "}
+					<Typography.Text strong>
+						{GenerateGroupName(existedGroup)}
+					</Typography.Text>{" "}
+					вже існує. Переглянути існуючу групу?
+				</Typography.Text>
+			),
+			closable: true,
+			okText: "Так",
+			cancelText: "Ні",
+			zIndex: 1050,
+			icon: <CloseCircleOutlined></CloseCircleOutlined>,
+
+			onOk: () => {
+				// modal.destroy();
+				onGroupInfoClick(existedGroup.id);
+				createdModal.destroy();
+			},
+		});
+	}
+
 	function onCreateGroupClick() {
 		const modal = Modal.info({
 			title: "Створення группи",
@@ -127,6 +157,7 @@ export function CreateNewClassPage() {
 					<GroupCreator
 						onCreate={onGroupCreate}
 						onClose={onGroupCreatorClose}
+						onExist={onCreatedEditedGroupExist.bind(null, modal)}
 					></GroupCreator>
 				</div>
 			),
@@ -206,6 +237,7 @@ export function CreateNewClassPage() {
 					<GroupCreator
 						onCreate={onGroupUpdate}
 						onClose={onSubjectCreatorClose}
+						onExist={onCreatedEditedGroupExist.bind(null, modal)}
 						group={groups.find((gr) => gr.id === groupId)}
 						createText="Оновити"
 					></GroupCreator>

@@ -12,6 +12,7 @@ import {
 	Select,
 	Typography,
 	Switch,
+	message,
 } from "antd";
 import DatePickerLocal from "antd/es/date-picker/locale/uk_UA";
 import * as momentSpace from "moment";
@@ -38,6 +39,7 @@ import {
 import { EditableGroupTable } from "./GroupEditableTable";
 import { GroupUserUploader } from "./GroupUploader";
 import { ObjectStatus } from "../../../types/constants";
+import { MRS } from "../../../types/mrs";
 
 momentSpace.locale("uk");
 
@@ -46,6 +48,7 @@ const { Option } = Select;
 interface GroupCreatorProps {
 	onClose: () => void;
 	onCreate: (group: Group) => void;
+	onExist: (existGroup: Group, enteredGroup: Group) => void;
 	group?: Group;
 	archiveButton?: boolean;
 	createText?: string;
@@ -64,9 +67,12 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 	const [selectTrainingType, setSelectTrainingType] = useState<number>(
 		group.trainingType.id
 	);
+	const [mrss, setMrss] = useState<MRS[]>([]);
+
+	const [isExistLoader, setIsExistLoader] = useState<boolean>(false);
 
 	useEffect(() => {
-		ConnectionManager.getInstance().registerResponseHandler(
+		ConnectionManager.getInstance().registerResponseOnceHandler(
 			RequestType.GET_ALL_GROUPS_TRAINING_TYPES,
 			(data) => {
 				const dataMessage = data as RequestMessage<GroupTraining[]>;
@@ -82,6 +88,19 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 			RequestType.GET_ALL_GROUPS_TRAINING_TYPES,
 			{}
 		);
+		ConnectionManager.getInstance().registerResponseOnceHandler(
+			RequestType.GET_ALL_MRS,
+			(data) => {
+				const dataMessage = data as RequestMessage<MRS[]>;
+				if (dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR) {
+					console.log(`Error: ${dataMessage.requestCode}`);
+					return;
+				}
+
+				setMrss(dataMessage.data);
+			}
+		);
+		ConnectionManager.getInstance().emit(RequestType.GET_ALL_MRS, {});
 	}, []);
 
 	const descriptionItemLabelStyle: React.CSSProperties = {
@@ -205,11 +224,80 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 		});
 	};
 
-	const onChangeMRSType = (value: MRSType) => {
+	const onChangeMRSType = (value: number) => {
 		setGroup({
 			...group,
-			mrs: value,
+			mrs: mrss.find((mrs) => mrs.id === value),
 		});
+	};
+
+	const checkGroupParams = () => {
+		if (userGroups.length <= 0) {
+			return false;
+		}
+
+		if (group.year === 0) {
+			return false;
+		}
+
+		switch (group.trainingType.type) {
+			case GroupTrainingType.PROFESSIONAL_CONTRACT: {
+				if (group.cycle === 0) return false;
+				break;
+			}
+
+			case GroupTrainingType.PROFESSIONAL_SERGEANTS: {
+				if (group.quarter === 0) return false;
+				break;
+			}
+
+			default: {
+			}
+		}
+
+		if (group.trainingType.type !== GroupTrainingType.COURSE) {
+			if (group.platoon === 0) return false;
+			if (group.company === 0) return false;
+		}
+
+		if (group.mrs.id === 0) return false;
+
+		return true;
+	};
+
+	const onCreate = () => {
+		ConnectionManager.getInstance().registerResponseOnceHandler(
+			RequestType.CHECK_GROUP_EXIST,
+			(data) => {
+				const dataMessage = data as RequestMessage<
+					[boolean, Group | undefined]
+				>;
+				setIsExistLoader(false);
+				if (dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR) {
+					console.log(`Error: ${dataMessage.requestCode}`);
+					return;
+				}
+
+				if (
+					dataMessage.data[0] &&
+					((dataMessage.data[1].id !== group.id && group.id !== 0) || //if edit
+						(dataMessage.data[0] && group.id === 0)) //if create
+				) {
+					props.onExist(dataMessage.data[1], {
+						...group,
+						users: userGroups,
+					});
+				} else {
+					props.onCreate({
+						...group,
+						users: userGroups,
+					});
+				}
+			}
+		);
+
+		setIsExistLoader(true);
+		ConnectionManager.getInstance().emit(RequestType.CHECK_GROUP_EXIST, group);
 	};
 
 	return (
@@ -339,7 +427,13 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 							onChange={onChangeCompany}
 							value={group.company}
 						>
-							{[1, 2, 3, 4, 5, 6, 7, 8, 9].map((cicle) => (
+							{group.trainingType.type === GroupTrainingType.COURSE && (
+								<Option key={0} value={0}>
+									{0}
+								</Option>
+							)}
+
+							{[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((cicle) => (
 								<Option key={cicle.toString()} value={cicle}>
 									{cicle}
 								</Option>
@@ -358,6 +452,11 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 							onChange={onChangePlatoon}
 							value={group.platoon}
 						>
+							{group.trainingType.type === GroupTrainingType.COURSE && (
+								<Option key={0} value={0}>
+									{0}
+								</Option>
+							)}
 							{[1, 2, 3, 4, 5].map((cicle) => (
 								<Option key={cicle.toString()} value={cicle}>
 									{cicle}
@@ -374,12 +473,10 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 						<Select
 							style={{ width: "100%" }}
 							onChange={onChangeMRSType}
-							value={group.mrs}
+							value={group.mrs.id}
 						>
-							{Object.keys(MRSType).map((typeStr) => (
-								<Option value={MRSType[typeStr as keyof typeof MRSType]}>
-									{MRSType[typeStr as keyof typeof MRSType]}
-								</Option>
+							{mrss.map((mrs) => (
+								<Option value={mrs.id}>{mrs.number}</Option>
 							))}
 						</Select>
 					</Descriptions.Item>
@@ -436,12 +533,9 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 					<Row justify="end">
 						<Button
 							type={"primary"}
-							onClick={() => {
-								props.onCreate({
-									...group,
-									users: userGroups,
-								});
-							}}
+							onClick={onCreate}
+							disabled={!checkGroupParams()}
+							loading={isExistLoader}
 						>
 							{props.createText ? props.createText : "Створити"}
 						</Button>

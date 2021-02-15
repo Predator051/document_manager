@@ -178,7 +178,7 @@ export const SubdivisionEditPage: React.FC<SubdivisionEditPageProps> = (
 				{selectedSubdivision && (
 					<Col flex="45%" style={{ marginLeft: "1%" }}>
 						<Typography.Title level={4}>
-							Користувачі назначені на посаду "{selectedSubdivision.title}"
+							Користувачі в підрозділу "{selectedSubdivision.title}"
 						</Typography.Title>
 						<List
 							// style={{ width: "100%" }}

@@ -43,6 +43,9 @@ export enum RequestType {
 	UPDATE_GROUP = "update_group",
 	GET_NORM_PROCESSES_BY_GROUP = "get_norm_processes_by_group",
 	GET_USERS_BY_ID = "get_users_by_ids",
+	GET_ALL_MRS = "get_all_mrs",
+	UPDATE_MRS = "update_mrs",
+	CHECK_GROUP_EXIST = "check_group_exist",
 }
 
 export enum RequestCode {
