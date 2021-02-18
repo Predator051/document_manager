@@ -88,137 +88,167 @@ export const MyClassesPage: React.FC = () => {
 		});
 	}, []);
 
-	if (subjects.length < 1 || classEvents.length < 1 || groups.length < 1) {
-		return (
-			<div>
-				<BackPage></BackPage>
-				<Spin></Spin>
-			</div>
-		);
-	}
+	// if (subjects.length < 1 || classEvents.length < 1 || groups.length < 1) {
+	// 	return (
+	// 		<div>
+	// 			<BackPage></BackPage>
+	// 			<Spin></Spin>
+	// 		</div>
+	// 	);
+	// }
 
 	const onShowClassClick = (classEvent: ClassEvent) => {
 		history.push(HREFS.SHOW_CLASS + classEvent.id.toString());
 	};
 
-	const tableColumns: ColumnsType<any> = [
+	let tableColumns: ColumnsType<any> = [
 		{
 			title: "Назва",
 			dataIndex: "title",
 			key: "title",
-			render: (value: any, record: MyClassTableData) => {
-				return <div>{findOccupation(record.data.selectPath).title}</div>;
-			},
 		},
 		{
 			title: "Предмет",
-			dataIndex: "subject",
-			key: "subject",
-			render: (value: any, record: MyClassTableData) => {
-				return (
-					<div>
-						{
-							subjects.find((s) => s.id === record.data.selectPath.subject)
-								.fullTitle
-						}
-					</div>
-				);
-			},
-			filters: subjects.map((sb) => ({
-				text: sb.fullTitle,
-				value: sb.id,
-			})),
-			onFilter: (value, record: MyClassTableData) =>
-				record.data.selectPath.subject === value,
-			filterMultiple: true,
+			dataIndex: "title",
+			key: "title",
 		},
 		{
 			title: "Група",
-			dataIndex: "group",
-			key: "group",
-			render: (value: any, record: MyClassTableData) => {
-				return (
-					<div>
-						{GenerateGroupName(
-							groups.find((gr) => gr.id === record.data.groupId)
-						)}
-					</div>
-				);
-			},
-			filters: groups.map((gr) => ({
-				text: GenerateGroupName(gr),
-				value: gr.id,
-			})),
-			onFilter: (value, record: MyClassTableData) =>
-				record.data.groupId === value,
-			filterMultiple: true,
+			dataIndex: "title",
+			key: "title",
+		},
+		{
+			title: "Група",
+			dataIndex: "title",
+			key: "title",
 		},
 		{
 			title: "Дата",
-			dataIndex: "date",
-			key: "date",
-			render: (value: any, record: MyClassTableData) => {
-				return (
-					<div>
-						{record.data.date.toLocaleDateString("uk", {
+			dataIndex: "title",
+			key: "title",
+		},
+	];
+
+	if (subjects.length > 0 && classEvents.length > 0 && groups.length > 0) {
+		tableColumns = [
+			{
+				title: "Назва",
+				dataIndex: "title",
+				key: "title",
+				render: (value: any, record: MyClassTableData) => {
+					return <div>{findOccupation(record.data.selectPath).title}</div>;
+				},
+			},
+			{
+				title: "Предмет",
+				dataIndex: "subject",
+				key: "subject",
+				render: (value: any, record: MyClassTableData) => {
+					return (
+						<div>
+							{
+								subjects.find((s) => s.id === record.data.selectPath.subject)
+									.fullTitle
+							}
+						</div>
+					);
+				},
+				filters: subjects.map((sb) => ({
+					text: sb.fullTitle,
+					value: sb.id,
+				})),
+				onFilter: (value, record: MyClassTableData) =>
+					record.data.selectPath.subject === value,
+				filterMultiple: true,
+			},
+			{
+				title: "Група",
+				dataIndex: "group",
+				key: "group",
+				render: (value: any, record: MyClassTableData) => {
+					return (
+						<div>
+							{GenerateGroupName(
+								groups.find((gr) => gr.id === record.data.groupId)
+							)}
+						</div>
+					);
+				},
+				filters: groups.map((gr) => ({
+					text: GenerateGroupName(gr),
+					value: gr.id,
+				})),
+				onFilter: (value, record: MyClassTableData) =>
+					record.data.groupId === value,
+				filterMultiple: true,
+			},
+			{
+				title: "Дата",
+				dataIndex: "date",
+				key: "date",
+				render: (value: any, record: MyClassTableData) => {
+					return (
+						<div>
+							{record.data.date.toLocaleDateString("uk", {
+								year: "numeric",
+								month: "2-digit",
+								day: "2-digit",
+							})}
+						</div>
+					);
+				},
+				filters: classEvents
+					.map((ce) => ce.date)
+					.filter((value, index, self) => {
+						return (
+							self.findIndex(
+								(d) =>
+									d.getFullYear() === value.getFullYear() &&
+									d.getMonth() === value.getMonth() &&
+									d.getDate() === value.getDate()
+							) === index
+						);
+					})
+					.map((date) => ({
+						text: date.toLocaleDateString("uk", {
 							year: "numeric",
 							month: "2-digit",
 							day: "2-digit",
-						})}
-					</div>
-				);
-			},
-			filters: classEvents
-				.map((ce) => ce.date)
-				.filter((value, index, self) => {
+						}),
+						value: date.toString(),
+					})),
+				onFilter: (value, record: MyClassTableData) => {
+					const valueDate = new Date(value as string);
 					return (
-						self.findIndex(
-							(d) =>
-								d.getFullYear() === value.getFullYear() &&
-								d.getMonth() === value.getMonth() &&
-								d.getDate() === value.getDate()
-						) === index
+						record.data.date.getFullYear() === valueDate.getFullYear() &&
+						record.data.date.getMonth() === valueDate.getMonth() &&
+						record.data.date.getDate() === valueDate.getDate()
 					);
-				})
-				.map((date) => ({
-					text: date.toLocaleDateString("uk", {
-						year: "numeric",
-						month: "2-digit",
-						day: "2-digit",
-					}),
-					value: date.toString(),
-				})),
-			onFilter: (value, record: MyClassTableData) => {
-				const valueDate = new Date(value as string);
-				return (
-					record.data.date.getFullYear() === valueDate.getFullYear() &&
-					record.data.date.getMonth() === valueDate.getMonth() &&
-					record.data.date.getDate() === valueDate.getDate()
-				);
+				},
+				filterMultiple: true,
+				sorter: (a: MyClassTableData, b: MyClassTableData) =>
+					a.data.date < b.data.date ? -1 : 1,
+				defaultSortOrder: "descend",
 			},
-			filterMultiple: true,
-			sorter: (a: MyClassTableData, b: MyClassTableData) =>
-				a.data.date < b.data.date ? -1 : 1,
-			defaultSortOrder: "descend",
-		},
-		{
-			title: "Дії",
-			dataIndex: "action",
-			key: "action",
-			render: (value: any, record: MyClassTableData) => {
-				return (
-					<div>
-						<Button
-							type="link"
-							onClick={onShowClassClick.bind(null, record.data)}
-						>
-							Переглянути
-						</Button>
-					</div>
-				);
+			{
+				title: "Дії",
+				dataIndex: "action",
+				key: "action",
+				render: (value: any, record: MyClassTableData) => {
+					return (
+						<div>
+							<Button
+								type="link"
+								onClick={onShowClassClick.bind(null, record.data)}
+							>
+								Переглянути
+							</Button>
+						</div>
+					);
+				},
 			},
-		},
-	];
+		];
+	}
 
 	const findOccupation = (selectPath: SubjectSelectPath) => {
 		const subject = subjects.find((s) => s.id === selectPath.subject);
@@ -246,6 +276,7 @@ export const MyClassesPage: React.FC = () => {
 					style={{ width: "50%" }}
 					pagination={false}
 					size={"small"}
+					bordered
 				></Table>
 			</Row>
 		</div>

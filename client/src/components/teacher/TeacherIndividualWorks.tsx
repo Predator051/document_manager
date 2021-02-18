@@ -109,18 +109,18 @@ export const TeacherIndividualWorks: React.FC<StudentProcessProps> = (
 		);
 	}, []);
 
-	if (
-		individualWorks.length < 1 ||
-		groups.length < 1 ||
-		!isAllWorksHasGroup()
-	) {
-		return (
-			<div>
-				<Empty description="Ще не має записів чи в процессі завантаження"></Empty>
-				<Spin size="large"></Spin>
-			</div>
-		);
-	}
+	// if (
+	// 	individualWorks.length < 1 ||
+	// 	groups.length < 1 ||
+	// 	!isAllWorksHasGroup()
+	// ) {
+	// 	return (
+	// 		<div>
+	// 			<Empty description="Ще не має записів чи в процессі завантаження"></Empty>
+	// 			<Spin size="large"></Spin>
+	// 		</div>
+	// 	);
+	// }
 
 	const columns: ColumnsType<any> = [
 		{
@@ -133,9 +133,10 @@ export const TeacherIndividualWorks: React.FC<StudentProcessProps> = (
 			render: (value, record: StudentProcessTableData) => {
 				return (
 					<Button type="link" style={{ width: "auto" }}>
-						{GenerateGroupName(
-							groups.find((gr) => gr.id === record.work.groupId)
-						)}
+						{groups.length > 0 &&
+							GenerateGroupName(
+								groups.find((gr) => gr.id === record.work.groupId)
+							)}
 					</Button>
 				);
 			},
@@ -215,9 +216,9 @@ export const TeacherIndividualWorks: React.FC<StudentProcessProps> = (
 							);
 						}}
 						fileName={
-							userInfo.secondName +
+							userInfo?.secondName +
 							" " +
-							userInfo.firstName +
+							userInfo?.firstName +
 							": індивідуальна робота з курсантами"
 						}
 					></ExcelExporter>

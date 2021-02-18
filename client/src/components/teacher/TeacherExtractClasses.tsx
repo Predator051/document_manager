@@ -121,19 +121,19 @@ export const TeacherExtractClasses: React.FC<TeacherExtractClassesProps> = (
 		);
 	}, []);
 
-	if (
-		subjects.length < 1 ||
-		classEvents.length < 1 ||
-		groups.length < 1 ||
-		user === undefined
-	) {
-		return (
-			<div>
-				<Empty description="Ще не має записів чи в процессі завантаження"></Empty>
-				<Spin></Spin>
-			</div>
-		);
-	}
+	// if (
+	// 	subjects.length < 1 ||
+	// 	classEvents.length < 1 ||
+	// 	groups.length < 1 ||
+	// 	user === undefined
+	// ) {
+	// 	return (
+	// 		<div>
+	// 			<Empty description="Ще не має записів чи в процессі завантаження"></Empty>
+	// 			<Spin></Spin>
+	// 		</div>
+	// 	);
+	// }
 
 	const columns: ColumnsType<any> = [
 		{
@@ -232,16 +232,22 @@ export const TeacherExtractClasses: React.FC<TeacherExtractClassesProps> = (
 		},
 	];
 
-	const tableData: TeacherExtractClassesTableData[] = classEvents.map(
-		(classEvent) => {
+	let tableData: TeacherExtractClassesTableData[] = [];
+	if (
+		subjects.length > 0 &&
+		classEvents.length > 0 &&
+		groups.length > 0 &&
+		user !== undefined
+	) {
+		tableData = classEvents.map((classEvent) => {
 			const group = groups.find((gr) => gr.id === classEvent.groupId);
 			return {
 				classEvent: classEvent,
 				group: group,
 				id: group.id,
 			};
-		}
-	);
+		});
+	}
 
 	const extremeDataGridSource: DataSource = new DataSource({
 		store: {
@@ -259,9 +265,9 @@ export const TeacherExtractClasses: React.FC<TeacherExtractClassesProps> = (
 						return ExtractClassesExport(tableData, subjects);
 					}}
 					fileName={
-						user.secondName +
+						user?.secondName +
 						" " +
-						user.firstName +
+						user?.firstName +
 						": витяг з розкладу занять:" +
 						yearContext.year
 					}
