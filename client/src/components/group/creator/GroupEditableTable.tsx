@@ -8,62 +8,28 @@ import { GroupUser } from "../../../types/groupUser";
 
 interface EditableCellProps {
 	onChange: (newValue: any) => void;
-	editComponent: JSX.Element;
-	value: any;
+	value: string;
 }
 
 const EditableCell: React.FC<EditableCellProps> = (
 	props: EditableCellProps
 ) => {
-	const [editing, setEditing] = useState<boolean>(false);
-	const [form] = Form.useForm();
-	const [oldValue, setOldValue] = useState<typeof props.value>();
+	const [value, setValue] = useState<typeof props.value>(props.value);
 
-	const layout = {
-		labelCol: { span: 0 },
-		wrapperCol: { span: 0 },
-	};
-	const tailLayout = {
-		wrapperCol: { offset: 0, span: 0 },
-	};
-	const onFinish = (values: any) => {
-		props.onChange(values.note);
-		setOldValue(values.note);
-		// setEditing(false);
-	};
-
-	const onCancel = () => {
-		form.setFieldsValue({ note: oldValue });
-		setEditing(false);
-	};
-
-	useEffect(() => {
-		if (moment.isMoment(props.value) || props.value instanceof Date) {
-			const mom = moment(props.value);
-			form.setFieldsValue({ note: mom });
-		} else {
-			form.setFieldsValue({ note: props.value });
-		}
-		setOldValue(props.value);
-	}, []);
-
-	const onValuesChange = (changedValues: any, values: any) => {
-		onFinish(values);
+	const onFinish = (value: string) => {
+		props.onChange(value);
+		setValue(value);
 	};
 
 	return (
 		<div>
-			<Form
-				{...layout}
-				form={form}
-				name="control-hooks"
-				onFinish={onFinish}
-				size="small"
-				layout="inline"
-				onValuesChange={onValuesChange}
-			>
-				<Form.Item name="note">{props.editComponent}</Form.Item>
-			</Form>
+			<Input
+				bordered={false}
+				value={value}
+				onChange={({ target: { value } }) => {
+					onFinish(value);
+				}}
+			></Input>
 		</div>
 	);
 };
@@ -73,7 +39,7 @@ interface EditableGroupTableData {
 	index: number;
 }
 
-const EditableGroupColumns = () => {
+const EditableGroupColumns = (editable: boolean) => {
 	const columns: ColumnsType<any> = [
 		{
 			title: "№ з/п",
@@ -88,14 +54,15 @@ const EditableGroupColumns = () => {
 			dataIndex: "fullname",
 			key: "fullname",
 			render: (current: any, record: EditableGroupTableData) => {
-				return (
+				return editable ? (
 					<EditableCell
-						editComponent={<Input bordered={false}></Input>}
 						onChange={(value: any) => {
 							record.data.fullname = value;
 						}}
 						value={record.data.fullname}
 					></EditableCell>
+				) : (
+					record.data.fullname
 				);
 			},
 		},
@@ -104,14 +71,15 @@ const EditableGroupColumns = () => {
 			dataIndex: "rank",
 			key: "rank",
 			render: (current: any, record: EditableGroupTableData) => {
-				return (
+				return editable ? (
 					<EditableCell
-						editComponent={<Input bordered={false}></Input>}
 						onChange={(value: any) => {
 							record.data.rank = value;
 						}}
 						value={record.data.rank}
 					></EditableCell>
+				) : (
+					record.data.rank
 				);
 			},
 		},
@@ -120,14 +88,15 @@ const EditableGroupColumns = () => {
 			dataIndex: "birthday",
 			key: "birthday",
 			render: (current: any, record: EditableGroupTableData) => {
-				return (
+				return editable ? (
 					<EditableCell
-						editComponent={<Input bordered={false}></Input>}
 						onChange={(value: any) => {
 							record.data.birthday = value;
 						}}
 						value={record.data.birthday}
 					></EditableCell>
+				) : (
+					record.data.birthday
 				);
 			},
 		},
@@ -136,14 +105,15 @@ const EditableGroupColumns = () => {
 			dataIndex: "education",
 			key: "education",
 			render: (current: any, record: EditableGroupTableData) => {
-				return (
+				return editable ? (
 					<EditableCell
-						editComponent={<Input bordered={false}></Input>}
 						onChange={(value: any) => {
 							record.data.education = value;
 						}}
 						value={record.data.education}
 					></EditableCell>
+				) : (
+					record.data.education
 				);
 			},
 		},
@@ -154,6 +124,7 @@ const EditableGroupColumns = () => {
 
 export interface EditableGroupTableProps {
 	userGroups: GroupUser[];
+	editUsers: boolean;
 }
 
 export const EditableGroupTable: React.FC<EditableGroupTableProps> = (
@@ -175,7 +146,7 @@ export const EditableGroupTable: React.FC<EditableGroupTableProps> = (
 				pagination={false}
 				rowKey={(gu: EditableGroupTableData) => gu.data.id.toString()}
 				dataSource={tableData}
-				columns={EditableGroupColumns()}
+				columns={EditableGroupColumns(props.editUsers)}
 				size="small"
 				bordered
 			></Table>

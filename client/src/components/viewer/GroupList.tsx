@@ -1,6 +1,6 @@
 import "../../../node_modules/hover.css/css/hover.css";
 
-import { Table, Button, Card } from "antd";
+import { Table, Button, Card, Modal, Typography, Row } from "antd";
 import { ColumnsType } from "antd/lib/table/interface";
 import React, { useEffect, useState, useContext } from "react";
 import { useHistory } from "react-router-dom";
@@ -16,6 +16,9 @@ import {
 import { RequestCode, RequestMessage, RequestType } from "../../types/requests";
 import { VIEWER_HREFS } from "../menu/ViewerMenu";
 import { YearContext, isYearCurrent } from "../../context/YearContext";
+import { User, UserType } from "../../types/user";
+import { GroupCreator } from "../group/creator/GroupCreator";
+import { CloseCircleOutlined } from "@ant-design/icons";
 
 export interface GroupListProps {}
 
@@ -124,6 +127,7 @@ export const GroupList: React.FC<GroupListProps> = (props: GroupListProps) => {
 		{ order: "descend" | "ascend"; columnKey: string } | undefined
 	>(undefined);
 	const yearContext = useContext(YearContext);
+	const me = JSON.parse(localStorage.getItem("user")) as User;
 
 	const loadAllGroups = () => {
 		ConnectionManager.getInstance().registerResponseOnceHandler(
@@ -372,7 +376,168 @@ export const GroupList: React.FC<GroupListProps> = (props: GroupListProps) => {
 					? sortInfo.order
 					: null,
 		},
+		{
+			title: "Дії",
+			key: "actions",
+			dataIndex: "actions",
+			render: (value, record: GroupListTableData) => {
+				if (me.userType === UserType.VIEWER) {
+					return (
+						<div>
+							<Button
+								type="link"
+								onClick={() => {
+									onGroupInfoClick(record.data.id, true);
+								}}
+							>
+								Переглянути
+							</Button>
+						</div>
+					);
+				}
+				return (
+					<div>
+						<Button
+							type="link"
+							onClick={() => {
+								onGroupInfoClick(record.data.id, false);
+							}}
+						>
+							Редагувати
+						</Button>
+					</div>
+				);
+			},
+		},
 	];
+
+	function onCreatedEditedGroupExist(
+		modal: ReturnType<typeof Modal.info>,
+		visibleMode: boolean,
+		existedGroup: Group
+	) {
+		const createdModal = Modal.confirm({
+			title: (
+				<Typography.Text>
+					Група{" "}
+					<Typography.Text strong>
+						{GenerateGroupName(existedGroup)}
+					</Typography.Text>{" "}
+					вже існує. Переглянути існуючу групу?
+				</Typography.Text>
+			),
+			closable: true,
+			okText: "Так",
+			cancelText: "Ні",
+			zIndex: 1050,
+			icon: <CloseCircleOutlined></CloseCircleOutlined>,
+
+			onOk: () => {
+				// modal.destroy();
+				onGroupInfoClick(existedGroup.id, visibleMode);
+				createdModal.destroy();
+			},
+		});
+	}
+
+	function onGroupInfoClick(groupId: number, visibleMode: boolean) {
+		const modal = Modal.info({
+			title: "Інформація про групу",
+			width: window.screen.width * 0.6,
+			style: { top: 20 },
+			closable: true,
+			okButtonProps: {
+				style: { visibility: "hidden" },
+			},
+			zIndex: 1050,
+		});
+		const onGroupUpdate = (group: Group) => {
+			if (!visibleMode) {
+				ConnectionManager.getInstance().registerResponseOnceHandler(
+					RequestType.UPDATE_GROUP,
+					(data) => {
+						const dataMessage = data as RequestMessage<any>;
+						if (
+							dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR
+						) {
+							console.log(`Error: ${dataMessage.requestCode}`);
+							return;
+						}
+
+						loadAllGroups();
+					}
+				);
+				ConnectionManager.getInstance().emit(RequestType.UPDATE_GROUP, group);
+			}
+			modal.destroy();
+		};
+		const onSubjectCreatorClose = () => {};
+		modal.update({
+			content: (
+				<div
+					style={{
+						height: "auto",
+						// minHeight: "500px",
+					}}
+				>
+					<GroupCreator
+						onCreate={onGroupUpdate}
+						onClose={onSubjectCreatorClose}
+						onExist={onCreatedEditedGroupExist.bind(null, modal, visibleMode)}
+						group={groups.find((gr) => gr.id === groupId)}
+						createText={visibleMode ? "ОК" : "Оновити"}
+						visibleMode={visibleMode}
+					></GroupCreator>
+				</div>
+			),
+		});
+	}
+
+	function onCreateGroupClick() {
+		const modal = Modal.info({
+			title: "Створення группи",
+			width: window.screen.width * 0.6,
+			style: { top: 20 },
+			closable: true,
+			okButtonProps: {
+				style: { visibility: "hidden" },
+			},
+			zIndex: 1050,
+		});
+		const onGroupCreate = (group: Group) => {
+			ConnectionManager.getInstance().registerResponseOnceHandler(
+				RequestType.CREATE_GROUP,
+				(data) => {
+					const dataMessage = data as RequestMessage<any>;
+					if (dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR) {
+						console.log(`Error: ${dataMessage.requestCode}`);
+						return;
+					}
+
+					loadAllGroups();
+				}
+			);
+			ConnectionManager.getInstance().emit(RequestType.CREATE_GROUP, group);
+			modal.destroy();
+		};
+		const onGroupCreatorClose = () => {};
+		modal.update({
+			content: (
+				<div
+					style={{
+						height: "auto",
+					}}
+				>
+					<GroupCreator
+						onCreate={onGroupCreate}
+						onClose={onGroupCreatorClose}
+						onExist={onCreatedEditedGroupExist.bind(null, modal, false)}
+						visibleMode={false}
+					></GroupCreator>
+				</div>
+			),
+		});
+	}
 
 	const tableData: GroupListTableData[] = groups.map((g) => ({
 		key: g.id,
@@ -381,6 +546,14 @@ export const GroupList: React.FC<GroupListProps> = (props: GroupListProps) => {
 
 	return (
 		<div>
+			{me.userType !== UserType.VIEWER && (
+				<Row justify="end" style={{ padding: "5px" }}>
+					<Button type="primary" onClick={onCreateGroupClick}>
+						Створити нову групу
+					</Button>{" "}
+				</Row>
+			)}
+
 			<div>
 				<Table
 					pagination={false}

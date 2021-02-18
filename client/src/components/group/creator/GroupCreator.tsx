@@ -1,6 +1,6 @@
 import "moment/locale/uk";
 
-import { EditOutlined } from "@ant-design/icons";
+import { EditOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import {
 	Button,
 	Col,
@@ -13,6 +13,9 @@ import {
 	Typography,
 	Switch,
 	message,
+	Spin,
+	Space,
+	Tooltip,
 } from "antd";
 import DatePickerLocal from "antd/es/date-picker/locale/uk_UA";
 import * as momentSpace from "moment";
@@ -52,6 +55,12 @@ interface GroupCreatorProps {
 	group?: Group;
 	archiveButton?: boolean;
 	createText?: string;
+	visibleMode?: boolean;
+}
+
+interface Loadings {
+	mrs: boolean;
+	groupTrainings: boolean;
 }
 
 export const GroupCreator: React.FC<GroupCreatorProps> = (
@@ -71,6 +80,16 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 
 	const [isExistLoader, setIsExistLoader] = useState<boolean>(false);
 
+	const [mrsLoading, setMRSLoadings] = useState<boolean>(true);
+	const [
+		groupTrainingTypeLoading,
+		setGroupTrainingTypeLoadings,
+	] = useState<boolean>(true);
+
+	const [fileUploaderEncoding, setFileUploaderEncoding] = useState<string>(
+		"utf8"
+	);
+
 	useEffect(() => {
 		ConnectionManager.getInstance().registerResponseOnceHandler(
 			RequestType.GET_ALL_GROUPS_TRAINING_TYPES,
@@ -82,6 +101,7 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 				}
 
 				setGroupTraining(dataMessage.data);
+				setGroupTrainingTypeLoadings(false);
 			}
 		);
 		ConnectionManager.getInstance().emit(
@@ -98,10 +118,15 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 				}
 
 				setMrss(dataMessage.data);
+				setMRSLoadings(false);
 			}
 		);
 		ConnectionManager.getInstance().emit(RequestType.GET_ALL_MRS, {});
 	}, []);
+
+	if (mrsLoading || groupTrainingTypeLoading) {
+		return <Spin size="large"></Spin>;
+	}
 
 	const descriptionItemLabelStyle: React.CSSProperties = {
 		width: "45%",
@@ -300,185 +325,223 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 		ConnectionManager.getInstance().emit(RequestType.CHECK_GROUP_EXIST, group);
 	};
 
+	const onChangeEncoding = (value: string) => {
+		setFileUploaderEncoding(value);
+	};
+
 	return (
 		<div style={{ marginTop: "1%" }}>
 			<Row justify="center">
 				<Descriptions title="" bordered style={{ width: "100%" }}>
 					<Descriptions.Item
-						label="Введіть вид підготовки:"
+						label={
+							props.visibleMode ? "Вид підготовки" : "Введіть вид підготовки:"
+						}
 						span={3}
 						labelStyle={descriptionItemLabelStyle}
 						contentStyle={descriptionItemContentStyle}
 					>
-						<Select
-							style={{ width: "100%" }}
-							onChange={onChangeTrainingType}
-							value={selectTrainingType}
-						>
-							{groupTraining
-								.filter((gt) => gt.id !== StandartIdByGroupTrainingType.other)
-								.map((gt) => (
-									<Option value={gt.id}>{gt.content}</Option>
-								))}
-							{groupTraining.find(
-								(gt) => gt.id === StandartIdByGroupTrainingType.other
-							) !== undefined && (
-								<Option value={StandartIdByGroupTrainingType.other}>
-									{
-										groupTraining.find(
-											(gt) => gt.id === StandartIdByGroupTrainingType.other
-										).content
-									}
-								</Option>
-							)}
-						</Select>
+						{props.visibleMode ? (
+							groupTraining.find((gt) => gt.id === selectTrainingType).content
+						) : (
+							<Select
+								style={{ width: "100%" }}
+								onChange={onChangeTrainingType}
+								value={selectTrainingType}
+							>
+								{groupTraining
+									.filter((gt) => gt.id !== StandartIdByGroupTrainingType.other)
+									.map((gt) => (
+										<Option value={gt.id}>{gt.content}</Option>
+									))}
+								{groupTraining.find(
+									(gt) => gt.id === StandartIdByGroupTrainingType.other
+								) !== undefined && (
+									<Option value={StandartIdByGroupTrainingType.other}>
+										{
+											groupTraining.find(
+												(gt) => gt.id === StandartIdByGroupTrainingType.other
+											).content
+										}
+									</Option>
+								)}
+							</Select>
+						)}
 					</Descriptions.Item>
 					{group.trainingType.type ===
 						GroupTrainingType.PROFESSIONAL_CONTRACT && (
 						<Descriptions.Item
-							label="Оберіть цикл:"
+							label={props.visibleMode ? "Цикл" : "Оберіть цикл:"}
 							span={3}
 							labelStyle={descriptionItemLabelStyle}
 							contentStyle={descriptionItemContentStyle}
 						>
-							<Select
-								defaultValue={undefined}
+							{props.visibleMode ? (
+								group.cycle
+							) : (
+								<Select
+									defaultValue={undefined}
+									style={{ width: "100%" }}
+									onChange={onChangeCicle}
+									value={group.cycle}
+								>
+									{[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((cicle) => (
+										<Option key={cicle.toString()} value={cicle}>
+											{cicle}
+										</Option>
+									))}
+								</Select>
+							)}
+						</Descriptions.Item>
+					)}
+					{group.trainingType.type ===
+						GroupTrainingType.PROGESSIONAL_CONSCRIPT && (
+						<Descriptions.Item
+							label={props.visibleMode ? "Призов" : "Оберіть призов:"}
+							span={3}
+							labelStyle={descriptionItemLabelStyle}
+							contentStyle={descriptionItemContentStyle}
+						>
+							{props.visibleMode ? (
+								ConstripAppealToString(group.appeal)
+							) : (
+								<Select
+									style={{ width: "100%" }}
+									onChange={onChangeAppeal}
+									value={group.appeal}
+								>
+									{Object.keys(ConstripAppeal).map((typeStr) => (
+										<Option
+											value={
+												ConstripAppeal[typeStr as keyof typeof ConstripAppeal]
+											}
+										>
+											{ConstripAppealToString(
+												ConstripAppeal[typeStr as keyof typeof ConstripAppeal]
+											)}
+										</Option>
+									))}
+								</Select>
+							)}
+						</Descriptions.Item>
+					)}
+					{group.trainingType.type ===
+						GroupTrainingType.PROFESSIONAL_SERGEANTS && (
+						<Descriptions.Item
+							label={props.visibleMode ? "Квартал" : "Оберіть квартал:"}
+							span={3}
+							labelStyle={descriptionItemLabelStyle}
+							contentStyle={descriptionItemContentStyle}
+						>
+							{props.visibleMode ? (
+								group.quarter
+							) : (
+								<Select
+									style={{ width: "100%" }}
+									onChange={onChangeQuater}
+									value={group.quarter}
+								>
+									{[1, 2, 3, 4].map((kv) => (
+										<Option value={kv}>{kv.toString()}</Option>
+									))}
+								</Select>
+							)}
+						</Descriptions.Item>
+					)}
+					<Descriptions.Item
+						label={props.visibleMode ? "Рік" : "Оберіть рік:"}
+						span={3}
+						labelStyle={descriptionItemLabelStyle}
+						contentStyle={descriptionItemContentStyle}
+					>
+						{props.visibleMode ? (
+							group.year
+						) : (
+							<DatePicker
 								style={{ width: "100%" }}
-								onChange={onChangeCicle}
-								value={group.cycle}
+								picker="year"
+								locale={DatePickerLocal}
+								onChange={onChangeYear}
+								format="YYYY"
+								value={moment(new Date(group.year, 1, 1))}
+							></DatePicker>
+						)}
+					</Descriptions.Item>
+					<Descriptions.Item
+						label={props.visibleMode ? "Рота" : "Оберіть роту:"}
+						span={3}
+						labelStyle={descriptionItemLabelStyle}
+						contentStyle={descriptionItemContentStyle}
+					>
+						{props.visibleMode ? (
+							group.company
+						) : (
+							<Select
+								style={{ width: "100%" }}
+								onChange={onChangeCompany}
+								value={group.company}
 							>
+								{group.trainingType.type === GroupTrainingType.COURSE && (
+									<Option key={0} value={0}>
+										{0}
+									</Option>
+								)}
+
 								{[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((cicle) => (
 									<Option key={cicle.toString()} value={cicle}>
 										{cicle}
 									</Option>
 								))}
 							</Select>
-						</Descriptions.Item>
-					)}
-					{group.trainingType.type ===
-						GroupTrainingType.PROGESSIONAL_CONSCRIPT && (
-						<Descriptions.Item
-							label="Оберіть призов:"
-							span={3}
-							labelStyle={descriptionItemLabelStyle}
-							contentStyle={descriptionItemContentStyle}
-						>
+						)}
+					</Descriptions.Item>
+					<Descriptions.Item
+						label={props.visibleMode ? "Взвод" : "Оберіть взвод:"}
+						span={3}
+						labelStyle={descriptionItemLabelStyle}
+						contentStyle={descriptionItemContentStyle}
+					>
+						{props.visibleMode ? (
+							group.platoon
+						) : (
 							<Select
+								defaultValue={undefined}
 								style={{ width: "100%" }}
-								onChange={onChangeAppeal}
-								value={group.appeal}
+								onChange={onChangePlatoon}
+								value={group.platoon}
 							>
-								{Object.keys(ConstripAppeal).map((typeStr) => (
-									<Option
-										value={
-											ConstripAppeal[typeStr as keyof typeof ConstripAppeal]
-										}
-									>
-										{ConstripAppealToString(
-											ConstripAppeal[typeStr as keyof typeof ConstripAppeal]
-										)}
+								{group.trainingType.type === GroupTrainingType.COURSE && (
+									<Option key={0} value={0}>
+										{0}
+									</Option>
+								)}
+								{[1, 2, 3, 4, 5].map((cicle) => (
+									<Option key={cicle.toString()} value={cicle}>
+										{cicle}
 									</Option>
 								))}
 							</Select>
-						</Descriptions.Item>
-					)}
-					{group.trainingType.type ===
-						GroupTrainingType.PROFESSIONAL_SERGEANTS && (
-						<Descriptions.Item
-							label="Оберіть квартал:"
-							span={3}
-							labelStyle={descriptionItemLabelStyle}
-							contentStyle={descriptionItemContentStyle}
-						>
+						)}
+					</Descriptions.Item>
+					<Descriptions.Item
+						label={props.visibleMode ? "ВОС" : "Оберіть ВОС:"}
+						span={3}
+						labelStyle={descriptionItemLabelStyle}
+						contentStyle={descriptionItemContentStyle}
+					>
+						{props.visibleMode ? (
+							mrss.find((mrs) => mrs.id === group.mrs.id).number
+						) : (
 							<Select
 								style={{ width: "100%" }}
-								onChange={onChangeQuater}
-								value={group.quarter}
+								onChange={onChangeMRSType}
+								value={group.mrs.id}
 							>
-								{[1, 2, 3, 4].map((kv) => (
-									<Option value={kv}>{kv.toString()}</Option>
+								{mrss.map((mrs) => (
+									<Option value={mrs.id}>{mrs.number}</Option>
 								))}
 							</Select>
-						</Descriptions.Item>
-					)}
-					<Descriptions.Item
-						label="Оберіть рік:"
-						span={3}
-						labelStyle={descriptionItemLabelStyle}
-						contentStyle={descriptionItemContentStyle}
-					>
-						<DatePicker
-							style={{ width: "100%" }}
-							picker="year"
-							locale={DatePickerLocal}
-							onChange={onChangeYear}
-							format="YYYY"
-							value={moment(new Date(group.year, 1, 1))}
-						></DatePicker>
-					</Descriptions.Item>
-					<Descriptions.Item
-						label="Оберіть роту:"
-						span={3}
-						labelStyle={descriptionItemLabelStyle}
-						contentStyle={descriptionItemContentStyle}
-					>
-						<Select
-							style={{ width: "100%" }}
-							onChange={onChangeCompany}
-							value={group.company}
-						>
-							{group.trainingType.type === GroupTrainingType.COURSE && (
-								<Option key={0} value={0}>
-									{0}
-								</Option>
-							)}
-
-							{[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((cicle) => (
-								<Option key={cicle.toString()} value={cicle}>
-									{cicle}
-								</Option>
-							))}
-						</Select>
-					</Descriptions.Item>
-					<Descriptions.Item
-						label="Оберіть взвод:"
-						span={3}
-						labelStyle={descriptionItemLabelStyle}
-						contentStyle={descriptionItemContentStyle}
-					>
-						<Select
-							defaultValue={undefined}
-							style={{ width: "100%" }}
-							onChange={onChangePlatoon}
-							value={group.platoon}
-						>
-							{group.trainingType.type === GroupTrainingType.COURSE && (
-								<Option key={0} value={0}>
-									{0}
-								</Option>
-							)}
-							{[1, 2, 3, 4, 5].map((cicle) => (
-								<Option key={cicle.toString()} value={cicle}>
-									{cicle}
-								</Option>
-							))}
-						</Select>
-					</Descriptions.Item>
-					<Descriptions.Item
-						label="Оберіть ВОС:"
-						span={3}
-						labelStyle={descriptionItemLabelStyle}
-						contentStyle={descriptionItemContentStyle}
-					>
-						<Select
-							style={{ width: "100%" }}
-							onChange={onChangeMRSType}
-							value={group.mrs.id}
-						>
-							{mrss.map((mrs) => (
-								<Option value={mrs.id}>{mrs.number}</Option>
-							))}
-						</Select>
+						)}
 					</Descriptions.Item>
 					{props.archiveButton && (
 						<Descriptions.Item
@@ -512,21 +575,41 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 					)}
 				</Descriptions>
 			</Row>
-			<Row style={{ marginTop: "1%" }}>
-				<Col flex="50%">
-					<Typography.Title level={2}>Заповнити список:</Typography.Title>
-				</Col>
-				<Col flex="25%">
-					<GroupUserUploader
-						onLoaded={(ug) => setUserGroups(ug)}
-					></GroupUserUploader>
-				</Col>
-				<Col flex="25%">
-					<Button onClick={onClickAddGroupUser}>Додати учня</Button>
-				</Col>
-			</Row>
+			{!props.visibleMode && (
+				<Row style={{ marginTop: "1%" }}>
+					<Col flex="auto">
+						<Typography.Title level={2}>Заповнити список:</Typography.Title>
+					</Col>
+					<Col flex="auto" style={{ padding: "3px" }}>
+						<Space>
+							<GroupUserUploader
+								onLoaded={(ug) => setUserGroups(ug)}
+								encoding={fileUploaderEncoding}
+							></GroupUserUploader>
+							<Select
+								style={{ minWidth: "150px" }}
+								defaultValue={"windows-1251"}
+								onChange={onChangeEncoding}
+							>
+								<Select.Option value="utf8">utf-8</Select.Option>
+								<Select.Option value="windows-1251">windows-1251</Select.Option>
+							</Select>
+							<Tooltip title="Кодування csv-файлу.">
+								<QuestionCircleOutlined />
+							</Tooltip>
+						</Space>
+					</Col>
 
-			<EditableGroupTable userGroups={userGroups}></EditableGroupTable>
+					<Col flex="auto" style={{ padding: "3px" }}>
+						<Button onClick={onClickAddGroupUser}>Додати учня</Button>
+					</Col>
+				</Row>
+			)}
+
+			<EditableGroupTable
+				userGroups={userGroups}
+				editUsers={!props.visibleMode}
+			></EditableGroupTable>
 			<Row style={{ marginTop: "1%" }}>
 				<Col flex="50%"></Col>
 				<Col flex="50%">

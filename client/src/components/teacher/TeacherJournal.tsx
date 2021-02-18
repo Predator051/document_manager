@@ -94,7 +94,7 @@ export const TeacherJournal: React.FC<TeacherJournalProps> = (
 						style={{ width: "100%", height: "100%" }}
 						justify="center"
 					>
-						Облік виконання занять з предметів підготовки
+						Облік проведення занять з предметів підготовки
 					</Row>
 				</div>
 				<div

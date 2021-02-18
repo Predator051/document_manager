@@ -149,30 +149,30 @@ export const StudentProcess: React.FC<StudentProcessProps> = (
 		});
 	};
 
-	if (
-		individualWorks.length < 1 ||
-		groups.length < 1 ||
-		!isAllWorksHasGroup()
-	) {
-		return (
-			<div>
-				<BackPage></BackPage>
-				<Row style={{ width: "100%" }} justify="center">
-					<Col flex="auto">
-						<Button
-							type={"dashed"}
-							style={{ width: "100%" }}
-							onClick={onAddWorkClick}
-							className="fade-in-left"
-						>
-							Додати індівідуальну роботу
-						</Button>
-					</Col>
-				</Row>
-				<Spin size="large"></Spin>
-			</div>
-		);
-	}
+	// if (
+	// 	individualWorks.length < 1 ||
+	// 	groups.length < 1 ||
+	// 	!isAllWorksHasGroup()
+	// ) {
+	// 	return (
+	// 		<div>
+	// 			<BackPage></BackPage>
+	// 			<Row style={{ width: "100%" }} justify="center">
+	// 				<Col flex="auto">
+	// 					<Button
+	// 						type={"dashed"}
+	// 						style={{ width: "100%" }}
+	// 						onClick={onAddWorkClick}
+	// 						className="fade-in-left"
+	// 					>
+	// 						Додати індівідуальну роботу
+	// 					</Button>
+	// 				</Col>
+	// 			</Row>
+	// 			<Spin size="large"></Spin>
+	// 		</div>
+	// 	);
+	// }
 
 	const columns: ColumnsType<any> = [
 		{
@@ -185,9 +185,10 @@ export const StudentProcess: React.FC<StudentProcessProps> = (
 			render: (value, record: StudentProcessTableData) => {
 				return (
 					<Button type="link" style={{ width: "auto" }}>
-						{GenerateGroupName(
-							groups.find((gr) => gr.id === record.work.groupId)
-						)}
+						{groups.length > 0 &&
+							GenerateGroupName(
+								groups.find((gr) => gr.id === record.work.groupId)
+							)}
 					</Button>
 				);
 			},
