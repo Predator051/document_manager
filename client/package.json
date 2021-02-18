@@ -20,7 +20,6 @@
     "@types/react-window": "^1.8.2",
     "@types/socket.io-client": "^1.4.33",
     "antd": "^4.12.0",
-    "argon2": "^0.27.1",
     "classnames": "^2.2.6",
     "devextreme": "20.2.5",
     "devextreme-react": "20.2.5",
