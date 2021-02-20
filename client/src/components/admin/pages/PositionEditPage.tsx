@@ -114,7 +114,7 @@ export const PositionEditPage: React.FC<PositionEditPageProps> = (
 		};
 		const modal = Modal.info({
 			title: "Створення посади",
-			width: window.screen.width * 0.2,
+			width: window.screen.width * 0.7,
 			style: { top: 20 },
 			closable: true,
 			onOk: onSubjectCreate,

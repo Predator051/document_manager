@@ -97,7 +97,7 @@ export const NormInfoShower: React.FC<NormInfoShowerProps> = (
 			onOk: () => {
 				const modal = Modal.confirm({
 					title: "Інформація про програму підготовки",
-					width: window.screen.width * 0.3,
+					width: window.screen.width * 0.7,
 
 					zIndex: 1100,
 					icon: <EditOutlined />,

@@ -180,7 +180,7 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 	const onNormClick = (nId: number) => {
 		const modal = Modal.info({
 			title: "Інформація про предмет",
-			width: window.screen.width * 0.5,
+			width: window.screen.width * 0.7,
 			style: { top: 20 },
 			closable: true,
 			zIndex: 1050,

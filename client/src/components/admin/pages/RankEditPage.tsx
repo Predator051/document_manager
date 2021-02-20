@@ -101,7 +101,7 @@ export const RankEditPage: React.FC<MRSEditPageProps> = (
 		};
 		const modal = Modal.info({
 			title: "Додавання звання",
-			width: window.screen.width * 0.2,
+			width: window.screen.width * 0.7,
 			style: { top: 20 },
 			closable: true,
 			onOk: onCreate,
