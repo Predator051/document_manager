@@ -137,6 +137,7 @@ export function CreateEmptyGroup(): Group {
 			id: 0,
 			name: "",
 			number: "",
+			isCanChange: false,
 		},
 		quarter: 0,
 		status: ObjectStatus.NORMAL,

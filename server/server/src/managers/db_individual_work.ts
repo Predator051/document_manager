@@ -55,4 +55,14 @@ export class DBIndividualWorkManager {
 
 		return result.getMany();
 	}
+
+	public static async GetByGroupId(
+		groupId: number
+	): Promise<IndividualWorkEntity[]> {
+		const result = this.addRelations(
+			getRepository(IndividualWorkEntity).createQueryBuilder("work")
+		).where("group.id = :groupId", { groupId: groupId });
+
+		return result.getMany();
+	}
 }

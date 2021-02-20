@@ -97,7 +97,6 @@ export class RequestManager {
 				console.log("[server](message): %s", JSON.stringify(m));
 
 				const response = await GroupModel.getAllGroups(m);
-				console.log("response", response);
 
 				socket.emit(RequestType.GET_ALL_GROUPS, response);
 			}
@@ -318,10 +317,6 @@ export class RequestManager {
 				console.log("[server](message): %s", JSON.stringify(m));
 
 				const response = await NormProcessModel.getProcessNormByUserAndGroup(m);
-				console.log(
-					"GET_NORM_PROCESSES_BY_GROUP_AND_USER",
-					response.data.map((p) => p.marks)
-				);
 
 				socket.emit(RequestType.GET_NORM_PROCESSES_BY_GROUP_AND_USER, response);
 			}
@@ -548,6 +543,28 @@ export class RequestManager {
 				const response = await GroupModel.checkGroupExist(m.data);
 
 				socket.emit(RequestType.CHECK_GROUP_EXIST, response);
+			}
+		);
+
+		socket.on(
+			RequestType.IS_GROUP_HAS_ACTIVITY,
+			async (m: RequestMessage<number>) => {
+				console.log("[server](message): %s", JSON.stringify(m));
+
+				const response = await GroupModel.isGroupHasActivity(m.data);
+
+				socket.emit(RequestType.IS_GROUP_HAS_ACTIVITY, response);
+			}
+		);
+
+		socket.on(
+			RequestType.DELETE_GROUP_USER,
+			async (m: RequestMessage<number>) => {
+				console.log("[server](message): %s", JSON.stringify(m));
+
+				const response = await GroupModel.deleteGroupUser(m.data);
+
+				socket.emit(RequestType.DELETE_GROUP_USER, response);
 			}
 		);
 

@@ -17,7 +17,7 @@ import { RequestCode, RequestMessage, RequestType } from "../../types/requests";
 import { VIEWER_HREFS } from "../menu/ViewerMenu";
 import { YearContext, isYearCurrent } from "../../context/YearContext";
 import { User, UserType } from "../../types/user";
-import { GroupCreator } from "../group/creator/GroupCreator";
+import { GroupManipulator } from "../group/creator/GroupManipulator";
 import { CloseCircleOutlined } from "@ant-design/icons";
 
 export interface GroupListProps {}
@@ -480,14 +480,14 @@ export const GroupList: React.FC<GroupListProps> = (props: GroupListProps) => {
 						// minHeight: "500px",
 					}}
 				>
-					<GroupCreator
+					<GroupManipulator
 						onCreate={onGroupUpdate}
 						onClose={onSubjectCreatorClose}
 						onExist={onCreatedEditedGroupExist.bind(null, modal, visibleMode)}
 						group={groups.find((gr) => gr.id === groupId)}
 						createText={visibleMode ? "ОК" : "Оновити"}
 						visibleMode={visibleMode}
-					></GroupCreator>
+					></GroupManipulator>
 				</div>
 			),
 		});
@@ -528,12 +528,12 @@ export const GroupList: React.FC<GroupListProps> = (props: GroupListProps) => {
 						height: "auto",
 					}}
 				>
-					<GroupCreator
+					<GroupManipulator
 						onCreate={onGroupCreate}
 						onClose={onGroupCreatorClose}
 						onExist={onCreatedEditedGroupExist.bind(null, modal, false)}
 						visibleMode={false}
-					></GroupCreator>
+					></GroupManipulator>
 				</div>
 			),
 		});

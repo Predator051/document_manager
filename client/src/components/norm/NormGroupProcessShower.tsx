@@ -58,12 +58,20 @@ const EditableCell: React.FC<EditableCellProps> = (
 	const [counter, setCounter] = useState<number>(props.value);
 
 	const onValuesChange = (value: React.ReactText) => {
-		if (value && value.toString() !== "") {
-			const intValue = parseInt(value.toString());
-			if (intValue <= 5 && intValue >= 0) {
-				props.onChange(intValue);
-				setCounter(intValue);
+		if (value) {
+			if (value.toString().trim() === "") {
+				props.onChange(0);
+				setCounter(0);
+			} else {
+				const intValue = parseInt(value.toString());
+				if (intValue <= 5 && intValue >= 0) {
+					props.onChange(intValue);
+					setCounter(intValue);
+				}
 			}
+		} else {
+			props.onChange(0);
+			setCounter(0);
 		}
 	};
 
@@ -274,7 +282,7 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 			sorter: (
 				a: NormGroupProcessShowerTableData,
 				b: NormGroupProcessShowerTableData
-			) => (a.groupUser.fullname < b.groupUser.fullname ? -1 : 1),
+			) => a.groupUser.fullname.localeCompare(b.groupUser.fullname),
 			defaultSortOrder: "ascend",
 			fixed: "left",
 			width: "20%",

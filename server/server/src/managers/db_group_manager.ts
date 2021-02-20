@@ -43,7 +43,7 @@ export class DBGroupManager {
 	}
 
 	public static SaveGroupEntity(gr: GroupEntity) {
-		getRepository(GroupEntity).save(gr);
+		return getRepository(GroupEntity).save(gr);
 	}
 
 	public static CreateEmptyGroupUserEntity(): GroupUserEntity {
@@ -98,6 +98,12 @@ export class DBGroupManager {
 			.getOne();
 
 		return user;
+	}
+
+	public static async deleteGroupUser(id: number): Promise<boolean> {
+		const user = await getRepository(GroupUserEntity).delete(id);
+
+		return true;
 	}
 
 	public static async IsExist(group: Group): Promise<[boolean, GroupEntity]> {

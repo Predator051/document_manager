@@ -38,7 +38,7 @@ import {
 } from "../../../types/requests";
 import { Subject } from "../../../types/subject";
 import { SubjectSelectPath } from "../../../types/subjectSelectPath";
-import { GroupCreator } from "../../group/creator/GroupCreator";
+import { GroupManipulator } from "../../group/creator/GroupManipulator";
 import { HREFS } from "../../menu/Menu";
 import { SubjectSelector } from "../../subject/create/SubjectSelector";
 import { BackPage } from "../../ui/BackPage";
@@ -82,7 +82,8 @@ export function CreateNewClassPage() {
 	}
 
 	function handleHoursChange(value: React.Key) {
-		setHours(parseInt(value.toString()));
+		if (value !== undefined && value !== null)
+			setHours(parseInt(value.toString()));
 	}
 
 	const handlePlaceChange: (
@@ -154,11 +155,11 @@ export function CreateNewClassPage() {
 						height: "auto",
 					}}
 				>
-					<GroupCreator
+					<GroupManipulator
 						onCreate={onGroupCreate}
 						onClose={onGroupCreatorClose}
 						onExist={onCreatedEditedGroupExist.bind(null, modal)}
-					></GroupCreator>
+					></GroupManipulator>
 				</div>
 			),
 		});
@@ -234,13 +235,13 @@ export function CreateNewClassPage() {
 						// minHeight: "500px",
 					}}
 				>
-					<GroupCreator
+					<GroupManipulator
 						onCreate={onGroupUpdate}
 						onClose={onSubjectCreatorClose}
 						onExist={onCreatedEditedGroupExist.bind(null, modal)}
 						group={groups.find((gr) => gr.id === groupId)}
 						createText="Оновити"
-					></GroupCreator>
+					></GroupManipulator>
 				</div>
 			),
 		});
@@ -276,13 +277,13 @@ export function CreateNewClassPage() {
 	}, []);
 
 	const descriptionItemLabelStyle: React.CSSProperties = {
-		width: "45%",
+		maxWidth: "45%",
 		backgroundColor: "#e1e3f0",
 		fontSize: "large",
 	};
 
 	const descriptionItemContentStyle: React.CSSProperties = {
-		width: "45%",
+		minWidth: "auto",
 		backgroundColor: "#edf0fc",
 		fontSize: "large",
 	};
@@ -317,7 +318,7 @@ export function CreateNewClassPage() {
 						<Typography.Title level={2}>Створення заняття</Typography.Title>
 					}
 					bordered
-					style={{ width: "40%" }}
+					style={{ minWidth: "70%" }}
 				>
 					<Descriptions.Item
 						label="Оберіть групу чи створіть нову:"

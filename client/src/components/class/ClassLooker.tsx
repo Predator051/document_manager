@@ -36,12 +36,17 @@ const EditableCell: React.FC<EditableCellProps> = (
 	const [counter, setCounter] = useState<number>(props.value);
 
 	const onValuesChange = (value: React.ReactText) => {
-		if (value && value.toString() !== "") {
+		if (value !== undefined && value !== null && value.toString() !== "") {
+			console.log("value", value);
 			const intValue = parseInt(value.toString());
 			if (intValue <= 5 && intValue >= 0) {
 				props.onChange(intValue);
 				setCounter(intValue);
 			}
+		}
+		if (!value || (value && value.toString().trim() === "")) {
+			props.onChange(0);
+			setCounter(0);
 		}
 	};
 
@@ -127,7 +132,7 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 			dataIndex: "fullname",
 			key: "fullname",
 			sorter: (a: ClassLookerTableData, b: ClassLookerTableData) =>
-				a.fullname < b.fullname ? -1 : 1,
+				a.fullname.localeCompare(b.fullname),
 			defaultSortOrder: "ascend",
 		},
 		{
@@ -161,7 +166,7 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 			},
 		},
 		{
-			title: "Ітогова оцінка за предмет навчання",
+			title: "Підсумкова оцінка за предмет навчання",
 			dataIndex: "occupation_mark",
 			key: "occupation_mark",
 			render: (value, record: ClassLookerTableData) => {

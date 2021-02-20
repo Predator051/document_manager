@@ -46,6 +46,8 @@ export enum RequestType {
 	GET_ALL_MRS = "get_all_mrs",
 	UPDATE_MRS = "update_mrs",
 	CHECK_GROUP_EXIST = "check_group_exist",
+	IS_GROUP_HAS_ACTIVITY = "is_group_has_activity",
+	DELETE_GROUP_USER = "delete_group_user",
 }
 
 export enum RequestCode {

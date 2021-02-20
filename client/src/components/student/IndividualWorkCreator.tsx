@@ -165,7 +165,7 @@ export const IndividualWorkCreator: React.FC<IndividualWorkCreatorProps> = (
 					>
 						<Transfer
 							dataSource={selectedGroup?.users
-								.sort((a, b) => (a.fullname < b.fullname ? -1 : 1))
+								.sort((a, b) => a.fullname.localeCompare(b.fullname))
 								.map((groupUser) => ({
 									key: groupUser.id.toString(),
 									title: groupUser.fullname,

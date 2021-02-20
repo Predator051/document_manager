@@ -282,7 +282,7 @@ export const GroupNormTable: React.FC<GroupTableProps> = (
 				return <div>{record.data.fullname}</div>;
 			},
 			sorter: (a: GroupTableData, b: GroupTableData) =>
-				a.data.fullname < b.data.fullname ? -1 : 1,
+				a.data.fullname.localeCompare(b.data.fullname),
 			defaultSortOrder: "ascend",
 			fixed: "left",
 			width: "20%",

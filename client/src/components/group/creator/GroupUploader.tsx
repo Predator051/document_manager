@@ -32,17 +32,6 @@ export class GroupUserFileParser {
 	public toArray(): GroupUser[] {
 		let groupUsers: GroupUser[] = [];
 
-		// for (const jsObj of this.parser.json) {
-		// 	// groupUsers.push({
-		// 	// 	birthday: jsObj.birthday,
-		// 	// 	education: jsObj.education,
-		// 	// 	fullname: jsObj.fullname,
-		// 	// 	rank: jsObj.rank,
-		// 	// 	groupId: 0,
-		// 	// 	id: Math.random() * (100000 - 1) + 1,
-		// 	// });
-		// }
-
 		const birthDayIndex = this.parser.rows[0].findIndex(
 			(f) => f.trim() === this.userGroupFields[2].trim()
 		);
@@ -63,7 +52,7 @@ export class GroupUserFileParser {
 				fullname: this.parser.rows[index][fullnameIndex],
 				rank: this.parser.rows[index][rankIndex],
 				groupId: 0,
-				id: Math.random() * (100000 - 1) + 1,
+				id: Math.floor(Math.random() * (10000000 - 1) + 1),
 			});
 		}
 
@@ -83,11 +72,11 @@ export const GroupUserUploader: React.FC<GroupUserUploaderProps> = (
 	const uploadProps = {
 		fileList,
 		beforeUpload: (file: RcFile) => {
-			if (file.type !== "text/csv") {
-				message.error({
-					content: `${file.name} це не csv файл`,
-				});
-			}
+			// if (file.type !== "text/csv") {
+			// 	message.error({
+			// 		content: `${file.name} це не csv файл`,
+			// 	});
+			// }
 
 			file.text().then((value) => {});
 			file.arrayBuffer().then((buffer) => {
@@ -100,18 +89,18 @@ export const GroupUserUploader: React.FC<GroupUserUploaderProps> = (
 				const conv = iconv
 					.encode(iconv.decode(value, props.encoding), "utf8")
 					.toString();
-				console.log("value", conv);
 
 				const parser = new GroupUserFileParser(conv);
-				message.info({
-					content: "Файл завантажено",
-				});
+
 				if (!parser.checkFields()) {
 					message.error({
 						content: "Файл не містить потрібних стовпчиків (полей)",
 					});
 					return;
 				}
+				message.info({
+					content: "Файл завантажено",
+				});
 				props.onLoaded(parser.toArray());
 			});
 			return file.type === "text/csv";

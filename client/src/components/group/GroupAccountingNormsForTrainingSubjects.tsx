@@ -470,7 +470,7 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 	return (
 		<div>
 			<Row justify="center">
-				<Descriptions style={{ width: "50%" }} bordered>
+				<Descriptions style={{ minWidth: "50%" }} bordered>
 					<Descriptions.Item
 						label="Оберіть предмет"
 						span={3}

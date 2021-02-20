@@ -1,5 +1,5 @@
 import { Button, PageHeader, Row, Spin, Table } from "antd";
-import { ColumnsType } from "antd/lib/table/interface";
+import { ColumnsType, SortOrder } from "antd/lib/table/interface";
 import React, { useEffect, useState, useContext } from "react";
 import { useHistory, Link } from "react-router-dom";
 import { GenerateGroupName } from "../../helpers/GroupHelper";
@@ -24,6 +24,7 @@ export const MyClassesPage: React.FC = () => {
 	const [subjects, setSubjects] = useState<Subject[]>([]);
 	const [groups, setGroups] = useState<Group[]>([]);
 	const yearContext = useContext(YearContext);
+	const [dateSortOrder, setDateSortOrder] = useState<SortOrder>("descend");
 
 	useEffect(() => {
 		ConnectionManager.getInstance().registerResponseOnceHandler(
@@ -109,23 +110,24 @@ export const MyClassesPage: React.FC = () => {
 		},
 		{
 			title: "Предмет",
-			dataIndex: "title",
-			key: "title",
+			dataIndex: "subject",
+			key: "subject",
 		},
 		{
 			title: "Група",
-			dataIndex: "title",
-			key: "title",
-		},
-		{
-			title: "Група",
-			dataIndex: "title",
-			key: "title",
+			dataIndex: "group",
+			key: "group",
 		},
 		{
 			title: "Дата",
-			dataIndex: "title",
-			key: "title",
+			dataIndex: "date",
+			key: "date",
+			defaultSortOrder: "descend",
+		},
+		{
+			title: "Група",
+			dataIndex: "action",
+			key: "action",
 		},
 	];
 
@@ -225,10 +227,22 @@ export const MyClassesPage: React.FC = () => {
 						record.data.date.getDate() === valueDate.getDate()
 					);
 				},
-				filterMultiple: true,
-				sorter: (a: MyClassTableData, b: MyClassTableData) =>
-					a.data.date < b.data.date ? -1 : 1,
+				sorter: (a: MyClassTableData, b: MyClassTableData) => {
+					return a.data.date < b.data.date ? -1 : 1;
+				},
 				defaultSortOrder: "descend",
+				sortOrder: dateSortOrder,
+				onHeaderCell: (header) => {
+					return {
+						onClick: () => {
+							if (dateSortOrder === "ascend") {
+								setDateSortOrder("descend");
+							} else {
+								setDateSortOrder("ascend");
+							}
+						},
+					};
+				},
 			},
 			{
 				title: "Дії",
@@ -273,7 +287,7 @@ export const MyClassesPage: React.FC = () => {
 				<Table
 					columns={tableColumns}
 					dataSource={tableData}
-					style={{ width: "50%" }}
+					style={{ minWidth: "50%" }}
 					pagination={false}
 					size={"small"}
 					bordered

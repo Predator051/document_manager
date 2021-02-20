@@ -18,6 +18,7 @@ import {
 	Row,
 	Select,
 	Spin,
+	Space,
 } from "antd";
 import DescriptionsItem from "antd/lib/descriptions/Item";
 import * as moment from "moment";
@@ -397,7 +398,7 @@ export const SubjectSelector: React.FC<SubjectCreatorProps> = (
 					),
 				});
 			},
-			cancelText: "Відмінити"
+			cancelText: "Відмінити",
 		});
 	};
 
@@ -501,7 +502,9 @@ export const SubjectSelector: React.FC<SubjectCreatorProps> = (
 			enteredTitle = value;
 		};
 		const onNumberChange = (value: number | string) => {
-			enteredNumber = parseInt(value.toString());
+			if (value !== undefined && value !== null) {
+				enteredNumber = parseInt(value.toString());
+			}
 		};
 		Modal.confirm({
 			okText: "Додати",
@@ -550,7 +553,8 @@ export const SubjectSelector: React.FC<SubjectCreatorProps> = (
 			enteredTitle = value;
 		};
 		const onNumberChange = (value: number | string) => {
-			enteredNumber = parseInt(value.toString());
+			if (value !== undefined && value !== null)
+				enteredNumber = parseInt(value.toString());
 		};
 		Modal.confirm({
 			okText: "Додати",
@@ -642,17 +646,23 @@ export const SubjectSelector: React.FC<SubjectCreatorProps> = (
 									>
 										<Row
 											justify="start"
-											align="middle"
+											align="top"
 											style={{ margin: 0, padding: 0 }}
 										>
-											<Col flex="auto">{subj.shortTitle}</Col>
-											<Col flex="10%" style={{ margin: 0, padding: 0 }}>
-												<Row justify="end" style={{ margin: 0, padding: 0 }}>
+											<Col flex="80%">
+												<div
+													style={{
+														whiteSpace: "pre-wrap",
+													}}
+												>
+													{subj.shortTitle}
+												</div>
+											</Col>
+											<Col flex="auto">
+												<Row justify="end">
 													<Button
 														icon={
-															<ExclamationCircleOutlined
-																style={{ margin: 0, padding: 0 }}
-															></ExclamationCircleOutlined>
+															<ExclamationCircleOutlined></ExclamationCircleOutlined>
 														}
 														type="link"
 														onClick={() => {
@@ -760,27 +770,25 @@ export const SubjectSelector: React.FC<SubjectCreatorProps> = (
 							>
 								{getCurrentTrainingProgram().topics.map((topic) => (
 									<Option value={topic.id}>
-										<div
-											style={{
-												whiteSpace: "pre-wrap",
-											}}
-										>
+										<div>
 											<Row
 												justify="start"
-												align="middle"
+												align="top"
 												style={{ margin: 0, padding: 0 }}
 											>
-												<Col flex="auto">
-													{topic.number} {topic.title}
+												<Col flex="80%">
+													<div
+														style={{
+															whiteSpace: "pre-wrap",
+														}}
+													>
+														{topic.number}. {topic.title}
+													</div>
 												</Col>
-												<Col flex="10%" style={{ margin: 0, padding: 0 }}>
-													<Row justify="end" style={{ margin: 0, padding: 0 }}>
+												<Col flex="auto">
+													<Row justify="end" align="top">
 														<Button
-															icon={
-																<EditOutlined
-																	style={{ margin: 0, padding: 0 }}
-																></EditOutlined>
-															}
+															icon={<EditOutlined></EditOutlined>}
 															type="link"
 															onClick={() => {
 																onEditTopic(topic.id);
@@ -833,27 +841,32 @@ export const SubjectSelector: React.FC<SubjectCreatorProps> = (
 							>
 								{getCurrentTopic().occupation.map((occupation) => (
 									<Option value={occupation.id}>
-										<div
-											style={{
-												whiteSpace: "pre-wrap",
-											}}
-										>
+										<div>
 											<Row
 												justify="start"
-												align="middle"
+												align="top"
 												style={{ margin: 0, padding: 0 }}
 											>
-												<Col flex="auto">
-													{occupation.number} {occupation.title}
+												<Col flex="80%">
+													<div
+														style={{
+															whiteSpace: "pre-wrap",
+														}}
+													>
+														{occupation.number}. {occupation.title}{" "}
+													</div>
 												</Col>
-												<Col flex="10%" style={{ margin: 0, padding: 0 }}>
-													<Row justify="end" style={{ margin: 0, padding: 0 }}>
+												<Col flex="auto">
+													<Row
+														justify="end"
+														align="top"
+														style={{
+															width: "100%",
+															height: "100%",
+														}}
+													>
 														<Button
-															icon={
-																<EditOutlined
-																	style={{ margin: 0, padding: 0 }}
-																></EditOutlined>
-															}
+															icon={<EditOutlined></EditOutlined>}
 															type="link"
 															onClick={() => {
 																onEditOccupation(occupation.id);

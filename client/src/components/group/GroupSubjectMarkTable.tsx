@@ -129,7 +129,7 @@ export const GroupSubjectMarkTable: React.FC<GroupSubjectMarkTableProps> = (
 	}, []);
 
 	const tableData: GroupTableData[] = props.group.users
-		.sort((a, b) => (a.fullname < b.fullname ? -1 : 1))
+		.sort((a, b) => a.fullname.localeCompare(b.fullname))
 		.map(
 			(ug, index) =>
 				({
@@ -158,7 +158,7 @@ export const GroupSubjectMarkTable: React.FC<GroupSubjectMarkTableProps> = (
 				return <div className="text-focus-in">{record.data.fullname}</div>;
 			},
 			sorter: (a: GroupTableData, b: GroupTableData) =>
-				a.data.fullname < b.data.fullname ? -1 : 1,
+				a.data.fullname.localeCompare(b.data.fullname),
 			defaultSortOrder: "ascend",
 			fixed: "left",
 			width: "20%",

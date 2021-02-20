@@ -21,8 +21,10 @@ export const OccupationEditor: React.FC<{
 	};
 
 	const onNumberChange = (value: number | string) => {
-		let enteredNumber = parseInt(value.toString());
-		setOccupation({ ...occupation, number: enteredNumber });
+		if (value !== undefined && value !== null) {
+			let enteredNumber = parseInt(value.toString());
+			setOccupation({ ...occupation, number: enteredNumber });
+		}
 	};
 	return (
 		<div>

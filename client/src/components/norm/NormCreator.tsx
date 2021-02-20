@@ -71,7 +71,8 @@ export const NormCreator: React.FC<NormCreatorProps> = (
 	};
 
 	const numberChange = (value: React.Key) => {
-		setNorm({ ...norm, number: parseInt(value.toString()) });
+		if (value !== undefined && value !== null)
+			setNorm({ ...norm, number: parseInt(value.toString()) });
 	};
 	const contentChange: (
 		event: React.ChangeEvent<HTMLTextAreaElement>

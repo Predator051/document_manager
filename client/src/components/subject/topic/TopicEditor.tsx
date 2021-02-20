@@ -16,8 +16,10 @@ export const TopicEditor: React.FC<{
 	};
 
 	const onNumberChange = (value: number | string) => {
-		let enteredNumber = parseInt(value.toString());
-		setTopic({ ...topic, number: enteredNumber });
+		if (value !== undefined && value !== null) {
+			let enteredNumber = parseInt(value.toString());
+			setTopic({ ...topic, number: enteredNumber });
+		}
 	};
 	return (
 		<div>

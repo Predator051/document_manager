@@ -39,7 +39,11 @@ interface EditableGroupTableData {
 	index: number;
 }
 
-const EditableGroupColumns = (editable: boolean) => {
+const EditableGroupColumns = (
+	editable: boolean,
+	isCanDelete: boolean,
+	onDelete: (guId: number) => void
+) => {
 	const columns: ColumnsType<any> = [
 		{
 			title: "№ з/п",
@@ -119,19 +123,44 @@ const EditableGroupColumns = (editable: boolean) => {
 		},
 	];
 
+	if (editable) {
+		columns.push({
+			title: "Дії",
+			dataIndex: "action",
+			key: "action",
+			render: (current: any, record: EditableGroupTableData) => {
+				if (isCanDelete)
+					return (
+						<Button
+							type="link"
+							onClick={() => {
+								onDelete(record.data.id);
+							}}
+						>
+							Видалити
+						</Button>
+					);
+
+				return <Button type="link">Деактивувати</Button>;
+			},
+		});
+	}
+
 	return columns;
 };
 
 export interface EditableGroupTableProps {
 	userGroups: GroupUser[];
 	editUsers: boolean;
+	isCanDelete: boolean;
+	onDelete: (guId: number) => void;
 }
 
 export const EditableGroupTable: React.FC<EditableGroupTableProps> = (
 	props: EditableGroupTableProps
 ) => {
 	const tableData: EditableGroupTableData[] = props.userGroups
-		.sort((a, b) => (a.fullname < b.fullname ? -1 : 1))
+		.sort((a, b) => a.fullname.localeCompare(b.fullname))
 		.map(
 			(ug, index) =>
 				({
@@ -146,7 +175,11 @@ export const EditableGroupTable: React.FC<EditableGroupTableProps> = (
 				pagination={false}
 				rowKey={(gu: EditableGroupTableData) => gu.data.id.toString()}
 				dataSource={tableData}
-				columns={EditableGroupColumns(props.editUsers)}
+				columns={EditableGroupColumns(
+					props.editUsers,
+					props.isCanDelete,
+					props.onDelete
+				)}
 				size="small"
 				bordered
 			></Table>

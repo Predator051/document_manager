@@ -11,6 +11,7 @@ import { GroupUser } from "../types/groupUser";
 import { GroupUserPresenceEntity } from "./group.user.presence.entity";
 import { NormMarkEntity } from "./norm.mark.entity";
 import { IndividualWorkEntity } from "./individual.work.entity";
+import { ObjectStatus } from "../types/constants";
 
 @Entity()
 export class GroupUserEntity {
@@ -32,11 +33,18 @@ export class GroupUserEntity {
 	@ManyToOne((type) => GroupEntity, (group) => group.users)
 	group: GroupEntity;
 
+	@Column({
+		type: "enum",
+		enum: ObjectStatus,
+		default: ObjectStatus.NORMAL,
+	})
+	status: ObjectStatus;
+
 	@ManyToOne((type) => IndividualWorkEntity, (workEntity) => workEntity.users)
-	individualWorks: IndividualWorkEntity;
+	individualWorks?: IndividualWorkEntity;
 
 	@OneToMany((type) => GroupUserPresenceEntity, (presence) => presence.user)
-	presense?: GroupUserPresenceEntity;
+	presense?: GroupUserPresenceEntity[];
 
 	@OneToMany((type) => NormMarkEntity, (mark) => mark.user)
 	normMarks?: NormMarkEntity[];

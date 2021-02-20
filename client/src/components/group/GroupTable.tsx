@@ -35,7 +35,7 @@ const GroupColumns = () => {
 				return <div>{record.data.fullname}</div>;
 			},
 			sorter: (a: GroupTableData, b: GroupTableData) =>
-				a.data.fullname < b.data.fullname ? -1 : 1,
+				a.data.fullname.localeCompare(b.data.fullname),
 			defaultSortOrder: "ascend",
 		},
 		{
@@ -76,7 +76,7 @@ export const GroupTable: React.FC<GroupTableProps> = (
 	props: GroupTableProps
 ) => {
 	const tableData: GroupTableData[] = props.userGroups.users
-		.sort((a, b) => (a.fullname < b.fullname ? -1 : 1))
+		.sort((a, b) => a.fullname.localeCompare(b.fullname))
 		.map(
 			(ug, index) =>
 				({

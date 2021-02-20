@@ -115,6 +115,18 @@ export const MainMenu: React.FC = (props: any) => {
 								{"Переглянути мій журнал".toUpperCase()}
 							</Typography.Text>
 						</Menu.Item>
+
+						<Menu.Item
+							onClick={() => {
+								history.push(HREFS.MY_CLASSES);
+							}}
+							key={HREFS.MY_CLASSES}
+							icon={<AppstoreOutlined></AppstoreOutlined>}
+						>
+							<Typography.Text strong>
+								{"Мої заняття".toUpperCase()}
+							</Typography.Text>
+						</Menu.Item>
 						<Menu.Item
 							onClick={() => {
 								history.push(HREFS.CREATE_NEW_CLASS);
@@ -146,18 +158,6 @@ export const MainMenu: React.FC = (props: any) => {
 						>
 							<Typography.Text strong>
 								{"Додаткова робота з курсантами".toUpperCase()}
-							</Typography.Text>
-						</Menu.Item>
-
-						<Menu.Item
-							onClick={() => {
-								history.push(HREFS.MY_CLASSES);
-							}}
-							key={HREFS.MY_CLASSES}
-							icon={<AppstoreOutlined></AppstoreOutlined>}
-						>
-							<Typography.Text strong>
-								{"Мої заняття".toUpperCase()}
 							</Typography.Text>
 						</Menu.Item>
 						<Menu.Item

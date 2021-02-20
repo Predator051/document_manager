@@ -14,6 +14,9 @@ export class MRSEntity {
 	@Column()
 	name: string;
 
+	@Column({ default: true })
+	isCanChange: boolean;
+
 	@OneToMany((type) => GroupEntity, (group) => group.mrs)
 	groups?: GroupEntity[];
 
@@ -22,6 +25,7 @@ export class MRSEntity {
 			id: this.id,
 			name: this.name,
 			number: this.number,
+			isCanChange: this.isCanChange,
 		};
 	}
 }

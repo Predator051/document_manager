@@ -52,11 +52,11 @@ export const PresenceShower: React.FC<{
 	if (props.presence.mark.subject !== 0) {
 		actualMark = props.presence.mark.subject;
 		color = "#cd201f";
-		content = "Ітогова оцінка за предмет навчання";
+		content = "Підсумкова оцінка за предмет навчання";
 	} else if (props.presence.mark.topic !== 0) {
 		actualMark = props.presence.mark.topic;
 		color = "#108ee9";
-		content = "Ітогова оцінка за тему";
+		content = "Підсумкова оцінка за тему";
 	} else {
 		actualMark = props.presence.mark.current;
 		if (props.presence.mark.current === 0) {
@@ -135,7 +135,7 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 	}
 
 	const tableData: GroupTableData[] = props.group.users
-		.sort((a, b) => (a.fullname < b.fullname ? -1 : 1))
+		.sort((a, b) => a.fullname.localeCompare(b.fullname))
 		.map(
 			(ug, index) =>
 				({
@@ -174,7 +174,7 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 				return <div>{record.data.fullname}</div>;
 			},
 			sorter: (a: GroupTableData, b: GroupTableData) =>
-				a.data.fullname < b.data.fullname ? -1 : 1,
+				a.data.fullname.localeCompare(b.data.fullname),
 			defaultSortOrder: "ascend",
 			fixed: "left",
 			width: "20%",

@@ -14,6 +14,14 @@ import { CreateEmptyGroup } from "../types/group";
 import { GroupUserEntity } from "../entities/group.user.entity";
 import { getTreeRepository } from "typeorm";
 import { DBMRSManager } from "../managers/db_mrs_manager";
+import { ClassModel } from "./class.model";
+import { DBClassManager } from "../managers/db_class_manager";
+import { DBNormManager } from "../managers/db_norm_manager";
+import { DBNormProcessManager } from "../managers/db_norm_process_manager";
+import { DBIndividualWorkManager } from "../managers/db_individual_work";
+import { ObjectStatus } from "../types/constants";
+import { DBGroupUserPresenceManager } from "../managers/db_group_user_presence";
+import { DBGroupUserMarkManager } from "../managers/db_group_user_mark";
 
 export class GroupModel {
 	public static async getAllGroups(
@@ -37,6 +45,37 @@ export class GroupModel {
 			const entity = await DBGroupManager.GetById(id);
 			if (entity) {
 				result.push(entity.ToRequestObject());
+			}
+		}
+
+		return {
+			data: result,
+			messageInfo: `SUCCESS`,
+			requestCode: RequestCode.RES_CODE_SUCCESS,
+			session: "",
+		};
+	}
+
+	public static async isGroupHasActivity(
+		id: number
+	): Promise<RequestMessage<boolean>> {
+		let result: boolean = true;
+
+		const classes = await DBClassManager.GetClassesByGroupId(id);
+
+		if (classes.length <= 0) {
+			const currYear = new Date().getFullYear();
+			const normProcess = [
+				...(await DBNormProcessManager.GetByGroup(id, currYear)),
+				...(await DBNormProcessManager.GetByGroup(id, currYear - 1)),
+			];
+
+			if (normProcess.length <= 0) {
+				const indWors = await DBIndividualWorkManager.GetByGroupId(id);
+
+				if (indWors.length <= 0) {
+					result = false;
+				}
 			}
 		}
 
@@ -82,6 +121,17 @@ export class GroupModel {
 
 		return {
 			data: resultEntities.map((ge) => ge.ToRequestObject()),
+			messageInfo: `SUCCESS`,
+			requestCode: RequestCode.RES_CODE_SUCCESS,
+			session: "",
+		};
+	}
+
+	public static async deleteGroupUser(
+		id: number
+	): Promise<RequestMessage<boolean>> {
+		return {
+			data: await DBGroupManager.deleteGroupUser(id),
 			messageInfo: `SUCCESS`,
 			requestCode: RequestCode.RES_CODE_SUCCESS,
 			session: "",
@@ -190,7 +240,41 @@ export class GroupModel {
 		newGroupEntity.year = gr.year;
 		newGroupEntity.status = gr.status;
 
-		DBGroupManager.SaveGroupEntity(newGroupEntity);
+		const allGroupClasses = await DBClassManager.GetClassesByGroupId(
+			newGroupEntity.id
+		);
+
+		const saved = await DBGroupManager.SaveGroupEntity(newGroupEntity);
+		if (saved) {
+			const updatedGroup = await DBGroupManager.GetById(saved.id);
+
+			for (const groupUser of updatedGroup.users) {
+				if (groupUser.status === ObjectStatus.NORMAL) {
+					for (const classEvent of allGroupClasses) {
+						const presense = classEvent.presenses.find(
+							(pr) => pr.user.id === groupUser.id
+						);
+
+						if (!presense) {
+							const presenceEntity = DBGroupUserPresenceManager.CreateEmptyEntity();
+							presenceEntity.mark = DBGroupUserMarkManager.CreateEmptyEntity();
+							presenceEntity.user = groupUser;
+
+							classEvent.presenses.push(presenceEntity);
+							await DBClassManager.SaveClassEventEntity(classEvent);
+							console.log("saved new presenses", presenceEntity);
+						}
+					}
+				}
+			}
+		} else {
+			return {
+				data: {},
+				messageInfo: `CANNOT SAVE GROUP BY ID ${newGroupEntity.id}`,
+				requestCode: RequestCode.RES_CODE_INTERNAL_ERROR,
+				session: "",
+			};
+		}
 
 		return {
 			data: {},

@@ -5,6 +5,7 @@ export enum ObjectStatus {
 	NORMAL,
 	ARCHIVE,
 	DELETE,
+	NOT_ACTIVE,
 }
 
 export enum STANDART_ONE_TIME_TASK {

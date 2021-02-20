@@ -48,7 +48,7 @@ momentSpace.locale("uk");
 
 const { Option } = Select;
 
-interface GroupCreatorProps {
+interface GroupManipulatorProps {
 	onClose: () => void;
 	onCreate: (group: Group) => void;
 	onExist: (existGroup: Group, enteredGroup: Group) => void;
@@ -58,13 +58,8 @@ interface GroupCreatorProps {
 	visibleMode?: boolean;
 }
 
-interface Loadings {
-	mrs: boolean;
-	groupTrainings: boolean;
-}
-
-export const GroupCreator: React.FC<GroupCreatorProps> = (
-	props: GroupCreatorProps
+export const GroupManipulator: React.FC<GroupManipulatorProps> = (
+	props: GroupManipulatorProps
 ) => {
 	const [userGroups, setUserGroups] = useState<GroupUser[]>(
 		props.group ? props.group.users : []
@@ -87,8 +82,9 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 	] = useState<boolean>(true);
 
 	const [fileUploaderEncoding, setFileUploaderEncoding] = useState<string>(
-		"utf8"
+		"windows-1251"
 	);
+	const [isGroupHasActivity, setIsGroupHasActivity] = useState<boolean>(false);
 
 	useEffect(() => {
 		ConnectionManager.getInstance().registerResponseOnceHandler(
@@ -122,6 +118,23 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 			}
 		);
 		ConnectionManager.getInstance().emit(RequestType.GET_ALL_MRS, {});
+
+		ConnectionManager.getInstance().registerResponseOnceHandler(
+			RequestType.IS_GROUP_HAS_ACTIVITY,
+			(data) => {
+				const dataMessage = data as RequestMessage<boolean>;
+				if (dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR) {
+					console.log(`Error: ${dataMessage.requestCode}`);
+					return;
+				}
+				setIsGroupHasActivity(dataMessage.data);
+			}
+		);
+		if (props.group)
+			ConnectionManager.getInstance().emit(
+				RequestType.IS_GROUP_HAS_ACTIVITY,
+				props.group.id
+			);
 	}, []);
 
 	if (mrsLoading || groupTrainingTypeLoading) {
@@ -142,7 +155,7 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 
 	const onClickAddGroupUser = () => {
 		const newGroupUser: GroupUser = {
-			id: 0,
+			id: Math.floor(Math.random() * (10000000 - 1) + 1),
 			birthday: "ПУСТО",
 			education: "ПУСТО",
 			fullname: "ПУСТО",
@@ -327,6 +340,33 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 
 	const onChangeEncoding = (value: string) => {
 		setFileUploaderEncoding(value);
+	};
+
+	const onUserGroupDelete = (guId: number) => {
+		console.log("on delete", guId);
+
+		const deleteGU = userGroups.find((ug) => ug.id === guId);
+
+		ConnectionManager.getInstance().registerResponseOnceHandler(
+			RequestType.DELETE_GROUP_USER,
+			(data) => {
+				const dataMessage = data as RequestMessage<boolean>;
+				if (
+					dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR &&
+					!dataMessage.data
+				) {
+					console.log(`Error: ${dataMessage.requestCode}`);
+					return;
+				}
+
+				setUserGroups([...userGroups.filter((ug) => ug.id !== guId)]);
+				message.success("Користувача успішно видалено!");
+			}
+		);
+		ConnectionManager.getInstance().emit(
+			RequestType.DELETE_GROUP_USER,
+			deleteGU.id
+		);
 	};
 
 	return (
@@ -575,40 +615,52 @@ export const GroupCreator: React.FC<GroupCreatorProps> = (
 					)}
 				</Descriptions>
 			</Row>
-			{!props.visibleMode && (
+			{!props.visibleMode ? (
 				<Row style={{ marginTop: "1%" }}>
 					<Col flex="auto">
 						<Typography.Title level={2}>Заповнити список:</Typography.Title>
 					</Col>
-					<Col flex="auto" style={{ padding: "3px" }}>
-						<Space>
-							<GroupUserUploader
-								onLoaded={(ug) => setUserGroups(ug)}
-								encoding={fileUploaderEncoding}
-							></GroupUserUploader>
-							<Select
-								style={{ minWidth: "150px" }}
-								defaultValue={"windows-1251"}
-								onChange={onChangeEncoding}
-							>
-								<Select.Option value="utf8">utf-8</Select.Option>
-								<Select.Option value="windows-1251">windows-1251</Select.Option>
-							</Select>
-							<Tooltip title="Кодування csv-файлу.">
-								<QuestionCircleOutlined />
-							</Tooltip>
-						</Space>
-					</Col>
+					{!isGroupHasActivity && (
+						<Col flex="auto" style={{ padding: "3px" }}>
+							<Space>
+								<GroupUserUploader
+									onLoaded={(ug) =>
+										setUserGroups(
+											ug.sort((a, b) => a.fullname.localeCompare(b.fullname))
+										)
+									}
+									encoding={fileUploaderEncoding}
+								></GroupUserUploader>
+								<Select
+									style={{ minWidth: "150px" }}
+									defaultValue={fileUploaderEncoding}
+									onChange={onChangeEncoding}
+								>
+									<Select.Option value="utf8">utf-8</Select.Option>
+									<Select.Option value="windows-1251">
+										windows-1251
+									</Select.Option>
+								</Select>
+								<Tooltip title="Кодування csv-файлу.">
+									<QuestionCircleOutlined />
+								</Tooltip>
+							</Space>
+						</Col>
+					)}
 
 					<Col flex="auto" style={{ padding: "3px" }}>
 						<Button onClick={onClickAddGroupUser}>Додати учня</Button>
 					</Col>
 				</Row>
+			) : (
+				<></>
 			)}
 
 			<EditableGroupTable
 				userGroups={userGroups}
 				editUsers={!props.visibleMode}
+				isCanDelete={!isGroupHasActivity}
+				onDelete={onUserGroupDelete}
 			></EditableGroupTable>
 			<Row style={{ marginTop: "1%" }}>
 				<Col flex="50%"></Col>

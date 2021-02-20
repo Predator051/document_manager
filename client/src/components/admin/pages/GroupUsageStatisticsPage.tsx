@@ -87,7 +87,7 @@ export const GroupUsageStaticsPage: React.FC<GroupUsageStaticsPageProps> = (
 	return (
 		<div>
 			<Row justify="center">
-				<Descriptions style={{ width: "50%" }} bordered>
+				<Descriptions style={{ minWidth: "50%" }} bordered>
 					<Descriptions.Item
 						label="Оберіть групу"
 						span={3}

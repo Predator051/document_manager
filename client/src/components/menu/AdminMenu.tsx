@@ -137,7 +137,7 @@ export const AdminMainMenu: React.FC = (props: any) => {
 							style={{ minHeight: "100vh", zIndex: 1 }}
 							width="15vw"
 							collapsible
-							defaultCollapsed
+							defaultCollapsed={false}
 						>
 							<Menu
 								mode="inline"

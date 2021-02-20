@@ -103,7 +103,7 @@ export const MRSEditPage: React.FC<MRSEditPageProps> = (
 			name = value;
 		};
 		const onSubjectCreate = () => {
-			updateMRS({ id: 0, name: name, number: number });
+			updateMRS({ id: 0, name: name, number: number, isCanChange: true });
 		};
 		const modal = Modal.info({
 			title: "Додавання ВОС",
@@ -149,10 +149,12 @@ export const MRSEditPage: React.FC<MRSEditPageProps> = (
 								icon={<MinusOutlined></MinusOutlined>}
 								onClick={() => {
 									const found = mrss.find((m) => m.id === mrs.id);
-									setSelectedMRS(found);
-									form.setFieldsValue({
-										...found,
-									});
+									if (found.isCanChange) {
+										setSelectedMRS(found);
+										form.setFieldsValue({
+											...found,
+										});
+									}
 								}}
 							>
 								{mrs.number}

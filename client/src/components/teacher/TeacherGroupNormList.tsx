@@ -139,14 +139,14 @@ export const TeacherGroupNormList: React.FC<TeacherGroupNormListProps> = (
 	// }
 
 	const descriptionItemLabelStyle: React.CSSProperties = {
-		width: "45%",
+		width: "30%",
 		backgroundColor: "#2988e2",
 		fontSize: "large",
 		color: "white",
 	};
 
 	const descriptionItemContentStyle: React.CSSProperties = {
-		width: "45%",
+		width: "55%",
 		backgroundColor: "#fff",
 		fontSize: "large",
 	};
@@ -175,7 +175,7 @@ export const TeacherGroupNormList: React.FC<TeacherGroupNormListProps> = (
 	return (
 		<div>
 			<Row justify="center">
-				<Descriptions style={{ width: "50%" }} bordered>
+				<Descriptions style={{ minWidth: "50%" }} bordered>
 					<Descriptions.Item
 						label="Оберіть групу"
 						span={3}

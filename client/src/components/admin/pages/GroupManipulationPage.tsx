@@ -33,7 +33,7 @@ import {
 } from "../../../types/group";
 import { ColumnsType } from "antd/lib/table/interface";
 import { GenerateGroupName } from "../../../helpers/GroupHelper";
-import { GroupCreator } from "../../group/creator/GroupCreator";
+import { GroupManipulator } from "../../group/creator/GroupManipulator";
 import { ObjectStatusToString, ObjectStatus } from "../../../types/constants";
 
 export interface GroupManipulationPageProps {}
@@ -255,14 +255,14 @@ export const GroupManipulationPage: React.FC<GroupManipulationPageProps> = (
 						// minHeight: "500px",
 					}}
 				>
-					<GroupCreator
+					<GroupManipulator
 						onCreate={onGroupUpdate}
 						onClose={onSubjectCreatorClose}
 						onExist={onCreatedEditedGroupExist.bind(null, modal)}
 						group={groups.find((gr) => gr.id === groupId)}
 						createText="Оновити"
 						archiveButton
-					></GroupCreator>
+					></GroupManipulator>
 				</div>
 			),
 		});
@@ -608,11 +608,11 @@ export const GroupManipulationPage: React.FC<GroupManipulationPageProps> = (
 						height: "auto",
 					}}
 				>
-					<GroupCreator
+					<GroupManipulator
 						onCreate={onGroupCreate}
 						onClose={onGroupCreatorClose}
 						onExist={onCreatedEditedGroupExist.bind(null, modal)}
-					></GroupCreator>
+					></GroupManipulator>
 				</div>
 			),
 		});
