@@ -123,7 +123,7 @@ export function CreateNewClassPage() {
 	function onCreateGroupClick() {
 		const modal = Modal.info({
 			title: "Створення группи",
-			width: window.screen.width * 0.6,
+			width: window.screen.width * 0.9,
 			style: { top: 20 },
 			closable: true,
 			okButtonProps: {
@@ -168,7 +168,7 @@ export function CreateNewClassPage() {
 	function onCreateSubjectClick() {
 		const modal = Modal.info({
 			title: "Обрання предмету",
-			width: window.screen.width * 0.6,
+			width: window.screen.width * 0.9,
 			style: { top: 20 },
 			closable: true,
 			okButtonProps: {
@@ -202,7 +202,7 @@ export function CreateNewClassPage() {
 	function onGroupInfoClick(groupId: number) {
 		const modal = Modal.info({
 			title: "Інформація про групу",
-			width: window.screen.width * 0.6,
+			width: window.screen.width * 0.9,
 			style: { top: 20 },
 			closable: true,
 			okButtonProps: {

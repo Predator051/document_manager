@@ -239,7 +239,7 @@ export const UserEditPage: React.FC<Props> = () => {
 	const onUserCreateClick = () => {
 		const modal = Modal.info({
 			title: "Створення користувача",
-			width: window.screen.width * 0.6,
+			width: window.screen.width * 0.9,
 			style: { top: 20 },
 			closable: true,
 			okButtonProps: {

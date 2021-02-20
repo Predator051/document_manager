@@ -116,7 +116,7 @@ export const StudentProcess: React.FC<StudentProcessProps> = (
 	const onAddWorkClick = () => {
 		const modal = Modal.info({
 			title: "Додавання індивідуальної роботи",
-			width: window.screen.width * 0.6,
+			width: window.screen.width * 0.9,
 			style: { top: 20 },
 			closable: true,
 			okButtonProps: {

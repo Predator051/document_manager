@@ -443,7 +443,7 @@ export const GroupList: React.FC<GroupListProps> = (props: GroupListProps) => {
 	function onGroupInfoClick(groupId: number, visibleMode: boolean) {
 		const modal = Modal.info({
 			title: "Інформація про групу",
-			width: window.screen.width * 0.6,
+			width: window.screen.width * 0.9,
 			style: { top: 20 },
 			closable: true,
 			okButtonProps: {
@@ -496,7 +496,7 @@ export const GroupList: React.FC<GroupListProps> = (props: GroupListProps) => {
 	function onCreateGroupClick() {
 		const modal = Modal.info({
 			title: "Створення группи",
-			width: window.screen.width * 0.6,
+			width: window.screen.width * 0.9,
 			style: { top: 20 },
 			closable: true,
 			okButtonProps: {

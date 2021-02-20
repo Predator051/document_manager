@@ -103,7 +103,7 @@ export const NormInfoDrawer: React.FC<NormInfoDrawerProps> = (
 	const onCreateNormClick = () => {
 		const modal = Modal.info({
 			title: "Додавання нормативу",
-			width: window.screen.width * 0.6,
+			width: window.screen.width * 0.9,
 			style: { top: 20 },
 			closable: true,
 			okButtonProps: {

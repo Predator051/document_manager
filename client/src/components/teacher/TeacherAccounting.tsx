@@ -265,7 +265,7 @@ export const TeacherAccounting: React.FC<TeacherAccountingProps> = (
 	const onCreateClick = () => {
 		const modal = Modal.info({
 			title: "Додавання зауваження чи вказіки",
-			width: window.screen.width * 0.6,
+			width: window.screen.width * 0.9,
 			style: { top: 20 },
 			closable: true,
 			okButtonProps: {

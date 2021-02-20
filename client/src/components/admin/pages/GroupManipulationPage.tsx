@@ -222,7 +222,7 @@ export const GroupManipulationPage: React.FC<GroupManipulationPageProps> = (
 	function onGroupInfoClick(groupId: number) {
 		const modal = Modal.info({
 			title: "Інформація про групу",
-			width: window.screen.width * 0.6,
+			width: window.screen.width * 0.9,
 			style: { top: 20 },
 			closable: true,
 			okButtonProps: {
@@ -576,7 +576,7 @@ export const GroupManipulationPage: React.FC<GroupManipulationPageProps> = (
 	function onCreateGroupClick() {
 		const modal = Modal.info({
 			title: "Створення группи",
-			width: window.screen.width * 0.6,
+			width: window.screen.width * 0.9,
 			style: { top: 20 },
 			closable: true,
 			okButtonProps: {
