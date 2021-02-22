@@ -5,6 +5,7 @@ import { GroupUser } from "../../types/groupUser";
 import { ExcelExporter } from "../ui/excel-exporter/ExcelExporter";
 import { GroupExport } from "../ui/excel-exporter/exporters/GroupExporter";
 import { Group } from "../../types/group";
+import { ObjectStatus } from "../../types/constants";
 
 interface EditableCellProps {
 	onSave: (newValue: any) => void;
@@ -26,6 +27,7 @@ const GroupColumns = () => {
 			render: (current: any, record: GroupTableData) => {
 				return record.index.toString();
 			},
+			width: "40px",
 		},
 		{
 			title: "Прізвище, ім’я та по батькові",
@@ -90,7 +92,12 @@ export const GroupTable: React.FC<GroupTableProps> = (
 			<Row justify="end">
 				<ExcelExporter
 					bufferFunction={() => {
-						return GroupExport(props.userGroups);
+						return GroupExport({
+							...props.userGroups,
+							users: props.userGroups.users.filter(
+								(u) => u.status === ObjectStatus.NORMAL
+							),
+						});
 					}}
 					fileName={`${props.userGroups.company} рота, ${props.userGroups.platoon} взвод, ВОС ${props.userGroups.mrs.number}`}
 				></ExcelExporter>
@@ -103,6 +110,12 @@ export const GroupTable: React.FC<GroupTableProps> = (
 				columns={GroupColumns()}
 				size="small"
 				bordered
+				rowClassName={(record, index) => {
+					if (record.data.status === ObjectStatus.NOT_ACTIVE)
+						return "row_grou-user_deactivate";
+
+					return "";
+				}}
 			></Table>
 		</div>
 	);

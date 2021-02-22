@@ -1,3 +1,4 @@
+import { ObjectStatus } from "./constants";
 export class GroupUser {
 	id: number;
 	fullname: string;
@@ -5,4 +6,5 @@ export class GroupUser {
 	birthday: string;
 	education: string;
 	groupId: number;
+	status: ObjectStatus;
 }

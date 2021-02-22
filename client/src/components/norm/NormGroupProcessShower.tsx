@@ -46,6 +46,7 @@ import DataSource from "devextreme/data/data_source";
 
 import { locale, loadMessages } from "devextreme/localization";
 import ruMessages from "devextreme/localization/messages/ru.json";
+import { ObjectStatus } from "../../types/constants";
 
 interface EditableCellProps {
 	onChange: (newValue: any) => void;
@@ -319,17 +320,8 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 					<EditableCell
 						value={foundMark.mark}
 						onChange={(value: number) => {
-							console.log("value", value);
-
 							foundMark.mark = value;
 							buttonUpdateRef.current.focus();
-							// setNormProcess({
-							// 	...normProcess,
-							// 	marks: [
-							// 		...normProcess.marks.filter((m) => m.id !== foundMark.id),
-							// 		foundMark,
-							// 	],
-							// });
 						}}
 					></EditableCell>
 				);
@@ -377,6 +369,9 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 								mark.normId === norm.id && mark.userId === record.groupUser.id
 						);
 						if (!foundMark) return <div>Не заватажилось</div>;
+						if (record.groupUser.status === ObjectStatus.NOT_ACTIVE) {
+							return <div>{foundMark.mark}</div>;
+						}
 						return (
 							<div style={{ maxHeight: "5px" }}>
 								<EditableCell
@@ -438,6 +433,16 @@ export const NormGroupProcessShower: React.FC<NormGroupProcessShowerProps> = (
 					hoverStateEnabled={true}
 					loadPanel={{ enabled: true }}
 					wordWrapEnabled={true}
+					onRowPrepared={(e) => {
+						if (e.rowType === "data") {
+							if (
+								(e.data as NormGroupProcessShowerTableData).groupUser.status ===
+								ObjectStatus.NOT_ACTIVE
+							) {
+								e.rowElement.classList.add("row_grou-user_deactivate");
+							}
+						}
+					}}
 				>
 					<LoadPanel enabled={true}></LoadPanel>
 					<Scrolling columnRenderingMode="virtual" preloadEnabled={true} />

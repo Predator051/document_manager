@@ -1,9 +1,13 @@
+import { GroupUser } from "../types/groupUser";
+import { GroupUserPresence } from "../types/groupUserPresence";
+import { NormProcess } from "../types/normProcess";
 import {
 	Group,
 	GroupTrainingType,
 	MRSType,
 	ConstripAppeal,
 } from "../types/group";
+import { ObjectStatus } from "../types/constants";
 
 const shortTrainingTypeName: Map<GroupTrainingType, string> = new Map<
 	GroupTrainingType,
@@ -41,4 +45,50 @@ export function GenerateGroupName(gr: Group) {
 	result += gr.mrs.name;
 
 	return result;
+}
+
+export function IsHasGroupUserMark(
+	groupUser: GroupUser,
+	presence?: GroupUserPresence,
+	normProcess?: NormProcess
+) {
+	let hasByPresence: boolean = false;
+	let hasByNormProcess: boolean = false;
+
+	if (presence) {
+		hasByPresence =
+			presence.mark.current !== 0 ||
+			presence.mark.topic !== 0 ||
+			presence.mark.subject !== 0;
+	}
+
+	if (normProcess) {
+		const guMark = normProcess.marks.find((m) => m.userId === groupUser.id);
+
+		if (guMark) {
+			hasByNormProcess = guMark.mark !== 0;
+		} else {
+			hasByNormProcess = false;
+		}
+	}
+
+	return presence && normProcess
+		? hasByPresence && hasByNormProcess
+		: presence
+		? hasByPresence
+		: normProcess
+		? hasByNormProcess
+		: false;
+}
+
+export function IsHasDeactivateGroupUserMark(
+	groupUser: GroupUser,
+	presence?: GroupUserPresence,
+	normProcess?: NormProcess
+) {
+	if (groupUser.status !== ObjectStatus.NOT_ACTIVE) {
+		return true;
+	}
+
+	return IsHasGroupUserMark(groupUser, presence, normProcess);
 }

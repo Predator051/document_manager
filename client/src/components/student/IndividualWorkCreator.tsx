@@ -28,6 +28,7 @@ import { TransferDirection } from "antd/lib/transfer";
 import { Button } from "antd";
 import { group } from "console";
 import { YearContext } from "../../context/YearContext";
+import { ObjectStatus } from "../../types/constants";
 
 momentSpace.locale("uk");
 
@@ -165,6 +166,7 @@ export const IndividualWorkCreator: React.FC<IndividualWorkCreatorProps> = (
 					>
 						<Transfer
 							dataSource={selectedGroup?.users
+								.filter((user) => user.status === ObjectStatus.NORMAL)
 								.sort((a, b) => a.fullname.localeCompare(b.fullname))
 								.map((groupUser) => ({
 									key: groupUser.id.toString(),

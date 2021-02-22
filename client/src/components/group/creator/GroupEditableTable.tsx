@@ -5,6 +5,7 @@ import moment from "moment";
 import React, { useEffect, useState } from "react";
 
 import { GroupUser } from "../../../types/groupUser";
+import { ObjectStatus } from "../../../types/constants";
 
 interface EditableCellProps {
 	onChange: (newValue: any) => void;
@@ -42,7 +43,8 @@ interface EditableGroupTableData {
 const EditableGroupColumns = (
 	editable: boolean,
 	isCanDelete: boolean,
-	onDelete: (guId: number) => void
+	onDelete: (guId: number) => void,
+	onDeactivate: (guId: number) => void
 ) => {
 	const columns: ColumnsType<any> = [
 		{
@@ -58,7 +60,7 @@ const EditableGroupColumns = (
 			dataIndex: "fullname",
 			key: "fullname",
 			render: (current: any, record: EditableGroupTableData) => {
-				return editable ? (
+				return editable && record.data.status === ObjectStatus.NORMAL ? (
 					<EditableCell
 						onChange={(value: any) => {
 							record.data.fullname = value;
@@ -75,7 +77,7 @@ const EditableGroupColumns = (
 			dataIndex: "rank",
 			key: "rank",
 			render: (current: any, record: EditableGroupTableData) => {
-				return editable ? (
+				return editable && record.data.status === ObjectStatus.NORMAL ? (
 					<EditableCell
 						onChange={(value: any) => {
 							record.data.rank = value;
@@ -92,7 +94,7 @@ const EditableGroupColumns = (
 			dataIndex: "birthday",
 			key: "birthday",
 			render: (current: any, record: EditableGroupTableData) => {
-				return editable ? (
+				return editable && record.data.status === ObjectStatus.NORMAL ? (
 					<EditableCell
 						onChange={(value: any) => {
 							record.data.birthday = value;
@@ -109,7 +111,7 @@ const EditableGroupColumns = (
 			dataIndex: "education",
 			key: "education",
 			render: (current: any, record: EditableGroupTableData) => {
-				return editable ? (
+				return editable && record.data.status === ObjectStatus.NORMAL ? (
 					<EditableCell
 						onChange={(value: any) => {
 							record.data.education = value;
@@ -141,7 +143,20 @@ const EditableGroupColumns = (
 						</Button>
 					);
 
-				return <Button type="link">Деактивувати</Button>;
+				// if (record.data.status !== ObjectStatus.NOT_ACTIVE)
+				return (
+					<Button
+						type="link"
+						onClick={() => {
+							onDeactivate(record.data.id);
+						}}
+						danger
+					>
+						{record.data.status !== ObjectStatus.NOT_ACTIVE
+							? "Деактивувати"
+							: "Активувати"}
+					</Button>
+				);
 			},
 		});
 	}
@@ -154,6 +169,7 @@ export interface EditableGroupTableProps {
 	editUsers: boolean;
 	isCanDelete: boolean;
 	onDelete: (guId: number) => void;
+	onDeactivate: (guId: number) => void;
 }
 
 export const EditableGroupTable: React.FC<EditableGroupTableProps> = (
@@ -178,10 +194,17 @@ export const EditableGroupTable: React.FC<EditableGroupTableProps> = (
 				columns={EditableGroupColumns(
 					props.editUsers,
 					props.isCanDelete,
-					props.onDelete
+					props.onDelete,
+					props.onDeactivate
 				)}
 				size="small"
 				bordered
+				rowClassName={(record, index) => {
+					if (record.data.status === ObjectStatus.NOT_ACTIVE)
+						return "row_grou-user_deactivate";
+
+					return "";
+				}}
 			></Table>
 		</div>
 	);

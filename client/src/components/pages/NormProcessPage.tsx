@@ -116,7 +116,7 @@ export const NormProcessPage: React.FC = () => {
 						}}
 						style={{ height: "100%", width: "100%" }}
 					>
-						Переглянуты чи додати нормативи
+						Переглянути чи додати нормативи
 					</Button>
 				</Col>
 			</Row>

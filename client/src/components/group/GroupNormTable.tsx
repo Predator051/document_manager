@@ -28,6 +28,7 @@ import { ExcelExporter } from "../ui/excel-exporter/ExcelExporter";
 import { GroupNormExport } from "../ui/excel-exporter/exporters/GroupNormExporter";
 import { User } from "../../types/user";
 import { NormInfoShower } from "../norm/NormInfoShower";
+import { ObjectStatus } from "../../types/constants";
 
 interface GroupTableData {
 	data: GroupUser;
@@ -297,7 +298,12 @@ export const GroupNormTable: React.FC<GroupTableProps> = (
 				<ExcelExporter
 					bufferFunction={() => {
 						return GroupNormExport(
-							props.group,
+							{
+								...props.group,
+								users: props.group.users.filter(
+									(u) => u.status === ObjectStatus.NORMAL
+								),
+							},
 							props.subject,
 							norms,
 							normProcesses.filter((normProcess) => {
@@ -331,6 +337,12 @@ export const GroupNormTable: React.FC<GroupTableProps> = (
 				size="small"
 				scroll={{ x: "max-content" }}
 				bordered
+				rowClassName={(record, index) => {
+					if (record.data.status === ObjectStatus.NOT_ACTIVE)
+						return "row_grou-user_deactivate";
+
+					return "";
+				}}
 			></Table>
 		</div>
 	);

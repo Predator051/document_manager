@@ -5,6 +5,7 @@ export enum ObjectStatus {
 	NORMAL,
 	ARCHIVE,
 	DELETE,
+	NOT_ACTIVE,
 }
 
 export const ObjectStatusToString = (status: ObjectStatus) => {

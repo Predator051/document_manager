@@ -7,6 +7,7 @@ import "./GroupUploader.css";
 import iconv from "iconv-lite";
 
 import { GroupUser } from "../../../types/groupUser";
+import { ObjectStatus } from "../../../types/constants";
 
 export class GroupUserFileParser {
 	public parser: Parser<any>;
@@ -52,7 +53,8 @@ export class GroupUserFileParser {
 				fullname: this.parser.rows[index][fullnameIndex],
 				rank: this.parser.rows[index][rankIndex],
 				groupId: 0,
-				id: Math.floor(Math.random() * (10000000 - 1) + 1),
+				id: Math.floor(Math.random() * (100000000 - 1) + 10000000),
+				status: ObjectStatus.NORMAL,
 			});
 		}
 

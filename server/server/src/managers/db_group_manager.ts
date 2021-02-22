@@ -46,6 +46,10 @@ export class DBGroupManager {
 		return getRepository(GroupEntity).save(gr);
 	}
 
+	public static SaveGroupUserEntity(gr: GroupUserEntity) {
+		return getRepository(GroupUserEntity).save(gr);
+	}
+
 	public static CreateEmptyGroupUserEntity(): GroupUserEntity {
 		return getRepository(GroupUserEntity).create();
 	}

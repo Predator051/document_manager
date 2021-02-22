@@ -23,6 +23,7 @@ import { YearContext } from "../../context/YearContext";
 import { ExcelExporter } from "../ui/excel-exporter/ExcelExporter";
 import { GroupSubjectMarkExport } from "../ui/excel-exporter/exporters/GroupSubjectMarkExporter";
 import { GenerateGroupName } from "../../helpers/GroupHelper";
+import { ObjectStatus } from "../../types/constants";
 
 interface GroupTableData {
 	data: GroupUser;
@@ -240,7 +241,16 @@ export const GroupSubjectMarkTable: React.FC<GroupSubjectMarkTableProps> = (
 			<Row justify="end">
 				<ExcelExporter
 					bufferFunction={() => {
-						return GroupSubjectMarkExport(props.group, subjects, classEvents);
+						return GroupSubjectMarkExport(
+							{
+								...props.group,
+								users: props.group.users.filter(
+									(u) => u.status === ObjectStatus.NORMAL
+								),
+							},
+							subjects,
+							classEvents
+						);
 					}}
 					fileName={
 						`Навчальна група: ${props.group.company} рота, ${props.group.platoon} взвод: ` +
@@ -258,6 +268,12 @@ export const GroupSubjectMarkTable: React.FC<GroupSubjectMarkTableProps> = (
 				size="small"
 				bordered
 				scroll={{ x: "max-content" }}
+				rowClassName={(record: GroupTableData, index) => {
+					if (record.data.status === ObjectStatus.NOT_ACTIVE)
+						return "row_grou-user_deactivate";
+
+					return "";
+				}}
 			></Table>
 		</div>
 	);

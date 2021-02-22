@@ -27,6 +27,7 @@ import { RankModel } from "./model/rank.model";
 import { Rank } from "./types/rank";
 import { MRSModel } from "./model/mrs.model";
 import { MRS } from "./types/mrs";
+import { GroupUser } from "./types/groupUser";
 
 export class RequestManager {
 	public static m_sessionSocket: Map<string, string> = new Map<
@@ -565,6 +566,17 @@ export class RequestManager {
 				const response = await GroupModel.deleteGroupUser(m.data);
 
 				socket.emit(RequestType.DELETE_GROUP_USER, response);
+			}
+		);
+
+		socket.on(
+			RequestType.UPDATE_GROUP_USER,
+			async (m: RequestMessage<GroupUser>) => {
+				console.log("[server](message): %s", JSON.stringify(m));
+
+				const response = await GroupModel.updateGroupUser(m.data);
+
+				socket.emit(RequestType.UPDATE_GROUP_USER, response);
 			}
 		);
 

@@ -50,16 +50,6 @@ export const TeacherGroupSubjectList: React.FC<TeacherGroupListProps> = (
 					console.log(`Error: ${dataMessage.requestCode}`);
 					return;
 				}
-				console.log("recieve classes", dataMessage.data);
-
-				// dataMessage.data = dataMessage.data.filter((classEvent) => {
-				// 	return classEvent.presences.some(
-				// 		(presence) =>
-				// 			presence.mark.current !== 0 ||
-				// 			presence.mark.topic !== 0 ||
-				// 			presence.mark.subject !== 0
-				// 	);
-				// });
 				dataMessage.data.forEach(
 					(classEvent) => (classEvent.date = new Date(classEvent.date))
 				);

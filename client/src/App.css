@@ -47,3 +47,16 @@
   background-image: url(/25928.jpg) !important;
   background-size: 100% 100% !important;
 }
+
+.row_grou-user_deactivate {
+  color: #8c8c8c;
+}
+
+/* 
+.ant-table-cell-fix-left {
+  background: none !important;
+}
+
+.ant-table-column-sort {
+  background: none !important;
+} */

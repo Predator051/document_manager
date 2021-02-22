@@ -155,12 +155,13 @@ export const GroupManipulator: React.FC<GroupManipulatorProps> = (
 
 	const onClickAddGroupUser = () => {
 		const newGroupUser: GroupUser = {
-			id: Math.floor(Math.random() * (10000000 - 1) + 1),
+			id: Math.floor(Math.random() * (100000000 - 1) + 10000000),
 			birthday: "ПУСТО",
 			education: "ПУСТО",
 			fullname: "ПУСТО",
 			groupId: 0,
 			rank: "ПУСТО",
+			status: ObjectStatus.NORMAL,
 		};
 
 		setUserGroups([...userGroups, newGroupUser]);
@@ -326,10 +327,38 @@ export const GroupManipulator: React.FC<GroupManipulatorProps> = (
 						users: userGroups,
 					});
 				} else {
-					props.onCreate({
-						...group,
-						users: userGroups,
-					});
+					//if create
+					if (group.id === 0) {
+						Modal.confirm({
+							content: (
+								<Typography.Paragraph>
+									<Typography.Title>Увага!</Typography.Title>
+									<Typography.Text type="danger">
+										Після створення
+									</Typography.Text>{" "}
+									групи і проведення з нею хоча б{" "}
+									<Typography.Text type="danger">одного</Typography.Text>{" "}
+									заняття, користувачів групи не можливо буде видаляти, а тільки
+									деактивовувати!
+								</Typography.Paragraph>
+							),
+							zIndex: 1100,
+							okText: "Так, я розумію",
+							cancelText: "Відміна",
+							onOk: () => {
+								props.onCreate({
+									...group,
+									users: userGroups,
+								});
+							},
+						});
+					} //if edit
+					else {
+						props.onCreate({
+							...group,
+							users: userGroups,
+						});
+					}
 				}
 			}
 		);
@@ -367,6 +396,39 @@ export const GroupManipulator: React.FC<GroupManipulatorProps> = (
 			RequestType.DELETE_GROUP_USER,
 			deleteGU.id
 		);
+	};
+
+	const onUserGroupDeactive = (guId: number) => {
+		const updateGU = userGroups.find((ug) => ug.id === guId);
+		updateGU.status =
+			updateGU.status === ObjectStatus.NOT_ACTIVE
+				? ObjectStatus.NORMAL
+				: ObjectStatus.NOT_ACTIVE;
+
+		// ConnectionManager.getInstance().registerResponseOnceHandler(
+		// 	RequestType.UPDATE_GROUP_USER,
+		// 	(data) => {
+		// 		const dataMessage = data as RequestMessage<GroupUser>;
+		// 		if (
+		// 			dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR &&
+		// 			!dataMessage.data
+		// 		) {
+		// 			console.log(`Error: ${dataMessage.requestCode}`);
+		// 			return;
+		// 		}
+
+		// 		setUserGroups([
+		// 			...userGroups.filter((ug) => ug.id !== guId),
+		// 			dataMessage.data,
+		// 		]);
+		// 		message.success("Користувача успішно деактивовано!");
+		// 	}
+		// );
+		// ConnectionManager.getInstance().emit(
+		// 	RequestType.UPDATE_GROUP_USER,
+		// 	updateGU
+		// );
+		setUserGroups([...userGroups.filter((ug) => ug.id !== guId), updateGU]);
 	};
 
 	return (
@@ -661,6 +723,7 @@ export const GroupManipulator: React.FC<GroupManipulatorProps> = (
 				editUsers={!props.visibleMode}
 				isCanDelete={!isGroupHasActivity}
 				onDelete={onUserGroupDelete}
+				onDeactivate={onUserGroupDeactive}
 			></EditableGroupTable>
 			<Row style={{ marginTop: "1%" }}>
 				<Col flex="50%"></Col>

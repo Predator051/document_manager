@@ -18,6 +18,7 @@ import { ConnectionManager } from "../../managers/connetion/connectionManager";
 import { RequestType, RequestMessage, RequestCode } from "../../types/requests";
 import { YearContext } from "../../context/YearContext";
 import { GroupSubjectBillExport } from "../ui/excel-exporter/exporters/GroupSubjectBillExporter";
+import { ObjectStatus } from "../../types/constants";
 
 interface EditableCellProps {
 	onSave: (newValue: any) => void;
@@ -257,7 +258,12 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 				<ExcelExporter
 					bufferFunction={() => {
 						return GroupSubjectExport(
-							props.group,
+							{
+								...props.group,
+								users: props.group.users.filter(
+									(u) => u.status === ObjectStatus.NORMAL
+								),
+							},
 							props.subject,
 							props.classEvents
 						);
@@ -279,7 +285,12 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 				<ExcelExporter
 					bufferFunction={() => {
 						return GroupSubjectBillExport(
-							props.group,
+							{
+								...props.group,
+								users: props.group.users.filter(
+									(u) => u.status === ObjectStatus.NORMAL
+								),
+							},
 							props.subject,
 							props.classEvents.filter((classEvent) => {
 								return classEvent.presences.some(
@@ -307,6 +318,12 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 				size="small"
 				bordered
 				scroll={{ x: "max-content" }}
+				rowClassName={(record, index) => {
+					if (record.data.status === ObjectStatus.NOT_ACTIVE)
+						return "row_grou-user_deactivate";
+
+					return "";
+				}}
 			></Table>
 		</div>
 	);

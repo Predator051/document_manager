@@ -24,6 +24,9 @@ import {
 import { RequestCode, RequestMessage, RequestType } from "../../types/requests";
 import { Subject } from "../../types/subject";
 import Checkbox from "antd/lib/checkbox/Checkbox";
+import { IsHasDeactivateGroupUserMark } from "../../helpers/GroupHelper";
+import { GroupUser } from "../../types/groupUser";
+import { ObjectStatus } from "../../types/constants";
 
 interface EditableCellProps {
 	onChange: (newValue: any) => void;
@@ -76,6 +79,7 @@ interface ClassLookerTableData {
 	occupation_mark: number;
 	classEvent: ClassEvent;
 	presenceData: GroupUserPresence;
+	groupUser: GroupUser;
 }
 
 export const ClassLooker: React.FC<ClassLookerProps> = (
@@ -140,6 +144,10 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 			dataIndex: "current_mark",
 			key: "current_mark",
 			render: (value, record: ClassLookerTableData) => {
+				if (record.groupUser.status === ObjectStatus.NOT_ACTIVE) {
+					return record.presenceData.mark.current;
+				}
+
 				return (
 					<EditableCell
 						onChange={(value: any) => {
@@ -155,6 +163,10 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 			dataIndex: "topic_mark",
 			key: "topic_mark",
 			render: (value, record: ClassLookerTableData) => {
+				if (record.groupUser.status === ObjectStatus.NOT_ACTIVE) {
+					return record.presenceData.mark.topic;
+				}
+
 				return (
 					<EditableCell
 						onChange={(value: any) => {
@@ -170,6 +182,10 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 			dataIndex: "occupation_mark",
 			key: "occupation_mark",
 			render: (value, record: ClassLookerTableData) => {
+				if (record.groupUser.status === ObjectStatus.NOT_ACTIVE) {
+					return record.presenceData.mark.subject;
+				}
+
 				return (
 					<EditableCell
 						onChange={(value: any) => {
@@ -196,6 +212,7 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 							}
 							setRerender(!rerender);
 						}}
+						disabled={record.groupUser.status === ObjectStatus.NOT_ACTIVE}
 					></Checkbox>
 				);
 			},
@@ -216,6 +233,7 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 							}
 							setRerender(!rerender);
 						}}
+						disabled={record.groupUser.status === ObjectStatus.NOT_ACTIVE}
 					></Checkbox>
 				);
 			},
@@ -240,6 +258,7 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 							}
 							setRerender(!rerender);
 						}}
+						disabled={record.groupUser.status === ObjectStatus.NOT_ACTIVE}
 					></Checkbox>
 				);
 			},
@@ -260,6 +279,7 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 							}
 							setRerender(!rerender);
 						}}
+						disabled={record.groupUser.status === ObjectStatus.NOT_ACTIVE}
 					></Checkbox>
 				);
 			},
@@ -315,19 +335,26 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 		return <Spin></Spin>;
 	}
 
-	const tableData: ClassLookerTableData[] = props.class.presences.map(
-		(presence) => {
+	const tableData: ClassLookerTableData[] = props.class.presences
+		// .filter((pr) => {
+		// 	const gu = group.users.find((u) => u.id === pr.userId);
+
+		// 	return IsHasDeactivateGroupUserMark(gu, pr);
+		// })
+		.map((presence) => {
+			const gu = group.users.find((u) => u.id === presence.userId);
+
 			return {
 				key: presence.id,
-				fullname: group.users.find((u) => u.id === presence.userId).fullname,
+				fullname: gu.fullname,
 				current_mark: presence.mark.current,
 				topic_mark: presence.mark.topic,
 				occupation_mark: presence.mark.subject,
 				classEvent: props.class,
 				presenceData: presence,
+				groupUser: gu,
 			};
-		}
-	);
+		});
 
 	const onUpdateClassClick = () => {
 		ConnectionManager.getInstance().registerResponseOnceHandler(
@@ -356,6 +383,12 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 				columns={columns}
 				dataSource={tableData}
 				title={tableTitle}
+				rowClassName={(record: ClassLookerTableData, index) => {
+					if (record.groupUser.status === ObjectStatus.NOT_ACTIVE)
+						return "row_grou-user_deactivate";
+
+					return "";
+				}}
 			></Table>
 			<Button type="primary" onClick={onUpdateClassClick}>
 				Зберегти зміни

@@ -35,6 +35,8 @@ import DataGrid, {
 	LoadPanel,
 } from "devextreme-react/data-grid";
 import DataSource from "devextreme/data/data_source";
+import { info } from "console";
+import { ObjectStatus } from "../../types/constants";
 
 interface EditableCellProps {
 	onSave: (newValue: any) => void;
@@ -169,10 +171,6 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 					ce.date = new Date(ce.date);
 				});
 
-				// for (let index = 0; index < 1000; index++) {
-				// 	dataMessage.data.push(dataMessage.data[0]);
-				// }
-
 				setClassEvents(dataMessage.data);
 
 				ConnectionManager.getInstance().emit(
@@ -265,80 +263,6 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 		);
 
 		if (filteredClasses.length > 0) {
-			// dynamicColumns = [
-			// 	{
-			// 		title: "Дата, присутність, успішність",
-			// 		key: "data",
-			// 		align: "center",
-			// 		dataIndex: "data",
-			// 		children: [
-			// 			...filteredClasses.map((classEvent) => {
-			// 				const foundTopic = selectedSubject.programTrainings
-			// 					.find((pt) => pt.id === classEvent.selectPath.programTraining)
-			// 					.topics.find((t) => t.id === classEvent.selectPath.topic);
-
-			// 				const foundOccupation = foundTopic.occupation.find(
-			// 					(occ) => occ.id === classEvent.selectPath.occupation
-			// 				);
-			// 				const foundUser = users.find((u) => u.id === classEvent.userId);
-
-			// 				return {
-			// 					title: (
-			// 						<div>
-			// 							<Tooltip
-			// 								title={
-			// 									<div>
-			// 										<Row>
-			// 											Викладач: {foundUser.secondName}{" "}
-			// 											{foundUser.firstName} - {foundUser.cycle.title}
-			// 										</Row>
-			// 										<Row>
-			// 											Тема {foundTopic.number}: {foundTopic.title}
-			// 										</Row>
-			// 										<Row>
-			// 											Заняття {foundOccupation.number}:{" "}
-			// 											{foundOccupation.title}
-			// 										</Row>
-			// 									</div>
-			// 								}
-			// 								style={{
-			// 									width: "auto",
-			// 								}}
-			// 							>
-			// 								{classEvent.date.toLocaleDateString("uk", {
-			// 									year: "2-digit",
-			// 									month: "2-digit",
-			// 									day: "2-digit",
-			// 								})}
-			// 							</Tooltip>
-			// 						</div>
-			// 					),
-			// 					key: classEvent.date.toLocaleDateString(),
-			// 					dataIndex: classEvent.date.toLocaleDateString(),
-			// 					// align: "center",
-			// 					width: "10px",
-			// 					render: (value, record: GroupTableData) => {
-			// 						const presence = classEvent.presences.find(
-			// 							(pr) => pr.userId === record.data.id
-			// 						);
-
-			// 						return (
-			// 							<div>
-			// 								<PresenceShower presence={presence}></PresenceShower>
-			// 							</div>
-			// 						);
-			// 					},
-			// 				} as ColumnGroupType<any> | ColumnType<any>;
-			// 			}),
-			// 			{
-			// 				title: " ",
-			// 				dataIndex: " ",
-			// 				key: " ",
-			// 				width: "auto",
-			// 			},
-			// 		],
-			// 	},
-			// ];
 			extremeDynamicColumns = filteredClasses.map((classEvent) => {
 				const foundTopic = selectedSubject.programTrainings
 					.find((pt) => pt.id === classEvent.selectPath.programTraining)
@@ -443,7 +367,12 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 						<ExcelExporter
 							bufferFunction={() => {
 								return GroupAccountingClassesFromTrainingSubjectsExport(
-									props.group,
+									{
+										...props.group,
+										users: props.group.users.filter(
+											(u) => u.status === ObjectStatus.NORMAL
+										),
+									},
 									selectedSubject,
 									classEvents.filter(
 										(ce) => ce.selectPath.subject === selectedSubject.id
@@ -460,16 +389,6 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 						className="fade-in-top"
 					>
 						<div style={{ width: "95%" }}>
-							{/* <Table
-								title={props.title}
-								pagination={false}
-								rowKey={(gu: GroupTableData) => gu.data.id.toString()}
-								dataSource={tableData}
-								columns={columns}
-								size="small"
-								bordered
-								scroll={{ x: "max-content" }}
-							></Table> */}
 							<DataGrid
 								elementAttr={{
 									id: "gridContainer",
@@ -483,6 +402,16 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 								renderAsync={true}
 								loadPanel={{ enabled: true }}
 								wordWrapEnabled={true}
+								onRowPrepared={(e) => {
+									if (e.rowType === "data") {
+										if (
+											(e.data as GroupTableData).data.status ===
+											ObjectStatus.NOT_ACTIVE
+										) {
+											e.rowElement.classList.add("row_grou-user_deactivate");
+										}
+									}
+								}}
 							>
 								<LoadPanel enabled={true}></LoadPanel>
 								<Scrolling

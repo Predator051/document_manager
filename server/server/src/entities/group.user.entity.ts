@@ -57,6 +57,7 @@ export class GroupUserEntity {
 			groupId: 0, //this.group.id,
 			rank: this.rank,
 			education: this.education,
+			status: this.status,
 		};
 	}
 }

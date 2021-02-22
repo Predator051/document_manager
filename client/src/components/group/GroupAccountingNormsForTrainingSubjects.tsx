@@ -1,19 +1,5 @@
-import {
-	Modal,
-	Row,
-	Spin,
-	Table,
-	Descriptions,
-	Select,
-	Tooltip,
-	Button,
-	Col,
-} from "antd";
-import {
-	ColumnGroupType,
-	ColumnsType,
-	ColumnType,
-} from "antd/lib/table/interface";
+import { Modal, Row, Spin, Descriptions, Select, Tooltip, Button } from "antd";
+import { ColumnsType } from "antd/lib/table/interface";
 import React, { useContext, useEffect, useState } from "react";
 
 import { YearContext } from "../../context/YearContext";
@@ -27,7 +13,6 @@ import { NormInfoShower } from "../norm/NormInfoShower";
 import { Subject } from "../../types/subject";
 import { User } from "../../types/user";
 import { ExcelExporter } from "../ui/excel-exporter/ExcelExporter";
-import { GroupSubjectBillExport } from "../ui/excel-exporter/exporters/GroupSubjectBillExporter";
 import { GroupAccountingNormsForTrainingSubjectsExport } from "../ui/excel-exporter/exporters/GroupAccountingNormsForTrainingSubjectsExport";
 import DataGrid, {
 	Scrolling,
@@ -36,6 +21,7 @@ import DataGrid, {
 	LoadPanel,
 } from "devextreme-react/data-grid";
 import DataSource from "devextreme/data/data_source";
+import { ObjectStatus } from "../../types/constants";
 
 interface GroupTableData {
 	data: GroupUser;
@@ -492,7 +478,12 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 						<ExcelExporter
 							bufferFunction={() => {
 								return GroupAccountingNormsForTrainingSubjectsExport(
-									props.group,
+									{
+										...props.group,
+										users: props.group.users.filter(
+											(u) => u.status === ObjectStatus.NORMAL
+										),
+									},
 									selectedSubject,
 									norms,
 									normProcesses.filter((normProcess) => {
@@ -544,6 +535,16 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 								hoverStateEnabled={true}
 								loadPanel={{ enabled: true }}
 								wordWrapEnabled={true}
+								onRowPrepared={(e) => {
+									if (e.rowType === "data") {
+										if (
+											(e.data as GroupTableData).data.status ===
+											ObjectStatus.NOT_ACTIVE
+										) {
+											e.rowElement.classList.add("row_grou-user_deactivate");
+										}
+									}
+								}}
 							>
 								<LoadPanel enabled={true}></LoadPanel>
 								<Scrolling

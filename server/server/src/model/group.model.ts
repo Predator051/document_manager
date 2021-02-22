@@ -22,6 +22,7 @@ import { DBIndividualWorkManager } from "../managers/db_individual_work";
 import { ObjectStatus } from "../types/constants";
 import { DBGroupUserPresenceManager } from "../managers/db_group_user_presence";
 import { DBGroupUserMarkManager } from "../managers/db_group_user_mark";
+import { GroupUser } from "../types/groupUser";
 
 export class GroupModel {
 	public static async getAllGroups(
@@ -138,6 +139,33 @@ export class GroupModel {
 		};
 	}
 
+	public static async updateGroupUser(
+		groupUser: GroupUser
+	): Promise<RequestMessage<GroupUser>> {
+		let guEntity = await DBGroupManager.GetGroupUserById(groupUser.id);
+
+		if (!guEntity) {
+			guEntity = DBGroupManager.CreateEmptyGroupUserEntity();
+		}
+
+		guEntity.birthDay = groupUser.birthday;
+		guEntity.education = groupUser.education;
+		guEntity.fullname = groupUser.fullname;
+		guEntity.rank = groupUser.rank;
+		guEntity.status = groupUser.status;
+
+		const saved = await DBGroupManager.SaveGroupUserEntity(guEntity);
+
+		guEntity = await DBGroupManager.GetGroupUserById(saved.id);
+
+		return {
+			data: guEntity.ToRequestObject(),
+			messageInfo: `SUCCESS`,
+			requestCode: RequestCode.RES_CODE_SUCCESS,
+			session: "",
+		};
+	}
+
 	public static async createGroup(gr: Group) {
 		const newGroupEntity = DBGroupManager.CreateEmptyGroupEntity();
 		if (gr.trainingType.id === StandartIdByGroupTrainingType.new) {
@@ -165,6 +193,7 @@ export class GroupModel {
 			newGU.education = gu.education;
 			newGU.fullname = gu.fullname;
 			newGU.rank = gu.rank;
+			newGU.status = gu.status;
 			newGroupUserEntities.push(newGU);
 		}
 
@@ -224,6 +253,7 @@ export class GroupModel {
 			newGU.fullname = gu.fullname;
 			newGU.rank = gu.rank;
 			newGU.id = gu.id;
+			newGU.status = gu.status;
 			newGroupUserEntities.push(newGU);
 		}
 

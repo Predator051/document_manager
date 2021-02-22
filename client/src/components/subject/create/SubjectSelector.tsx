@@ -270,7 +270,7 @@ export const SubjectSelector: React.FC<SubjectCreatorProps> = (
 						{/* <DescriptionsItem label="Чи актуальний предмет" span={3}>
 							<Switch
 								checkedChildren="актуальний"
-								unCheckedChildren="не актуальный"
+								unCheckedChildren="не актуальний"
 								size="default"
 								checked={subject.status !== ObjectStatus.ARCHIVE}
 								onChange={(checked) => {
