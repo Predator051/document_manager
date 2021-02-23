@@ -39,9 +39,13 @@ export function GenerateGroupName(gr: Group) {
 		}
 	}
 
-	result +=
-		(gr.company !== 0 ? gr.company.toString() : "") +
-		(gr.platoon !== 0 ? gr.platoon.toString() : "");
+	if (gr.company !== 0) {
+		result +=
+			gr.company > 9 ? gr.company.toString() : "0" + gr.company.toString();
+	}
+	if (gr.platoon !== 0) {
+		result += gr.platoon.toString();
+	}
 	result += gr.mrs.name;
 
 	return result;

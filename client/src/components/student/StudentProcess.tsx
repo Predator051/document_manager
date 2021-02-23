@@ -302,7 +302,7 @@ export const StudentProcess: React.FC<StudentProcessProps> = (
 					dataSource={tableData}
 					columns={columns}
 					bordered
-					style={{ width: "80%" }}
+					style={{ minWidth: "80%", maxWidth: "97%" }}
 					size="small"
 					pagination={false}
 					//scroll={{ x: "" }}

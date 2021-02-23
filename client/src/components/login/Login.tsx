@@ -1,5 +1,5 @@
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, message } from "antd";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
@@ -8,7 +8,6 @@ import { ConnectionManager } from "../../managers/connetion/connectionManager";
 import { setUserData } from "../../redux/slicers/accountSlice";
 import { RequestCode, RequestMessage, RequestType } from "../../types/requests";
 import { User } from "../../types/user";
-import { ErrorBox } from "../error/Error";
 import { HREFS } from "../menu/Menu";
 import { SiteHREFS } from "../site/Site";
 import styles from "./login.module.css";
@@ -16,12 +15,10 @@ import logo from "./title.png";
 
 export function Login() {
 	const dispatch = useDispatch();
-	const [error, setErrorData] = useState("");
 	const history = useHistory();
 
 	const onFinish = (data: any) => {
-		//{username: "уававыа", password: "ыаывыаыва"}
-		ConnectionManager.getInstance().registerResponseHandler(
+		ConnectionManager.getInstance().registerResponseOnceHandler(
 			RequestType.LOGIN,
 			(data) => {
 				const dataMessage = data as RequestMessage<User>;
@@ -30,10 +27,9 @@ export function Login() {
 					dataMessage.data.id === 0
 				) {
 					console.log(`Error: ${dataMessage.requestCode}`);
-					setErrorData(dataMessage.messageInfo);
+					message.error(dataMessage.messageInfo);
 					return;
 				}
-				setErrorData("");
 				dispatch(setUserData(dataMessage.data));
 				localStorage.setItem("user", JSON.stringify(dataMessage.data));
 				if (
@@ -97,7 +93,6 @@ export function Login() {
 					</Button>
 				</Form.Item>
 			</Form>
-			{error !== "" && <ErrorBox description={error}></ErrorBox>}
 		</div>
 	);
 }

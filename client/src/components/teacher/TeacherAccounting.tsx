@@ -341,7 +341,7 @@ export const TeacherAccounting: React.FC<TeacherAccountingProps> = (
 					bordered
 					size="small"
 					pagination={false}
-					style={{ width: "80%" }}
+					style={{ minWidth: "80%", maxWidth: "97%" }}
 				></Table>
 			</Row>
 		</div>

@@ -59,8 +59,8 @@ export const TeacherJournal: React.FC<TeacherJournalProps> = (
 				<div
 					className={"hvr-sweep-to-right swing-in-right-fwd"}
 					style={{
-						height: "25vh",
-						width: "25vw",
+						height: "30vh",
+						width: "30vw",
 					}}
 					onClick={() => {
 						history.push(
@@ -79,8 +79,8 @@ export const TeacherJournal: React.FC<TeacherJournalProps> = (
 				<div
 					className={"hvr-shutter-out-horizontal swing-in-right-fwd"}
 					style={{
-						height: "25vh",
-						width: "25vw",
+						height: "30vh",
+						width: "30vw",
 					}}
 					onClick={() => {
 						history.push(
@@ -100,8 +100,8 @@ export const TeacherJournal: React.FC<TeacherJournalProps> = (
 				<div
 					className={"hvr-sweep-to-left swing-in-right-fwd"}
 					style={{
-						height: "25vh",
-						width: "25vw",
+						height: "30vh",
+						width: "30vw",
 					}}
 					onClick={() => {
 						history.push(
@@ -123,8 +123,8 @@ export const TeacherJournal: React.FC<TeacherJournalProps> = (
 				<div
 					className={"hvr-sweep-to-right swing-in-right-fwd"}
 					style={{
-						height: "25vh",
-						width: "25vw",
+						height: "30vh",
+						width: "30vw",
 					}}
 					onClick={() => {
 						history.push(
@@ -144,8 +144,8 @@ export const TeacherJournal: React.FC<TeacherJournalProps> = (
 				<div
 					className={"hvr-sweep-to-left swing-in-right-fwd"}
 					style={{
-						height: "25vh",
-						width: "25vw",
+						height: "30vh",
+						width: "30vw",
 					}}
 					onClick={() => {
 						history.push(

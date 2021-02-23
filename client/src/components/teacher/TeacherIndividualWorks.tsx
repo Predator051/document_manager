@@ -231,7 +231,7 @@ export const TeacherIndividualWorks: React.FC<StudentProcessProps> = (
 					dataSource={tableData}
 					columns={columns}
 					bordered
-					style={{ width: "90%" }}
+					style={{ minWidth: "80%", maxWidth: "97%" }}
 				></Table>
 			</Row>
 		</div>

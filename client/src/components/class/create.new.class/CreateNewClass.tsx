@@ -277,13 +277,15 @@ export function CreateNewClassPage() {
 	}, []);
 
 	const descriptionItemLabelStyle: React.CSSProperties = {
+		width: "45%",
 		maxWidth: "45%",
 		backgroundColor: "#e1e3f0",
 		fontSize: "large",
 	};
 
 	const descriptionItemContentStyle: React.CSSProperties = {
-		minWidth: "auto",
+		width: "55%",
+		maxWidth: "55%",
 		backgroundColor: "#edf0fc",
 		fontSize: "large",
 	};
@@ -318,7 +320,7 @@ export function CreateNewClassPage() {
 						<Typography.Title level={2}>Створення заняття</Typography.Title>
 					}
 					bordered
-					style={{ minWidth: "70%" }}
+					style={{ minWidth: "60%", width: "max-content", maxWidth: "100%" }}
 				>
 					<Descriptions.Item
 						label="Оберіть групу чи створіть нову:"
@@ -373,7 +375,7 @@ export function CreateNewClassPage() {
 						</Select>
 					</Descriptions.Item>
 					<Descriptions.Item
-						label="Оберіть предмет чи створіть новий:"
+						label="Оберіть заняття чи створіть нове:"
 						span={3}
 						labelStyle={descriptionItemLabelStyle}
 						contentStyle={descriptionItemContentStyle}
