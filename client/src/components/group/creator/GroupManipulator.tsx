@@ -690,7 +690,7 @@ export const GroupManipulator: React.FC<GroupManipulatorProps> = (
 					)}
 					{group.trainingType.type === GroupTrainingType.IPP && (
 						<Descriptions.Item
-							label={props.visibleMode ? "ВОС" : "Оберіть ВОС:"}
+							label={props.visibleMode ? "Підрозділ" : "Оберіть підрозділ:"}
 							span={3}
 							labelStyle={descriptionItemLabelStyle}
 							contentStyle={descriptionItemContentStyle}
