@@ -23,6 +23,7 @@ import { ObjectStatus } from "../types/constants";
 import { DBGroupUserPresenceManager } from "../managers/db_group_user_presence";
 import { DBGroupUserMarkManager } from "../managers/db_group_user_mark";
 import { GroupUser } from "../types/groupUser";
+import { DBIPPManager } from "../managers/db_ipp_manager";
 
 export class GroupModel {
 	public static async getAllGroups(
@@ -202,8 +203,15 @@ export class GroupModel {
 		newGroupEntity.company = gr.company;
 		newGroupEntity.cycle = gr.cycle;
 
-		const mrsEntity = await DBMRSManager.GetById(gr.mrs.id);
-		newGroupEntity.mrs = mrsEntity;
+		if (gr.mrs) {
+			const mrsEntity = await DBMRSManager.GetById(gr.mrs.id);
+			newGroupEntity.mrs = mrsEntity;
+		}
+
+		if (gr.ipp) {
+			const ippEntity = await DBIPPManager.GetById(gr.ipp.id);
+			newGroupEntity.ipp = ippEntity;
+		}
 
 		newGroupEntity.platoon = gr.platoon;
 		newGroupEntity.quarter = gr.quarter;
@@ -262,8 +270,15 @@ export class GroupModel {
 		newGroupEntity.company = gr.company;
 		newGroupEntity.cycle = gr.cycle;
 
-		const mrsEntity = await DBMRSManager.GetById(gr.mrs.id);
-		newGroupEntity.mrs = mrsEntity;
+		if (gr.mrs) {
+			const mrsEntity = await DBMRSManager.GetById(gr.mrs.id);
+			newGroupEntity.mrs = mrsEntity;
+		}
+
+		if (gr.ipp) {
+			const ippEntity = await DBIPPManager.GetById(gr.ipp.id);
+			newGroupEntity.ipp = ippEntity;
+		}
 
 		newGroupEntity.platoon = gr.platoon;
 		newGroupEntity.quarter = gr.quarter;

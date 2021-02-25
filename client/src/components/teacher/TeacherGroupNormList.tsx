@@ -7,7 +7,7 @@ import { YearContext } from "../../context/YearContext";
 import { GenerateGroupName } from "../../helpers/GroupHelper";
 import { ConnectionManager } from "../../managers/connetion/connectionManager";
 import { ClassEvent } from "../../types/classEvent";
-import { Group } from "../../types/group";
+import { Group, GroupTrainingType } from "../../types/group";
 import { Norm } from "../../types/norm";
 import { NormProcess } from "../../types/normProcess";
 import { RequestCode, RequestMessage, RequestType } from "../../types/requests";
@@ -162,6 +162,14 @@ export const TeacherGroupNormList: React.FC<TeacherGroupNormListProps> = (
 	};
 
 	const getTitle = (records: any[]) => {
+		if (selectedGroup.trainingType.type === GroupTrainingType.IPP) {
+			return (
+				<Row>
+					<Typography.Text strong>{selectedGroup.ipp.name}</Typography.Text>
+				</Row>
+			);
+		}
+
 		return (
 			<Row>
 				<Typography.Text strong>

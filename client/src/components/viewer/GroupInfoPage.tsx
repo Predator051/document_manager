@@ -2,7 +2,7 @@ import "../../../node_modules/hover.css/css/hover.css";
 import React, { useEffect, useState } from "react";
 import { RouteComponentProps, useHistory } from "react-router-dom";
 import { Typography, Row, List, Tabs, Spin, Popover } from "antd";
-import { Group } from "../../types/group";
+import { Group, GroupTrainingType } from "../../types/group";
 import { ConnectionManager } from "../../managers/connetion/connectionManager";
 import { RequestMessage, RequestType, RequestCode } from "../../types/requests";
 import { GroupSubjectMarkTable } from "../group/GroupSubjectMarkTable";
@@ -50,6 +50,13 @@ export const GroupInfoPage: React.FC<
 	}, []);
 
 	const getTitle = (records: any[]) => {
+		if (group.trainingType.type === GroupTrainingType.IPP) {
+			return (
+				<Row>
+					<Typography.Text strong>{group.ipp.name}</Typography.Text>
+				</Row>
+			);
+		}
 		return (
 			<Row>
 				<Typography.Text strong>

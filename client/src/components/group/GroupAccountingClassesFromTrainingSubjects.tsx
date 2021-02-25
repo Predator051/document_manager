@@ -17,7 +17,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { YearContext } from "../../context/YearContext";
 import { ConnectionManager } from "../../managers/connetion/connectionManager";
 import { ClassEvent } from "../../types/classEvent";
-import { Group } from "../../types/group";
+import { Group, GroupTrainingType } from "../../types/group";
 import { GroupUser } from "../../types/groupUser";
 import {
 	GroupUserPresence,
@@ -379,7 +379,11 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 									)
 								);
 							}}
-							fileName={`Навчальна група: ${props.group.company} рота, ${props.group.platoon} взвод, предмет: ${selectedSubject.fullTitle} : ${yearContext.year}`}
+							fileName={
+								props.group.trainingType.type !== GroupTrainingType.IPP
+									? `Навчальна група: ${props.group.company} рота, ${props.group.platoon} взвод, предмет: ${selectedSubject.fullTitle} : ${yearContext.year}`
+									: `Навчальна група: ${props.group.ipp.name}, предмет ${selectedSubject.fullTitle} : ${yearContext.year}`
+							}
 							title="Експорт"
 						></ExcelExporter>
 					</Row>

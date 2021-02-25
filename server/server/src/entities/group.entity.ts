@@ -13,6 +13,7 @@ import { NormProcessEntity } from "./norm.process.entity";
 import { IndividualWorkEntity } from "./individual.work.entity";
 import { ObjectStatus } from "../types/constants";
 import { MRSEntity } from "./mrs.entity";
+import { IPPEntity } from "./ipp.entity";
 
 @Entity()
 export class GroupEntity {
@@ -44,8 +45,17 @@ export class GroupEntity {
 	@ManyToOne((type) => GroupTrainingTypeEntity, (tt) => tt.group)
 	trainingType: GroupTrainingTypeEntity;
 
-	@ManyToOne((type) => MRSEntity, (mrs) => mrs.groups, { cascade: true })
-	mrs: MRSEntity;
+	@ManyToOne((type) => MRSEntity, (mrs) => mrs.groups, {
+		cascade: true,
+		nullable: true,
+	})
+	mrs?: MRSEntity;
+
+	@ManyToOne((type) => IPPEntity, (ipp) => ipp.groups, {
+		cascade: true,
+		nullable: true,
+	})
+	ipp?: IPPEntity;
 
 	@Column({
 		type: "enum",
@@ -76,9 +86,10 @@ export class GroupEntity {
 			trainingType: this.trainingType.ToRequestObject(),
 			year: this.year,
 			appeal: this.appeal,
-			mrs: this.mrs,
+			mrs: this.mrs?.ToRequestObject(),
 			users: this.users.map((u) => u.ToRequestObject()),
 			status: this.status,
+			ipp: this.ipp?.ToRequestObject(),
 		};
 	}
 }

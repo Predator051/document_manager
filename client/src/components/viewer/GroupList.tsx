@@ -1,6 +1,17 @@
 import "../../../node_modules/hover.css/css/hover.css";
 
-import { Table, Button, Card, Modal, Typography, Row } from "antd";
+import {
+	Table,
+	Button,
+	Modal,
+	Typography,
+	Row,
+	Input,
+	Col,
+	List,
+	Badge,
+	Space,
+} from "antd";
 import { ColumnsType } from "antd/lib/table/interface";
 import React, { useEffect, useState, useContext } from "react";
 import { useHistory } from "react-router-dom";
@@ -18,7 +29,7 @@ import { VIEWER_HREFS } from "../menu/ViewerMenu";
 import { YearContext, isYearCurrent } from "../../context/YearContext";
 import { User, UserType } from "../../types/user";
 import { GroupManipulator } from "../group/creator/GroupManipulator";
-import { CloseCircleOutlined } from "@ant-design/icons";
+import { CloseCircleOutlined, ZoomInOutlined } from "@ant-design/icons";
 
 export interface GroupListProps {}
 
@@ -126,6 +137,8 @@ export const GroupList: React.FC<GroupListProps> = (props: GroupListProps) => {
 	const [sortInfo, setSortInfo] = useState<
 		{ order: "descend" | "ascend"; columnKey: string } | undefined
 	>(undefined);
+	const [fullnameUserSearch, setFullnameUserSearch] = useState("");
+
 	const yearContext = useContext(YearContext);
 	const me = JSON.parse(localStorage.getItem("user")) as User;
 
@@ -287,11 +300,11 @@ export const GroupList: React.FC<GroupListProps> = (props: GroupListProps) => {
 			key: "fah",
 			dataIndex: "fah",
 			render: (value, record: GroupListTableData) => (
-				<div>{record.data.mrs.name}</div>
+				<div>{record.data.mrs?.name}</div>
 			),
 			sorter: (a: GroupListTableData, b: GroupListTableData) => {
-				const mrsA = a.data.mrs.id;
-				const mrsB = b.data.mrs.id;
+				const mrsA = a.data.mrs?.id;
+				const mrsB = b.data.mrs?.id;
 
 				if (mrsA < mrsB) {
 					return -1;
@@ -329,7 +342,7 @@ export const GroupList: React.FC<GroupListProps> = (props: GroupListProps) => {
 			key: "mrs",
 			dataIndex: "mrs",
 			render: (value, record: GroupListTableData) => (
-				<div>{record.data.mrs.number}</div>
+				<div>{record.data.mrs?.number}</div>
 			),
 		},
 		{
@@ -546,22 +559,102 @@ export const GroupList: React.FC<GroupListProps> = (props: GroupListProps) => {
 
 	return (
 		<div>
-			{me.userType !== UserType.VIEWER && (
-				<Row justify="end" style={{ padding: "5px" }}>
-					<Button type="primary" onClick={onCreateGroupClick}>
-						Створити нову групу
-					</Button>{" "}
-				</Row>
-			)}
+			<Row style={{ padding: "5px" }} align="middle">
+				<Col flex="50%">
+					<Row justify="start">
+						<Input.Search
+							placeholder="Пошук по прізвищу"
+							style={{ width: "100%" }}
+							allowClear
+							size="middle"
+							onSearch={(value) => {
+								setFullnameUserSearch(value);
+							}}
+							onChange={({ target: { value } }) => {
+								setFullnameUserSearch(value);
+							}}
+						></Input.Search>
+					</Row>
+				</Col>
+				{me.userType !== UserType.VIEWER && (
+					<Col flex="50%">
+						<Row justify="end">
+							<Button type="primary" onClick={onCreateGroupClick} size="middle">
+								Створити нову групу
+							</Button>
+						</Row>
+					</Col>
+				)}
+			</Row>
 
 			<div>
-				<Table
-					pagination={false}
-					dataSource={tableData}
-					columns={columns}
-					bordered
-					size="small"
-				></Table>
+				{fullnameUserSearch === "" ? (
+					<Table
+						pagination={false}
+						dataSource={tableData}
+						columns={columns}
+						bordered
+						size="small"
+						className="text-focus-in"
+					></Table>
+				) : (
+					<List
+						style={{
+							backgroundColor: "#fff",
+							marginTop: "1%",
+							marginBottom: "1%",
+						}}
+						bordered
+						className="text-focus-in"
+					>
+						{groups
+							.filter((group) =>
+								group.users.some(
+									(user) =>
+										user.fullname
+											.toLocaleLowerCase()
+											.indexOf(fullnameUserSearch.toLocaleLowerCase()) >= 0
+								)
+							)
+							.map((group) => (
+								<List.Item>
+									<Row style={{ width: "100%" }} justify="start">
+										<Col flex={"20%"}>
+											<Row justify="start">
+												<Button
+													type="link"
+													onClick={() => {
+														history.push(
+															VIEWER_HREFS.GROUP_INFO + group.id.toString()
+														);
+													}}
+												>
+													{GenerateGroupName(group)}
+												</Button>
+											</Row>
+										</Col>
+										<Col flex={"70%"}>
+											<Row justify="start">
+												<Space direction="vertical" align="start">
+													{group.users
+														.filter(
+															(user) =>
+																user.fullname
+																	.toLowerCase()
+																	.indexOf(fullnameUserSearch.toLowerCase()) >=
+																0
+														)
+														.map((user) => (
+															<Badge color="green" text={user.fullname}></Badge>
+														))}
+												</Space>
+											</Row>
+										</Col>
+									</Row>
+								</List.Item>
+							))}
+					</List>
+				)}
 			</div>
 		</div>
 	);

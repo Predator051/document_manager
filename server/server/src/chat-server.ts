@@ -14,6 +14,7 @@ import { UserType } from "./types/user";
 import { DBRankManager } from "./managers/db_rank_manager";
 import { RankModel } from "./model/rank.model";
 import { DBMRSManager } from "./managers/db_mrs_manager";
+import { DBIPPManager } from "./managers/db_ipp_manager";
 
 export class ServerManager {
 	public static readonly PORT: number = 8080;
@@ -32,6 +33,7 @@ export class ServerManager {
 			DBGroupManager.CreateStandartGroupTrainingTypes();
 			await RankModel.CreateStandart();
 			await DBMRSManager.CreateStandart();
+			await DBIPPManager.CreateStandart();
 
 			let rank = await DBKeyValueManager.GetById(
 				STANDART_KEYS.STANDART_ADMIN_RANK

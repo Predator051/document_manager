@@ -9,7 +9,7 @@ import {
 
 import { AccountingTeacher } from "../../../../types/accountingTeacher";
 import { ClassEvent } from "../../../../types/classEvent";
-import { Group } from "../../../../types/group";
+import { Group, GroupTrainingType } from "../../../../types/group";
 import { Subject } from "../../../../types/subject";
 
 const defaultHeightCoef = 16;
@@ -149,7 +149,9 @@ export async function ExtractClassesExport(
 		row.getCell("B").value = defaultText(record.classEvent.hours.toString());
 		const group = record.group;
 		row.getCell("C").value = defaultText(
-			`${group.company} рота, ${group.platoon} взвод, ВОС: ${group.mrs.number}`
+			group.trainingType.type !== GroupTrainingType.IPP
+				? `${group.company} рота, ${group.platoon} взвод, ВОС ${group.mrs.number}`
+				: group.ipp.name
 		);
 
 		const subject = subjects.find(

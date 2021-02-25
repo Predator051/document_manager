@@ -49,6 +49,8 @@ export enum RequestType {
 	IS_GROUP_HAS_ACTIVITY = "is_group_has_activity",
 	DELETE_GROUP_USER = "delete_group_user",
 	UPDATE_GROUP_USER = "update_group_user",
+	GET_ALL_IPP = "get_all_ipp",
+	UPDATE_IPP = "update_ipp",
 }
 
 export enum RequestCode {

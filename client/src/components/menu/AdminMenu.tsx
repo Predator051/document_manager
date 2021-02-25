@@ -9,6 +9,7 @@ import {
 	AreaChartOutlined,
 	AimOutlined,
 	AuditOutlined,
+	CompressOutlined,
 } from "@ant-design/icons";
 import { Col, Layout, Menu, Row } from "antd";
 import React from "react";
@@ -25,6 +26,7 @@ import { UserMenu } from "../user/menu/UserMenu";
 import { GroupUsageStaticsPage } from "../admin/pages/GroupUsageStatisticsPage";
 import { MRSEditPage } from "../admin/pages/MRCEditPage";
 import { RankEditPage } from "../admin/pages/RankEditPage";
+import { IPPEditPage } from "../admin/pages/IPPEditPage";
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -38,6 +40,7 @@ export enum HREFS_ADMIN {
 	GROUP_USAGE_STATISTICS = "/statistics/groups/usage/",
 	EDIT_MRS = "/mrs/edit",
 	EDIT_RANKS = "/rank/edit",
+	EDIT_IPP = "/ipp/edit",
 }
 
 const MENU_ITEMS = [
@@ -76,6 +79,12 @@ const MENU_ITEMS = [
 		icon: <AuditOutlined></AuditOutlined>,
 		component: <RankEditPage></RankEditPage>,
 		href: HREFS_ADMIN.EDIT_RANKS,
+	},
+	{
+		content: "ІПП",
+		icon: <CompressOutlined></CompressOutlined>,
+		component: <IPPEditPage></IPPEditPage>,
+		href: HREFS_ADMIN.EDIT_IPP,
 	},
 	// {
 	// 	content: "Групова статистика",

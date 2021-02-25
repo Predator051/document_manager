@@ -4,7 +4,7 @@ import React from "react";
 import { GroupUser } from "../../types/groupUser";
 import { ExcelExporter } from "../ui/excel-exporter/ExcelExporter";
 import { GroupExport } from "../ui/excel-exporter/exporters/GroupExporter";
-import { Group } from "../../types/group";
+import { Group, GroupTraining, GroupTrainingType } from "../../types/group";
 import { ObjectStatus } from "../../types/constants";
 
 interface EditableCellProps {
@@ -99,7 +99,11 @@ export const GroupTable: React.FC<GroupTableProps> = (
 							),
 						});
 					}}
-					fileName={`${props.userGroups.company} рота, ${props.userGroups.platoon} взвод, ВОС ${props.userGroups.mrs.number}`}
+					fileName={
+						props.userGroups.trainingType.type !== GroupTrainingType.IPP
+							? `${props.userGroups.company} рота, ${props.userGroups.platoon} взвод, ВОС ${props.userGroups.mrs.number}`
+							: props.userGroups.ipp.name
+					}
 				></ExcelExporter>
 			</Row>
 			<Table

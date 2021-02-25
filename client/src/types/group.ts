@@ -1,6 +1,7 @@
 import { GroupUser } from "./groupUser";
 import { ObjectStatus } from "./constants";
 import { MRS } from "./mrs";
+import { IPP } from "./ipp";
 
 export enum GroupTrainingType {
 	PROFESSIONAL_CONTRACT = "professional_contract",
@@ -8,6 +9,7 @@ export enum GroupTrainingType {
 	COURSE = "course",
 	PROFESSIONAL_SERGEANTS = "professional_sergeants",
 	OPERATIVE_RESERVE = "operative_reserve",
+	IPP = "ipp",
 	OTHER = "other",
 }
 
@@ -18,6 +20,7 @@ export const StandartIdByGroupTrainingType = {
 	professional_sergeants: 4,
 	operative_reserve: 5,
 	other: 6,
+	ipp: 7,
 	new: 100,
 };
 
@@ -56,7 +59,8 @@ export class Group {
 	platoon: number;
 	quarter: number;
 	trainingType: GroupTraining;
-	mrs: MRS;
+	mrs?: MRS;
+	ipp?: IPP;
 	users: GroupUser[];
 	status: ObjectStatus;
 }
@@ -73,6 +77,8 @@ export function TrainingTypeToString(tt: GroupTrainingType) {
 			return "Сержанти фахової базового рівня";
 		case GroupTrainingType.PROGESSIONAL_CONSCRIPT:
 			return "Фахова строковики";
+		case GroupTrainingType.IPP:
+			return "Індивідуальна підготовка постійного складу";
 
 		default:
 			break;
@@ -133,12 +139,6 @@ export function CreateEmptyGroup(): Group {
 		},
 		users: [],
 		appeal: ConstripAppeal.AUTUMN,
-		mrs: {
-			id: 0,
-			name: "",
-			number: "",
-			isCanChange: false,
-		},
 		quarter: 0,
 		status: ObjectStatus.NORMAL,
 	};

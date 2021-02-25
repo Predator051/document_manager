@@ -19,6 +19,7 @@ shortTrainingTypeName.set(GroupTrainingType.COURSE, "Курс");
 shortTrainingTypeName.set(GroupTrainingType.PROFESSIONAL_CONTRACT, "К");
 shortTrainingTypeName.set(GroupTrainingType.PROFESSIONAL_SERGEANTS, "Б");
 shortTrainingTypeName.set(GroupTrainingType.PROGESSIONAL_CONSCRIPT, "С");
+shortTrainingTypeName.set(GroupTrainingType.IPP, "ІПП");
 
 export function GenerateGroupName(gr: Group) {
 	let result: string = shortTrainingTypeName.get(gr.trainingType.type);
@@ -46,7 +47,10 @@ export function GenerateGroupName(gr: Group) {
 	if (gr.platoon !== 0) {
 		result += gr.platoon.toString();
 	}
-	result += gr.mrs.name;
+	if (gr.trainingType.type !== GroupTrainingType.IPP && gr.mrs)
+		result += gr.mrs.name;
+
+	if (gr.trainingType.type === GroupTrainingType.IPP) result += gr.ipp.name;
 
 	return result;
 }

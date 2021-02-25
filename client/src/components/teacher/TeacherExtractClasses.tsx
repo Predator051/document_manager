@@ -7,7 +7,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { YearContext } from "../../context/YearContext";
 import { ConnectionManager } from "../../managers/connetion/connectionManager";
 import { ClassEvent } from "../../types/classEvent";
-import { Group } from "../../types/group";
+import { Group, GroupTrainingType } from "../../types/group";
 import { RequestCode, RequestMessage, RequestType } from "../../types/requests";
 import { Subject } from "../../types/subject";
 import { User } from "../../types/user";
@@ -175,6 +175,10 @@ export const TeacherExtractClasses: React.FC<TeacherExtractClassesProps> = (
 					dataIndex: "groupInfo",
 					key: "groupInfo",
 					render: (value, record: TeacherExtractClassesTableData) => {
+						if (record.group.trainingType.type === GroupTrainingType.IPP) {
+							return <div>{record.group.ipp.name}</div>;
+						}
+
 						return (
 							<div>
 								{record.group.company} рота, {record.group.platoon} взвод, ВОС:{" "}
@@ -333,6 +337,11 @@ export const TeacherExtractClasses: React.FC<TeacherExtractClassesProps> = (
 						width={"300px"}
 						cellRender={({ data }: any) => {
 							const record = data as TeacherExtractClassesTableData;
+
+							if (record.group.trainingType.type === GroupTrainingType.IPP) {
+								return <div>{record.group.ipp.name}</div>;
+							}
+
 							return (
 								<div>
 									{record.group.company} рота, {record.group.platoon} взвод,

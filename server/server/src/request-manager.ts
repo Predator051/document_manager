@@ -28,6 +28,8 @@ import { Rank } from "./types/rank";
 import { MRSModel } from "./model/mrs.model";
 import { MRS } from "./types/mrs";
 import { GroupUser } from "./types/groupUser";
+import { IPPModel } from "./model/ipp.model";
+import { IPP } from "./types/ipp";
 
 export class RequestManager {
 	public static m_sessionSocket: Map<string, string> = new Map<
@@ -534,6 +536,21 @@ export class RequestManager {
 			const response = await MRSModel.update(m);
 
 			socket.emit(RequestType.UPDATE_MRS, response);
+		});
+
+		socket.on(RequestType.GET_ALL_IPP, async (m: RequestMessage<any>) => {
+			console.log("[server](message): %s", JSON.stringify(m));
+
+			const response = await IPPModel.getAll();
+			socket.emit(RequestType.GET_ALL_IPP, response);
+		});
+
+		socket.on(RequestType.UPDATE_IPP, async (m: RequestMessage<IPP[]>) => {
+			console.log("[server](message): %s", JSON.stringify(m));
+
+			const response = await IPPModel.update(m);
+
+			socket.emit(RequestType.UPDATE_IPP, response);
 		});
 
 		socket.on(

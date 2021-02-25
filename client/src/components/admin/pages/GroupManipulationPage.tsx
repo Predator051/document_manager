@@ -435,11 +435,11 @@ export const GroupManipulationPage: React.FC<GroupManipulationPageProps> = (
 			key: "fah",
 			dataIndex: "fah",
 			render: (value, record: GroupListTableData) => (
-				<div>{record.data.mrs.name}</div>
+				<div>{record.data.mrs?.name}</div>
 			),
 			sorter: (a: GroupListTableData, b: GroupListTableData) => {
-				const mrsA = a.data.mrs.id;
-				const mrsB = b.data.mrs.id;
+				const mrsA = a.data.mrs?.id;
+				const mrsB = b.data.mrs?.id;
 
 				if (mrsA < mrsB) {
 					return -1;
@@ -477,7 +477,7 @@ export const GroupManipulationPage: React.FC<GroupManipulationPageProps> = (
 			key: "mrs",
 			dataIndex: "mrs",
 			render: (value, record: GroupListTableData) => (
-				<div>{record.data.mrs.number}</div>
+				<div>{record.data.mrs?.number}</div>
 			),
 		},
 		{

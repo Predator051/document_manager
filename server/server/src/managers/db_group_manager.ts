@@ -24,6 +24,7 @@ export class DBGroupManager {
 		query.leftJoinAndSelect("group.users", "users");
 		query.leftJoinAndSelect("group.trainingType", "trainingType");
 		query.leftJoinAndSelect("group.mrs", "mrs");
+		query.leftJoinAndSelect("group.ipp", "ipp");
 
 		return query;
 	}
@@ -118,9 +119,6 @@ export class DBGroupManager {
 			company: group.company,
 			platoon: group.platoon,
 			status: ObjectStatus.NORMAL,
-			mrs: {
-				id: group.mrs.id,
-			},
 			trainingType: {
 				id: group.trainingType.id,
 			},
@@ -137,6 +135,12 @@ export class DBGroupManager {
 
 		if (group.trainingType.type === GroupTrainingType.PROFESSIONAL_SERGEANTS) {
 			query.andWhere("group.appeal = :appeal", { appeal: group.appeal });
+		}
+
+		if (group.trainingType.type !== GroupTrainingType.IPP) {
+			query.andWhere("mrs.id = :id", { id: group.mrs.id });
+		} else {
+			query.andWhere("ipp.id = :id", { id: group.ipp.id });
 		}
 
 		let result = await query.getOne();
@@ -279,6 +283,15 @@ export class DBGroupManager {
 				id: StandartIdByGroupTrainingType.professional_sergeants,
 				content: TrainingTypeToString(GroupTrainingType.PROFESSIONAL_SERGEANTS),
 				type: GroupTrainingType.PROFESSIONAL_SERGEANTS,
+			});
+		}
+		if (
+			!(await this.IsGroupTrainingTypeExist(StandartIdByGroupTrainingType.ipp))
+		) {
+			this.CreateGroupTrainingType({
+				id: StandartIdByGroupTrainingType.ipp,
+				content: TrainingTypeToString(GroupTrainingType.IPP),
+				type: GroupTrainingType.IPP,
 			});
 		}
 	}

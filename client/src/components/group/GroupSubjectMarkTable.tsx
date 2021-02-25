@@ -6,7 +6,7 @@ import {
 	ColumnGroupType,
 } from "antd/lib/table/interface";
 import { GroupUser } from "../../types/groupUser";
-import { Group } from "../../types/group";
+import { Group, GroupTrainingType } from "../../types/group";
 import { Subject } from "../../types/subject";
 import { ClassEvent } from "../../types/classEvent";
 import {
@@ -253,8 +253,9 @@ export const GroupSubjectMarkTable: React.FC<GroupSubjectMarkTableProps> = (
 						);
 					}}
 					fileName={
-						`Навчальна група: ${props.group.company} рота, ${props.group.platoon} взвод: ` +
-						yearContext.year
+						props.group.trainingType.type !== GroupTrainingType.IPP
+							? `Навчальна група: ${props.group.company} рота, ${props.group.platoon} взвод : ${yearContext.year}`
+							: `Навчальна група: ${props.group.ipp.name} : ${yearContext.year}`
 					}
 				></ExcelExporter>
 			</Row>

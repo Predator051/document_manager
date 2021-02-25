@@ -4,7 +4,7 @@ import React, { useState, useEffect, useContext } from "react";
 
 import { GenerateGroupName } from "../../helpers/GroupHelper";
 import { ClassEvent } from "../../types/classEvent";
-import { Group } from "../../types/group";
+import { Group, GroupTrainingType } from "../../types/group";
 import { GroupUser } from "../../types/groupUser";
 import {
 	GroupUserPresence,
@@ -303,8 +303,9 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 						);
 					}}
 					fileName={
-						`Навчальна група: ${props.group.company} рота, ${props.group.platoon} взвод: ` +
-						yearContext.year
+						props.group.trainingType.type !== GroupTrainingType.IPP
+							? `Навчальна група: ${props.group.company} рота, ${props.group.platoon} взвод : ${yearContext.year}`
+							: `Навчальна група: ${props.group.ipp.name} : ${yearContext.year}`
 					}
 					title="Експорт відомісті"
 				></ExcelExporter>

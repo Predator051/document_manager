@@ -43,6 +43,7 @@ import { EditableGroupTable } from "./GroupEditableTable";
 import { GroupUserUploader } from "./GroupUploader";
 import { ObjectStatus } from "../../../types/constants";
 import { MRS } from "../../../types/mrs";
+import { IPP } from "../../../types/ipp";
 
 momentSpace.locale("uk");
 
@@ -72,10 +73,12 @@ export const GroupManipulator: React.FC<GroupManipulatorProps> = (
 		group.trainingType.id
 	);
 	const [mrss, setMrss] = useState<MRS[]>([]);
+	const [ipps, setIpps] = useState<IPP[]>([]);
 
 	const [isExistLoader, setIsExistLoader] = useState<boolean>(false);
 
 	const [mrsLoading, setMRSLoadings] = useState<boolean>(true);
+	const [ippLoading, setIPPLoadings] = useState<boolean>(true);
 	const [
 		groupTrainingTypeLoading,
 		setGroupTrainingTypeLoadings,
@@ -120,6 +123,21 @@ export const GroupManipulator: React.FC<GroupManipulatorProps> = (
 		ConnectionManager.getInstance().emit(RequestType.GET_ALL_MRS, {});
 
 		ConnectionManager.getInstance().registerResponseOnceHandler(
+			RequestType.GET_ALL_IPP,
+			(data) => {
+				const dataMessage = data as RequestMessage<IPP[]>;
+				if (dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR) {
+					console.log(`Error: ${dataMessage.requestCode}`);
+					return;
+				}
+
+				setIpps(dataMessage.data);
+				setIPPLoadings(false);
+			}
+		);
+		ConnectionManager.getInstance().emit(RequestType.GET_ALL_IPP, {});
+
+		ConnectionManager.getInstance().registerResponseOnceHandler(
 			RequestType.IS_GROUP_HAS_ACTIVITY,
 			(data) => {
 				const dataMessage = data as RequestMessage<boolean>;
@@ -137,7 +155,7 @@ export const GroupManipulator: React.FC<GroupManipulatorProps> = (
 			);
 	}, []);
 
-	if (mrsLoading || groupTrainingTypeLoading) {
+	if (mrsLoading || groupTrainingTypeLoading || ippLoading) {
 		return <Spin size="large"></Spin>;
 	}
 
@@ -270,6 +288,13 @@ export const GroupManipulator: React.FC<GroupManipulatorProps> = (
 		});
 	};
 
+	const onChangeIPPType = (value: number) => {
+		setGroup({
+			...group,
+			ipp: ipps.find((ipp) => ipp.id === value),
+		});
+	};
+
 	const checkGroupParams = () => {
 		if (userGroups.length <= 0) {
 			return false;
@@ -290,16 +315,28 @@ export const GroupManipulator: React.FC<GroupManipulatorProps> = (
 				break;
 			}
 
+			case GroupTrainingType.IPP: {
+				if (!group.ipp || group.ipp?.id === 0) return false;
+				break;
+			}
+
 			default: {
 			}
 		}
 
-		if (group.trainingType.type !== GroupTrainingType.COURSE) {
+		if (
+			group.trainingType.type !== GroupTrainingType.COURSE &&
+			group.trainingType.type !== GroupTrainingType.IPP
+		) {
 			if (group.platoon === 0) return false;
 			if (group.company === 0) return false;
 		}
 
-		if (group.mrs.id === 0) return false;
+		if (
+			group.trainingType.type !== GroupTrainingType.IPP &&
+			(!group.mrs || group.mrs.id === 0)
+		)
+			return false;
 
 		return true;
 	};
@@ -569,82 +606,110 @@ export const GroupManipulator: React.FC<GroupManipulatorProps> = (
 							></DatePicker>
 						)}
 					</Descriptions.Item>
-					<Descriptions.Item
-						label={props.visibleMode ? "Рота" : "Оберіть роту:"}
-						span={3}
-						labelStyle={descriptionItemLabelStyle}
-						contentStyle={descriptionItemContentStyle}
-					>
-						{props.visibleMode ? (
-							group.company
-						) : (
-							<Select
-								style={{ width: "100%" }}
-								onChange={onChangeCompany}
-								value={group.company}
-							>
-								{group.trainingType.type === GroupTrainingType.COURSE && (
-									<Option key={0} value={0}>
-										{0}
-									</Option>
-								)}
+					{group.trainingType.type !== GroupTrainingType.IPP && (
+						<Descriptions.Item
+							label={props.visibleMode ? "Рота" : "Оберіть роту:"}
+							span={3}
+							labelStyle={descriptionItemLabelStyle}
+							contentStyle={descriptionItemContentStyle}
+						>
+							{props.visibleMode ? (
+								group.company
+							) : (
+								<Select
+									style={{ width: "100%" }}
+									onChange={onChangeCompany}
+									value={group.company}
+								>
+									{group.trainingType.type === GroupTrainingType.COURSE && (
+										<Option key={0} value={0}>
+											{0}
+										</Option>
+									)}
 
-								{[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((cicle) => (
-									<Option key={cicle.toString()} value={cicle}>
-										{cicle}
-									</Option>
-								))}
-							</Select>
-						)}
-					</Descriptions.Item>
-					<Descriptions.Item
-						label={props.visibleMode ? "Взвод" : "Оберіть взвод:"}
-						span={3}
-						labelStyle={descriptionItemLabelStyle}
-						contentStyle={descriptionItemContentStyle}
-					>
-						{props.visibleMode ? (
-							group.platoon
-						) : (
-							<Select
-								defaultValue={undefined}
-								style={{ width: "100%" }}
-								onChange={onChangePlatoon}
-								value={group.platoon}
-							>
-								{group.trainingType.type === GroupTrainingType.COURSE && (
-									<Option key={0} value={0}>
-										{0}
-									</Option>
-								)}
-								{[1, 2, 3, 4, 5].map((cicle) => (
-									<Option key={cicle.toString()} value={cicle}>
-										{cicle}
-									</Option>
-								))}
-							</Select>
-						)}
-					</Descriptions.Item>
-					<Descriptions.Item
-						label={props.visibleMode ? "ВОС" : "Оберіть ВОС:"}
-						span={3}
-						labelStyle={descriptionItemLabelStyle}
-						contentStyle={descriptionItemContentStyle}
-					>
-						{props.visibleMode ? (
-							mrss.find((mrs) => mrs.id === group.mrs.id).number
-						) : (
-							<Select
-								style={{ width: "100%" }}
-								onChange={onChangeMRSType}
-								value={group.mrs.id}
-							>
-								{mrss.map((mrs) => (
-									<Option value={mrs.id}>{mrs.number}</Option>
-								))}
-							</Select>
-						)}
-					</Descriptions.Item>
+									{[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((cicle) => (
+										<Option key={cicle.toString()} value={cicle}>
+											{cicle}
+										</Option>
+									))}
+								</Select>
+							)}
+						</Descriptions.Item>
+					)}
+					{group.trainingType.type !== GroupTrainingType.IPP && (
+						<Descriptions.Item
+							label={props.visibleMode ? "Взвод" : "Оберіть взвод:"}
+							span={3}
+							labelStyle={descriptionItemLabelStyle}
+							contentStyle={descriptionItemContentStyle}
+						>
+							{props.visibleMode ? (
+								group.platoon
+							) : (
+								<Select
+									defaultValue={undefined}
+									style={{ width: "100%" }}
+									onChange={onChangePlatoon}
+									value={group.platoon}
+								>
+									{group.trainingType.type === GroupTrainingType.COURSE && (
+										<Option key={0} value={0}>
+											{0}
+										</Option>
+									)}
+									{[1, 2, 3, 4, 5].map((cicle) => (
+										<Option key={cicle.toString()} value={cicle}>
+											{cicle}
+										</Option>
+									))}
+								</Select>
+							)}
+						</Descriptions.Item>
+					)}
+					{group.trainingType.type !== GroupTrainingType.IPP && (
+						<Descriptions.Item
+							label={props.visibleMode ? "ВОС" : "Оберіть ВОС:"}
+							span={3}
+							labelStyle={descriptionItemLabelStyle}
+							contentStyle={descriptionItemContentStyle}
+						>
+							{props.visibleMode ? (
+								mrss.find((mrs) => mrs.id === group.mrs.id).number
+							) : (
+								<Select
+									style={{ width: "100%" }}
+									onChange={onChangeMRSType}
+									value={group.mrs?.id}
+								>
+									{mrss.map((mrs) => (
+										<Option value={mrs.id}>{mrs.number}</Option>
+									))}
+								</Select>
+							)}
+						</Descriptions.Item>
+					)}
+					{group.trainingType.type === GroupTrainingType.IPP && (
+						<Descriptions.Item
+							label={props.visibleMode ? "ВОС" : "Оберіть ВОС:"}
+							span={3}
+							labelStyle={descriptionItemLabelStyle}
+							contentStyle={descriptionItemContentStyle}
+						>
+							{props.visibleMode ? (
+								ipps.find((ipp) => ipp.id === group.ipp.id).name
+							) : (
+								<Select
+									style={{ width: "100%" }}
+									onChange={onChangeIPPType}
+									value={group.ipp?.id}
+								>
+									{ipps.map((ipp) => (
+										<Option value={ipp.id}>{ipp.name}</Option>
+									))}
+								</Select>
+							)}
+						</Descriptions.Item>
+					)}
 					{props.archiveButton && (
 						<Descriptions.Item
 							label={
