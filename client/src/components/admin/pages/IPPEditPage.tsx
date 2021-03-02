@@ -154,7 +154,7 @@ export const IPPEditPage: React.FC<IPPEditPageProps> = (
 						<div className="fade-in-left">
 							<Row justify="center" style={{ width: "100%" }}>
 								<Card
-									title="Обраний ВОС"
+									title={selectedIPP.name}
 									style={{ maxWidth: "500px", width: "500px" }}
 								>
 									<Form form={form} onFinish={onUpdateTitleClick}>

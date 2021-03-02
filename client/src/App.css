@@ -52,6 +52,13 @@
   color: #8c8c8c;
 }
 
+.add_text_shadow {}
+
+.add_text_shadow:hover {
+  text-shadow: 4px 2px 3px rgba(150, 150, 150, 1);
+  cursor: pointer;
+}
+
 /* 
 .ant-table-cell-fix-left {
   background: none !important;

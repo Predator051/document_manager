@@ -50,6 +50,7 @@ export class DBIPPManager {
 
 		if (task === undefined) {
 			const ippkeys = [
+				"Управління",
 				"ЦК ЗВД",
 				"ЦК БІУС",
 				"ЦК ЗЗЗ",

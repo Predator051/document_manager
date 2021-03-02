@@ -50,6 +50,14 @@ export const TeacherJournal: React.FC<TeacherJournalProps> = (
 		return <Spin></Spin>;
 	}
 
+	const divStyle: React.CSSProperties = {
+		height: "30vh",
+		width: "30vw",
+		// backgroundColor: "#2988E2",
+		borderRadius: "5px",
+		margin: "5px",
+	};
+
 	return (
 		<div>
 			<Typography.Title level={3} className="swing-in-top-fwd">
@@ -57,11 +65,8 @@ export const TeacherJournal: React.FC<TeacherJournalProps> = (
 			</Typography.Title>
 			<Row justify="center" align="middle">
 				<div
-					className={"hvr-sweep-to-right swing-in-right-fwd"}
-					style={{
-						height: "30vh",
-						width: "30vw",
-					}}
+					className={"add_text_shadow swing-in-right-fwd"}
+					style={divStyle}
 					onClick={() => {
 						history.push(
 							TeacherJournalHREFS.EXTRACT_CLASSES_PAGE + props.userId.toString()
@@ -77,11 +82,8 @@ export const TeacherJournal: React.FC<TeacherJournalProps> = (
 					</Row>
 				</div>
 				<div
-					className={"hvr-shutter-out-horizontal swing-in-right-fwd"}
-					style={{
-						height: "30vh",
-						width: "30vw",
-					}}
+					className={"add_text_shadow swing-in-right-fwd"}
+					style={divStyle}
 					onClick={() => {
 						history.push(
 							TeacherJournalHREFS.TEACHER_GROUPS_SUBJECT_PAGE +
@@ -98,11 +100,8 @@ export const TeacherJournal: React.FC<TeacherJournalProps> = (
 					</Row>
 				</div>
 				<div
-					className={"hvr-sweep-to-left swing-in-right-fwd"}
-					style={{
-						height: "30vh",
-						width: "30vw",
-					}}
+					className={"add_text_shadow swing-in-right-fwd"}
+					style={divStyle}
 					onClick={() => {
 						history.push(
 							TeacherJournalHREFS.TEACHER_GROUPS_NORM_PAGE +
@@ -121,11 +120,8 @@ export const TeacherJournal: React.FC<TeacherJournalProps> = (
 			</Row>
 			<Row justify="center">
 				<div
-					className={"hvr-sweep-to-right swing-in-right-fwd"}
-					style={{
-						height: "30vh",
-						width: "30vw",
-					}}
+					className={"add_text_shadow swing-in-right-fwd"}
+					style={divStyle}
 					onClick={() => {
 						history.push(
 							TeacherJournalHREFS.INDIVIDUAL_WORKS + props.userId.toString()
@@ -142,11 +138,8 @@ export const TeacherJournal: React.FC<TeacherJournalProps> = (
 				</div>
 
 				<div
-					className={"hvr-sweep-to-left swing-in-right-fwd"}
-					style={{
-						height: "30vh",
-						width: "30vw",
-					}}
+					className={"add_text_shadow swing-in-right-fwd"}
+					style={divStyle}
 					onClick={() => {
 						history.push(
 							TeacherJournalHREFS.TEACHER_ACCOUNTING + props.userId.toString()

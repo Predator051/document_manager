@@ -138,7 +138,18 @@ export const MyClassesPage: React.FC = () => {
 				dataIndex: "title",
 				key: "title",
 				render: (value: any, record: MyClassTableData) => {
-					return <div>{findOccupation(record.data.selectPath).title}</div>;
+					const occupation = findOccupation(record.data.selectPath);
+					const topic = findTopic(record.data.selectPath);
+					return (
+						<div>
+							<Row>
+								Тема {topic.number}: {topic.title}
+							</Row>
+							<Row>
+								Заняття {occupation.number}: {occupation.title}
+							</Row>
+						</div>
+					);
 				},
 			},
 			{
@@ -271,6 +282,14 @@ export const MyClassesPage: React.FC = () => {
 			.find((pt) => pt.id === selectPath.programTraining)
 			.topics.find((t) => t.id === selectPath.topic)
 			.occupation.find((oc) => oc.id === selectPath.occupation);
+	};
+
+	const findTopic = (selectPath: SubjectSelectPath) => {
+		const subject = subjects.find((s) => s.id === selectPath.subject);
+
+		return subject.programTrainings
+			.find((pt) => pt.id === selectPath.programTraining)
+			.topics.find((t) => t.id === selectPath.topic);
 	};
 
 	const tableData: MyClassTableData[] = classEvents.map((ce) => {
