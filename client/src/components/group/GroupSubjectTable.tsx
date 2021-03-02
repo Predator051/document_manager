@@ -20,6 +20,14 @@ import { YearContext } from "../../context/YearContext";
 import { GroupSubjectBillExport } from "../ui/excel-exporter/exporters/GroupSubjectBillExporter";
 import { ObjectStatus } from "../../types/constants";
 
+import DataGrid, {
+	Scrolling,
+	Paging,
+	Column,
+	LoadPanel,
+} from "devextreme-react/data-grid";
+import DataSource from "devextreme/data/data_source";
+
 interface EditableCellProps {
 	onSave: (newValue: any) => void;
 	editComponent: JSX.Element;
@@ -252,6 +260,79 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 		},
 	];
 
+	let extremeDynamicColumns: JSX.Element[] = filteredClassEvents.map(
+		(classEvent) => {
+			const foundTopic = props.subject.programTrainings
+				.find((pt) => pt.id === classEvent.selectPath.programTraining)
+				.topics.find((t) => t.id === classEvent.selectPath.topic);
+
+			const foundOccupation = foundTopic.occupation.find(
+				(occ) => occ.id === classEvent.selectPath.occupation
+			);
+
+			return (
+				<Column
+					caption={classEvent.date.toLocaleDateString("uk", {
+						year: "2-digit",
+						month: "2-digit",
+						day: "2-digit",
+					})}
+					width="100px"
+					cellRender={({ data }) => {
+						const record = data as GroupTableData;
+
+						const presence = classEvent.presences.find(
+							(pr) => pr.userId === record.data.id
+						);
+
+						return (
+							<div>
+								<PresenceShower presence={presence}></PresenceShower>
+							</div>
+						);
+					}}
+					headerCellRender={({ column: { caption } }) => {
+						return (
+							<div>
+								<Tooltip
+									title={
+										<div>
+											<Row style={{ wordWrap: "break-word" }}>
+												Тема {foundTopic.number}: {foundTopic.title}
+											</Row>
+											<Row>
+												Заняття {foundOccupation.number}:{" "}
+												{foundOccupation.title}
+											</Row>
+										</div>
+									}
+									style={{
+										width: "auto",
+									}}
+								>
+									{classEvent.date.toLocaleDateString("uk", {
+										year: "2-digit",
+										month: "2-digit",
+										day: "2-digit",
+									})}
+								</Tooltip>
+							</div>
+						);
+					}}
+				></Column>
+			);
+		}
+	);
+	extremeDynamicColumns.push(<Column caption={" "} width="auto"></Column>);
+
+	const extremeDataGridSource: DataSource = new DataSource({
+		store: {
+			type: "array",
+			key: "index",
+			data: tableData,
+		},
+	});
+
 	return (
 		<div>
 			<Row justify="end">
@@ -310,22 +391,60 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 					title="Експорт відомісті"
 				></ExcelExporter>
 			</Row>
-			<Table
-				title={props.title}
-				pagination={false}
-				rowKey={(gu: GroupTableData) => gu.data.id.toString()}
-				dataSource={tableData}
-				columns={columns}
-				size="small"
-				bordered
-				scroll={{ x: "max-content" }}
-				rowClassName={(record, index) => {
-					if (record.data.status === ObjectStatus.NOT_ACTIVE)
-						return "row_grou-user_deactivate";
-
-					return "";
+			<DataGrid
+				elementAttr={{
+					id: "gridContainer",
 				}}
-			></Table>
+				dataSource={extremeDataGridSource}
+				showBorders={true}
+				showColumnLines={true}
+				showRowLines={true}
+				style={{ width: "100%" }}
+				hoverStateEnabled={true}
+				renderAsync={true}
+				loadPanel={{ enabled: true }}
+				wordWrapEnabled={true}
+				onRowPrepared={(e) => {
+					if (e.rowType === "data") {
+						if (
+							(e.data as GroupTableData).data.status === ObjectStatus.NOT_ACTIVE
+						) {
+							e.rowElement.classList.add("row_grou-user_deactivate");
+						}
+					}
+				}}
+				allowColumnResizing={true}
+			>
+				<LoadPanel enabled={true}></LoadPanel>
+				<Scrolling columnRenderingMode="virtual" preloadEnabled={true} />
+				<Paging enabled={false} />
+
+				<Column
+					caption="№ з/п"
+					width={"40px"}
+					alignment="center"
+					dataField="index"
+					fixed={true}
+				></Column>
+				<Column
+					caption="ПІБ"
+					width={"300px"}
+					alignment="center"
+					cellRender={({ data: { data } }: any) => {
+						return <Row justify="start">{data.fullname}</Row>;
+					}}
+					fixed={true}
+					dataField="data"
+					sortingMethod={(a: GroupUser, b: GroupUser) => {
+						return a.fullname.localeCompare(b.fullname);
+					}}
+					defaultSortOrder="asc"
+					allowSorting={false}
+				></Column>
+				<Column caption="Дата, присутність, успішність" alignment="center">
+					{extremeDynamicColumns}
+				</Column>
+			</DataGrid>
 		</div>
 	);
 };

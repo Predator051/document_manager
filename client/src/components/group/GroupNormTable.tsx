@@ -30,6 +30,14 @@ import { User } from "../../types/user";
 import { NormInfoShower } from "../norm/NormInfoShower";
 import { ObjectStatus } from "../../types/constants";
 
+import DataGrid, {
+	Scrolling,
+	Paging,
+	Column,
+	LoadPanel,
+} from "devextreme-react/data-grid";
+import DataSource from "devextreme/data/data_source";
+
 interface GroupTableData {
 	data: GroupUser;
 	index: number;
@@ -190,6 +198,9 @@ export const GroupNormTable: React.FC<GroupTableProps> = (
 			width: "auto",
 		},
 	];
+	let extremeDynamicColumns: JSX.Element[] = [
+		<Column caption={" "} width="auto"></Column>,
+	];
 	const filteredNormProcesses = normProcesses.filter((normProcess) => {
 		normProcess.marks = normProcess.marks.filter((mark) =>
 			norms.some((norm) => norm.id === mark.normId)
@@ -199,69 +210,135 @@ export const GroupNormTable: React.FC<GroupTableProps> = (
 	});
 
 	if (filteredNormProcesses.length > 0) {
-		normProcessColumns = filteredNormProcesses.map((process) => {
+		// normProcessColumns = filteredNormProcesses.map((process) => {
+		// 	const date = new Date(process.date);
+
+		// 	return {
+		// 		title: date.toLocaleDateString("uk", {
+		// 			year: "2-digit",
+		// 			month: "2-digit",
+		// 			day: "2-digit",
+		// 		}),
+		// 		key: date.toLocaleDateString(),
+		// 		dataIndex: date.toLocaleDateString(),
+		// 		children: [
+		// 			{
+		// 				title: "Оцінка за норматив",
+		// 				key: process.id,
+		// 				dataIndex: process.id,
+		// 				children: [
+		// 					...norms
+		// 						.filter((n) => {
+		// 							return (
+		// 								process.marks.findIndex((m) => m.normId === n.id) >= 0 &&
+		// 								n.subjectId === props.subject.id
+		// 							);
+		// 						})
+		// 						.map((norm, index, self) => {
+		// 							return {
+		// 								title: (
+		// 									<div>
+		// 										<Tooltip title="Клік для подробиць">
+		// 											<Button
+		// 												type="link"
+		// 												onClick={() => {
+		// 													onNormClick(norm.id);
+		// 												}}
+		// 											>
+		// 												№ {norm.number}
+		// 											</Button>
+		// 										</Tooltip>
+		// 									</div>
+		// 								),
+		// 								key: norm.number + process.id,
+		// 								dataIndex: norm.number + process.id,
+		// 								width: "10px",
+		// 								render: (value, record: GroupTableData) => {
+		// 									const currMark = process.marks.find(
+		// 										(m) =>
+		// 											m.normId === norm.id && m.userId === record.data.id
+		// 									);
+		// 									return <div>{currMark?.mark}</div>;
+		// 								},
+		// 							} as ColumnGroupType<any> | ColumnType<any>;
+		// 						}),
+		// 				],
+		// 			},
+		// 		],
+		// 	} as ColumnGroupType<any> | ColumnType<any>;
+		// });
+		// normProcessColumns.push({
+		// 	title: " ",
+		// 	key: " ",
+		// 	dataIndex: " ",
+		// 	width: "auto",
+		// });
+		extremeDynamicColumns = filteredNormProcesses.map((process) => {
 			const date = new Date(process.date);
 
-			return {
-				title: date.toLocaleDateString("uk", {
-					year: "2-digit",
-					month: "2-digit",
-					day: "2-digit",
-				}),
-				key: date.toLocaleDateString(),
-				dataIndex: date.toLocaleDateString(),
-				children: [
-					{
-						title: "Оцінка за норматив",
-						key: process.id,
-						dataIndex: process.id,
-						children: [
-							...norms
-								.filter((n) => {
-									return (
-										process.marks.findIndex((m) => m.normId === n.id) >= 0 &&
-										n.subjectId === props.subject.id
-									);
-								})
-								.map((norm, index, self) => {
-									return {
-										title: (
-											<div>
-												<Tooltip title="Клік для подробиць">
-													<Button
-														type="link"
-														onClick={() => {
-															onNormClick(norm.id);
-														}}
-													>
-														№ {norm.number}
-													</Button>
-												</Tooltip>
-											</div>
-										),
-										key: norm.number + process.id,
-										dataIndex: norm.number + process.id,
-										width: "10px",
-										render: (value, record: GroupTableData) => {
+			return (
+				<Column
+					allowReordering={false}
+					key={process.id}
+					caption={date.toLocaleDateString("uk", {
+						year: "2-digit",
+						month: "2-digit",
+						day: "2-digit",
+					})}
+					headerCellRender={({ column: { caption } }) => {
+						return <div>{caption}</div>;
+					}}
+				>
+					<Column caption="Оцінка за норматив" allowReordering={false}>
+						{norms
+							.filter((n) => {
+								return (
+									process.marks.findIndex((m) => m.normId === n.id) >= 0 &&
+									n.subjectId === props.subject.id
+								);
+							})
+							.map((norm, index, self) => {
+								return (
+									<Column
+										dataField={norm.id + process.id}
+										headerCellRender={({ column: { caption } }) => {
+											return (
+												<div>
+													<Tooltip title="Клік для подробиць">
+														<Button
+															type="link"
+															onClick={() => {
+																onNormClick(norm.id);
+															}}
+														>
+															№ {norm.number}
+														</Button>
+													</Tooltip>
+												</div>
+											);
+										}}
+										allowReordering={false}
+										cellRender={({ data }) => {
+											const record = data as GroupTableData;
+
 											const currMark = process.marks.find(
 												(m) =>
 													m.normId === norm.id && m.userId === record.data.id
 											);
 											return <div>{currMark?.mark}</div>;
-										},
-									} as ColumnGroupType<any> | ColumnType<any>;
-								}),
-						],
-					},
-				],
-			} as ColumnGroupType<any> | ColumnType<any>;
+										}}
+										width="80px"
+										key={norm.id + process.id}
+									></Column>
+								);
+							})}
+					</Column>
+				</Column>
+			);
 		});
-		normProcessColumns.push({
-			title: " ",
-			key: " ",
-			dataIndex: " ",
-			width: "auto",
-		});
+		extremeDynamicColumns.push(
+			<Column caption={" "} width="auto" dataField=" "></Column>
+		);
 	}
 
 	const columns: ColumnsType<any> = [
@@ -291,6 +368,14 @@ export const GroupNormTable: React.FC<GroupTableProps> = (
 		},
 		...normProcessColumns,
 	];
+
+	const extremeDataGridSource: DataSource = new DataSource({
+		store: {
+			type: "array",
+			key: "index",
+			data: tableData,
+		},
+	});
 
 	return (
 		<div>
@@ -328,7 +413,7 @@ export const GroupNormTable: React.FC<GroupTableProps> = (
 					}
 				></ExcelExporter>
 			</Row>
-			<Table
+			{/* <Table
 				title={props.title}
 				pagination={false}
 				rowKey={(gu: GroupTableData) => gu.data.id.toString()}
@@ -343,7 +428,58 @@ export const GroupNormTable: React.FC<GroupTableProps> = (
 
 					return "";
 				}}
-			></Table>
+			></Table> */}
+			<DataGrid
+				elementAttr={{
+					id: "gridContainer",
+				}}
+				dataSource={extremeDataGridSource}
+				showBorders={true}
+				showColumnLines={true}
+				showRowLines={true}
+				style={{ width: "100%" }}
+				hoverStateEnabled={true}
+				loadPanel={{ enabled: true }}
+				wordWrapEnabled={true}
+				onRowPrepared={(e) => {
+					if (e.rowType === "data") {
+						if (
+							(e.data as GroupTableData).data.status === ObjectStatus.NOT_ACTIVE
+						) {
+							e.rowElement.classList.add("row_grou-user_deactivate");
+						}
+					}
+				}}
+				allowColumnResizing={true}
+			>
+				<LoadPanel enabled={true}></LoadPanel>
+				<Scrolling columnRenderingMode="virtual" preloadEnabled={true} />
+				<Paging enabled={false} />
+
+				<Column
+					caption="№ з/п"
+					width={"40px"}
+					alignment="center"
+					dataField="index"
+					fixed={true}
+				></Column>
+				<Column
+					caption="Прізвище, ім’я та по батькові"
+					width={"300px"}
+					alignment="center"
+					cellRender={({ data: { data } }: any) => {
+						return <Row justify="start">{data.fullname}</Row>;
+					}}
+					fixed={true}
+					dataField="data"
+					sortingMethod={(a: GroupUser, b: GroupUser) => {
+						return a.fullname.localeCompare(b.fullname);
+					}}
+					defaultSortOrder="asc"
+					allowSorting={false}
+				></Column>
+				{extremeDynamicColumns}
+			</DataGrid>
 		</div>
 	);
 };

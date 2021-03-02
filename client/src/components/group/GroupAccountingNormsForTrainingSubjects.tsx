@@ -216,102 +216,7 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 			return marks.length > 0;
 		});
 
-		// console.log(
-		// 	"normProcesses",
-		// 	normProcesses,
-		// 	"filteredNormProcesses",
-		// 	filteredNormProcesses,
-		// 	"selected subject",
-		// 	selectedSubject,
-		// 	"group",
-		// 	props.group,
-		// 	"norms",
-		// 	norms
-		// );
 		if (filteredNormProcesses.length > 0) {
-			// normProcessColumns = filteredNormProcesses.map((process) => {
-			// 	const date = new Date(process.date);
-			// 	const foundUser = users.find((u) => u.id === process.user);
-			// 	return {
-			// 		title: (
-			// 			<div>
-			// 				<Tooltip
-			// 					title={
-			// 						<div>
-			// 							<Row>
-			// 								Викладач: {foundUser.secondName} {foundUser.firstName} -{" "}
-			// 								{foundUser.cycle.title}
-			// 							</Row>
-			// 						</div>
-			// 					}
-			// 					style={{
-			// 						width: "auto",
-			// 					}}
-			// 				>
-			// 					{date.toLocaleDateString("uk", {
-			// 						year: "2-digit",
-			// 						month: "2-digit",
-			// 						day: "2-digit",
-			// 					})}
-			// 				</Tooltip>
-			// 			</div>
-			// 		),
-			// 		key: date.toLocaleDateString(),
-			// 		dataIndex: date.toLocaleDateString(),
-			// 		width: "auto",
-			// 		children: [
-			// 			{
-			// 				title: "Оцінка за норматив",
-			// 				key: process.id,
-			// 				dataIndex: process.id,
-			// 				children: [
-			// 					...norms
-			// 						.filter((n) => {
-			// 							return (
-			// 								n.subjectId === selectedSubject.id &&
-			// 								process.marks.findIndex((m) => m.normId === n.id) >= 0
-			// 							);
-			// 						})
-			// 						.map((norm, index, self) => {
-			// 							return {
-			// 								title: (
-			// 									<div>
-			// 										<Tooltip title="Клік для подробиць">
-			// 											<Button
-			// 												type="link"
-			// 												onClick={() => {
-			// 													onNormClick(norm.id);
-			// 												}}
-			// 											>
-			// 												№ {norm.number}
-			// 											</Button>
-			// 										</Tooltip>
-			// 									</div>
-			// 								),
-			// 								key: norm.number + process.id,
-			// 								dataIndex: norm.number + process.id,
-			// 								width: "10px",
-			// 								render: (value, record: GroupTableData) => {
-			// 									const currMark = process.marks.find(
-			// 										(m) =>
-			// 											m.normId === norm.id && m.userId === record.data.id
-			// 									);
-			// 									return <div>{currMark?.mark}</div>;
-			// 								},
-			// 							} as ColumnGroupType<any> | ColumnType<any>;
-			// 						}),
-			// 				],
-			// 			},
-			// 		],
-			// 	} as ColumnGroupType<any> | ColumnType<any>;
-			// });
-			// normProcessColumns.push({
-			// 	title: " ",
-			// 	dataIndex: " ",
-			// 	key: " ",
-			// 	width: "auto",
-			// });
-
 			extremeDynamicColumns = filteredNormProcesses.map((process) => {
 				const date = new Date(process.date);
 				const foundUser = users.find((u) => u.id === process.user);
@@ -399,34 +304,6 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 			);
 		}
 	}
-
-	// const columns: ColumnsType<any> = [
-	// 	{
-	// 		title: "№ з/п",
-	// 		key: "number",
-	// 		dataIndex: "number",
-	// 		render: (value, record: GroupTableData) => {
-	// 			return <div>{record.index}</div>;
-	// 		},
-	// 		fixed: "left",
-	// 		width: "40px",
-	// 	},
-	// 	{
-	// 		title: "Прізвище, ім’я та по батькові",
-	// 		key: "fullname",
-	// 		dataIndex: "fullname",
-	// 		render: (value, record: GroupTableData) => {
-	// 			return <div>{record.data.fullname}</div>;
-	// 		},
-	// 		sorter: (a: GroupTableData, b: GroupTableData) =>
-	// 			a.data.fullname < b.data.fullname ? -1 : 1,
-	// 		defaultSortOrder: "ascend",
-	// 		fixed: "left",
-	// 		width: "20%",
-	// 		ellipsis: true,
-	// 	},
-	// 	...normProcessColumns,
-	// ];
 
 	const descriptionItemLabelStyle: React.CSSProperties = {
 		width: "45%",
