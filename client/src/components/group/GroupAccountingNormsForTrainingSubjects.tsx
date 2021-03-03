@@ -273,6 +273,7 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 																onClick={() => {
 																	onNormClick(norm.id);
 																}}
+																style={{ margin: 0, padding: 0 }}
 															>
 																№ {norm.number}
 															</Button>

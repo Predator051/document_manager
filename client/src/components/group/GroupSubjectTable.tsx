@@ -164,101 +164,101 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 	// });
 	// console.log("filtered", filteredClassEvents.length);
 
-	const columns: ColumnsType<any> = [
-		{
-			title: "№ з/п",
-			key: "number",
-			dataIndex: "number",
-			render: (value, record: GroupTableData) => {
-				return <div>{record.index}</div>;
-			},
-			fixed: "left",
-			width: "40px",
-		},
-		{
-			title: "Прізвище, ім’я та по батькові",
-			key: "fullname",
-			dataIndex: "fullname",
-			render: (value, record: GroupTableData) => {
-				return <div>{record.data.fullname}</div>;
-			},
-			sorter: (a: GroupTableData, b: GroupTableData) =>
-				a.data.fullname.localeCompare(b.data.fullname),
-			defaultSortOrder: "ascend",
-			fixed: "left",
-			width: "20%",
-			ellipsis: true,
-		},
-		{
-			title: "Дата, присутність, успішність",
-			key: "data",
-			align: "center",
-			dataIndex: "data",
-			width: filteredClassEvents.length > 1 ? "max-content" : "auto",
-			// ellipsis: true,
-			children: [
-				...filteredClassEvents.map((classEvent) => {
-					const foundTopic = props.subject.programTrainings
-						.find((pt) => pt.id === classEvent.selectPath.programTraining)
-						.topics.find((t) => t.id === classEvent.selectPath.topic);
+	// const columns: ColumnsType<any> = [
+	// 	{
+	// 		title: "№ з/п",
+	// 		key: "number",
+	// 		dataIndex: "number",
+	// 		render: (value, record: GroupTableData) => {
+	// 			return <div>{record.index}</div>;
+	// 		},
+	// 		fixed: "left",
+	// 		width: "40px",
+	// 	},
+	// 	{
+	// 		title: "Прізвище, ім’я та по батькові",
+	// 		key: "fullname",
+	// 		dataIndex: "fullname",
+	// 		render: (value, record: GroupTableData) => {
+	// 			return <div>{record.data.fullname}</div>;
+	// 		},
+	// 		sorter: (a: GroupTableData, b: GroupTableData) =>
+	// 			a.data.fullname.localeCompare(b.data.fullname),
+	// 		defaultSortOrder: "ascend",
+	// 		fixed: "left",
+	// 		width: "20%",
+	// 		ellipsis: true,
+	// 	},
+	// 	{
+	// 		title: "Дата, присутність, успішність",
+	// 		key: "data",
+	// 		align: "center",
+	// 		dataIndex: "data",
+	// 		width: filteredClassEvents.length > 1 ? "max-content" : "auto",
+	// 		// ellipsis: true,
+	// 		children: [
+	// 			...filteredClassEvents.map((classEvent) => {
+	// 				const foundTopic = props.subject.programTrainings
+	// 					.find((pt) => pt.id === classEvent.selectPath.programTraining)
+	// 					.topics.find((t) => t.id === classEvent.selectPath.topic);
 
-					const foundOccupation = foundTopic.occupation.find(
-						(occ) => occ.id === classEvent.selectPath.occupation
-					);
+	// 				const foundOccupation = foundTopic.occupation.find(
+	// 					(occ) => occ.id === classEvent.selectPath.occupation
+	// 				);
 
-					return {
-						title: (
-							<div>
-								<Tooltip
-									title={
-										<div>
-											<Row>
-												Тема {foundTopic.number}: {foundTopic.title}
-											</Row>
-											<Row>
-												Заняття {foundOccupation.number}:{" "}
-												{foundOccupation.title}
-											</Row>
-										</div>
-									}
-									style={{
-										width: "auto",
-									}}
-								>
-									{classEvent.date.toLocaleDateString("uk", {
-										year: "2-digit",
-										month: "2-digit",
-										day: "2-digit",
-									})}
-								</Tooltip>
-							</div>
-						),
-						key: classEvent.date.toLocaleDateString(),
-						dataIndex: classEvent.date.toLocaleDateString(),
-						align: "center",
-						width: "10px",
-						render: (value, record: GroupTableData) => {
-							const presence = classEvent.presences.find(
-								(pr) => pr.userId === record.data.id
-							);
+	// 				return {
+	// 					title: (
+	// 						<div>
+	// 							<Tooltip
+	// 								title={
+	// 									<div>
+	// 										<Row>
+	// 											Тема {foundTopic.number}: {foundTopic.title}
+	// 										</Row>
+	// 										<Row>
+	// 											Заняття {foundOccupation.number}:{" "}
+	// 											{foundOccupation.title}
+	// 										</Row>
+	// 									</div>
+	// 								}
+	// 								style={{
+	// 									width: "auto",
+	// 								}}
+	// 							>
+	// 								{classEvent.date.toLocaleDateString("uk", {
+	// 									year: "2-digit",
+	// 									month: "2-digit",
+	// 									day: "2-digit",
+	// 								})}
+	// 							</Tooltip>
+	// 						</div>
+	// 					),
+	// 					key: classEvent.date.toLocaleDateString(),
+	// 					dataIndex: classEvent.date.toLocaleDateString(),
+	// 					align: "center",
+	// 					width: "10px",
+	// 					render: (value, record: GroupTableData) => {
+	// 						const presence = classEvent.presences.find(
+	// 							(pr) => pr.userId === record.data.id
+	// 						);
 
-							return (
-								<div>
-									<PresenceShower presence={presence}></PresenceShower>
-								</div>
-							);
-						},
-					} as ColumnType<any>;
-				}),
-				{
-					title: " ",
-					key: " ",
-					dataIndex: " ",
-					width: "auto",
-				},
-			],
-		},
-	];
+	// 						return (
+	// 							<div>
+	// 								<PresenceShower presence={presence}></PresenceShower>
+	// 							</div>
+	// 						);
+	// 					},
+	// 				} as ColumnType<any>;
+	// 			}),
+	// 			{
+	// 				title: " ",
+	// 				key: " ",
+	// 				dataIndex: " ",
+	// 				width: "auto",
+	// 			},
+	// 		],
+	// 	},
+	// ];
 
 	let extremeDynamicColumns: JSX.Element[] = filteredClassEvents.map(
 		(classEvent) => {
@@ -291,6 +291,43 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 							</div>
 						);
 					}}
+					dataField="data"
+					sortingMethod={(a: any, b: any) => {
+						const recordA = a as GroupUser;
+						const recordB = b as GroupUser;
+						const presenceA = classEvent.presences.find(
+							(pr) => pr.userId === recordA.id
+						);
+						const presenceB = classEvent.presences.find(
+							(pr) => pr.userId === recordB.id
+						);
+
+						let markA = 0;
+						let markB = 0;
+
+						if (presenceA) {
+							if (presenceA.mark.topic > 0) {
+								markA = presenceA.mark.topic;
+							} else if (presenceA.mark.subject > 0) {
+								markA = presenceA.mark.subject;
+							} else {
+								markA = presenceA.mark.current;
+							}
+						}
+
+						if (presenceB) {
+							if (presenceB.mark.topic > 0) {
+								markB = presenceB.mark.topic;
+							} else if (presenceB.mark.subject > 0) {
+								markB = presenceB.mark.subject;
+							} else {
+								markB = presenceB.mark.current;
+							}
+						}
+
+						return markA === markB ? 0 : markA < markB ? -1 : 1;
+					}}
+					allowSorting={true}
 					headerCellRender={({ column: { caption } }) => {
 						return (
 							<div>
@@ -439,7 +476,7 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 						return a.fullname.localeCompare(b.fullname);
 					}}
 					defaultSortOrder="asc"
-					allowSorting={false}
+					allowSorting={true}
 				></Column>
 				<Column caption="Дата, присутність, успішність" alignment="center">
 					{extremeDynamicColumns}

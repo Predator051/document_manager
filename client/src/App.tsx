@@ -11,6 +11,12 @@ import { Site } from "./components/site/Site";
 import { YearContext } from "./context/YearContext";
 import { ErrorBoundary } from "./components/site/ErrorBoundary";
 
+import { locale, loadMessages } from "devextreme/localization";
+import ruMessages from "./localization/ru.json";
+
+loadMessages(ruMessages);
+locale("ru");
+
 function App() {
 	return (
 		<ErrorBoundary>

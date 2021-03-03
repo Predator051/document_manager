@@ -310,6 +310,7 @@ export const GroupNormTable: React.FC<GroupTableProps> = (
 															onClick={() => {
 																onNormClick(norm.id);
 															}}
+															style={{ margin: 0, padding: 0 }}
 														>
 															№ {norm.number}
 														</Button>
