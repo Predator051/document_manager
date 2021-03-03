@@ -189,6 +189,9 @@ export async function GroupAccountingClassesFromTrainingSubjectsExport(
 					case UserPresenceType.VACATION:
 						presenceSym = "в";
 						break;
+					case UserPresenceType.FREE:
+						presenceSym = "вх";
+						break;
 					default:
 						presenceSym = "";
 						break;

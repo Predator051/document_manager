@@ -97,6 +97,10 @@ export const PresenceShower: React.FC<{
 			presenceSym = "в";
 			content += "; відпустка";
 			break;
+		case UserPresenceType.FREE:
+			presenceSym = "вх";
+			content += "; вихідний";
+			break;
 		default:
 			presenceSym = "";
 			break;

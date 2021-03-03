@@ -284,6 +284,27 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 				);
 			},
 		},
+		{
+			title: "Вихідний",
+			dataIndex: "free",
+			key: "free",
+			render: (value, record) => {
+				return (
+					<Checkbox
+						checked={record.presenceData.type === UserPresenceType.FREE}
+						onClick={() => {
+							if (record.presenceData.type === UserPresenceType.FREE) {
+								record.presenceData.type = UserPresenceType.PRESENCE;
+							} else {
+								record.presenceData.type = UserPresenceType.FREE;
+							}
+							setRerender(!rerender);
+						}}
+						disabled={record.groupUser.status === ObjectStatus.NOT_ACTIVE}
+					></Checkbox>
+				);
+			},
+		},
 	];
 
 	const findOccupation = () => {

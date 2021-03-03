@@ -189,6 +189,9 @@ export async function GroupSubjectExport(
 					case UserPresenceType.VACATION:
 						presenceSym = "в";
 						break;
+					case UserPresenceType.FREE:
+						presenceSym = "вх";
+						break;
 					default:
 						presenceSym = "";
 						break;

@@ -6,6 +6,7 @@ export enum UserPresenceType {
 	VACATION,
 	BUSSINESS_TRIP,
 	SICK,
+	FREE,
 }
 
 export class GroupUserPresence {
