@@ -24,6 +24,7 @@ import { ExcelExporter } from "../ui/excel-exporter/ExcelExporter";
 import { GroupSubjectMarkExport } from "../ui/excel-exporter/exporters/GroupSubjectMarkExporter";
 import { GenerateGroupName } from "../../helpers/GroupHelper";
 import { ObjectStatus } from "../../types/constants";
+import { DateComparer } from "../../helpers/SorterHelper";
 
 interface GroupTableData {
 	data: GroupUser;
@@ -106,12 +107,16 @@ export const GroupSubjectMarkTable: React.FC<GroupSubjectMarkTableProps> = (
 				}
 				console.log("recive classes", dataMessage.data);
 
-				dataMessage.data = dataMessage.data.filter((ce) =>
-					ce.presences.some(
-						(p) =>
-							p.mark.current !== 0 || p.mark.subject !== 0 || p.mark.topic !== 0
+				dataMessage.data = dataMessage.data
+					.filter((ce) =>
+						ce.presences.some(
+							(p) =>
+								p.mark.current !== 0 ||
+								p.mark.subject !== 0 ||
+								p.mark.topic !== 0
+						)
 					)
-				);
+					.sort((a, b) => DateComparer(a.date, b.date));
 
 				setClassEvents(dataMessage.data);
 
@@ -249,7 +254,7 @@ export const GroupSubjectMarkTable: React.FC<GroupSubjectMarkTableProps> = (
 								),
 							},
 							subjects,
-							classEvents
+							classEvents.sort((a, b) => DateComparer(a.date, b.date))
 						);
 					}}
 					fileName={

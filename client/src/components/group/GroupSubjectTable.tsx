@@ -27,6 +27,7 @@ import DataGrid, {
 	LoadPanel,
 } from "devextreme-react/data-grid";
 import DataSource from "devextreme/data/data_source";
+import { DateComparer } from "../../helpers/SorterHelper";
 
 interface EditableCellProps {
 	onSave: (newValue: any) => void;
@@ -157,7 +158,9 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 				} as GroupTableData)
 		);
 
-	const filteredClassEvents = props.classEvents;
+	const filteredClassEvents = props.classEvents.sort((a, b) =>
+		DateComparer(a.date, b.date)
+	);
 	// .filter((classEvent) => {
 	// 	return classEvent.presences.some(
 	// 		(presence) =>
@@ -414,14 +417,7 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 								),
 							},
 							props.subject,
-							props.classEvents.filter((classEvent) => {
-								return classEvent.presences.some(
-									(presence) =>
-										presence.mark.current !== 0 ||
-										presence.mark.topic !== 0 ||
-										presence.mark.subject !== 0
-								);
-							})
+							props.classEvents.sort((a, b) => DateComparer(a.date, b.date))
 						);
 					}}
 					fileName={

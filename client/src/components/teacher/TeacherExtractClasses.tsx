@@ -22,6 +22,7 @@ import DataGrid, {
 import DataSource from "devextreme/data/data_source";
 
 import "./TeacherExtractClasses.css";
+import { DateComparer } from "../../helpers/SorterHelper";
 
 export interface TeacherExtractClassesProps {
 	userId: number;
@@ -156,7 +157,7 @@ export const TeacherExtractClasses: React.FC<TeacherExtractClassesProps> = (
 			sorter: (
 				a: TeacherExtractClassesTableData,
 				b: TeacherExtractClassesTableData
-			) => (new Date(a.classEvent.date) < new Date(b.classEvent.date) ? -1 : 1),
+			) => DateComparer(a.classEvent.date, b.classEvent.date),
 			defaultSortOrder: "descend",
 		},
 		{
@@ -243,14 +244,16 @@ export const TeacherExtractClasses: React.FC<TeacherExtractClassesProps> = (
 		groups.length > 0 &&
 		user !== undefined
 	) {
-		tableData = classEvents.map((classEvent) => {
-			const group = groups.find((gr) => gr.id === classEvent.groupId);
-			return {
-				classEvent: classEvent,
-				group: group,
-				id: group.id,
-			};
-		});
+		tableData = classEvents
+			.map((classEvent) => {
+				const group = groups.find((gr) => gr.id === classEvent.groupId);
+				return {
+					classEvent: classEvent,
+					group: group,
+					id: group.id,
+				};
+			})
+			.sort((a, b) => DateComparer(a.classEvent.date, b.classEvent.date) * -1);
 	}
 
 	const extremeDataGridSource: DataSource = new DataSource({

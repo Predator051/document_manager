@@ -37,6 +37,7 @@ import DataGrid, {
 import DataSource from "devextreme/data/data_source";
 import { info } from "console";
 import { ObjectStatus } from "../../types/constants";
+import { DateComparer } from "../../helpers/SorterHelper";
 
 interface EditableCellProps {
 	onSave: (newValue: any) => void;
@@ -262,9 +263,9 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 
 	let extremeDynamicColumns: JSX.Element[] = [];
 	if (selectedSubject && users.length > 0) {
-		const filteredClasses = classEvents.filter(
-			(ce) => ce.selectPath.subject === selectedSubject.id
-		);
+		const filteredClasses = classEvents
+			.filter((ce) => ce.selectPath.subject === selectedSubject.id)
+			.sort((a, b) => DateComparer(a.date, b.date));
 
 		if (filteredClasses.length > 0) {
 			extremeDynamicColumns = filteredClasses.map((classEvent) => {
@@ -378,9 +379,11 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 										),
 									},
 									selectedSubject,
-									classEvents.filter(
-										(ce) => ce.selectPath.subject === selectedSubject.id
-									)
+									classEvents
+										.filter(
+											(ce) => ce.selectPath.subject === selectedSubject.id
+										)
+										.sort((a, b) => DateComparer(a.date, b.date))
 								);
 							}}
 							fileName={

@@ -37,6 +37,7 @@ import DataGrid, {
 	LoadPanel,
 } from "devextreme-react/data-grid";
 import DataSource from "devextreme/data/data_source";
+import { DateComparer } from "../../helpers/SorterHelper";
 
 interface GroupTableData {
 	data: GroupUser;
@@ -201,13 +202,15 @@ export const GroupNormTable: React.FC<GroupTableProps> = (
 	let extremeDynamicColumns: JSX.Element[] = [
 		<Column caption={" "} width="auto"></Column>,
 	];
-	const filteredNormProcesses = normProcesses.filter((normProcess) => {
-		normProcess.marks = normProcess.marks.filter((mark) =>
-			norms.some((norm) => norm.id === mark.normId)
-		);
+	const filteredNormProcesses = normProcesses
+		.filter((normProcess) => {
+			normProcess.marks = normProcess.marks.filter((mark) =>
+				norms.some((norm) => norm.id === mark.normId)
+			);
 
-		return normProcess.marks.length > 0;
-	});
+			return normProcess.marks.length > 0;
+		})
+		.sort((a, b) => DateComparer(a.date, b.date));
 
 	if (filteredNormProcesses.length > 0) {
 		// normProcessColumns = filteredNormProcesses.map((process) => {
@@ -392,13 +395,15 @@ export const GroupNormTable: React.FC<GroupTableProps> = (
 							},
 							props.subject,
 							norms,
-							normProcesses.filter((normProcess) => {
-								normProcess.marks = normProcess.marks.filter((mark) =>
-									norms.some((norm) => norm.id === mark.normId)
-								);
+							normProcesses
+								.filter((normProcess) => {
+									normProcess.marks = normProcess.marks.filter((mark) =>
+										norms.some((norm) => norm.id === mark.normId)
+									);
 
-								return normProcess.marks.length > 0;
-							})
+									return normProcess.marks.length > 0;
+								})
+								.sort((a, b) => DateComparer(a.date, b.date))
 						);
 					}}
 					fileName={

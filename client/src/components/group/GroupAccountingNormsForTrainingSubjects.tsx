@@ -22,6 +22,7 @@ import DataGrid, {
 } from "devextreme-react/data-grid";
 import DataSource from "devextreme/data/data_source";
 import { ObjectStatus } from "../../types/constants";
+import { DateComparer } from "../../helpers/SorterHelper";
 
 interface GroupTableData {
 	data: GroupUser;
@@ -189,32 +190,25 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 		});
 	};
 
-	let normProcessColumns: ColumnsType<any> = [
-		{
-			title: " ",
-			key: " ",
-			dataIndex: " ",
-			width: "auto",
-		},
-	];
-
 	let extremeDynamicColumns: JSX.Element[] = [
 		<Column caption={" "} width="auto"></Column>,
 	];
 	if (selectedSubject) {
 		console.log();
 
-		const filteredNormProcesses = normProcesses.filter((normProcess) => {
-			const marks = normProcess.marks.filter(
-				(mark) =>
-					norms.some(
-						(norm) =>
-							norm.id === mark.normId && norm.subjectId === selectedSubject.id
-					) && props.group.users.findIndex((u) => u.id === mark.userId) >= 0
-			);
+		const filteredNormProcesses = normProcesses
+			.filter((normProcess) => {
+				const marks = normProcess.marks.filter(
+					(mark) =>
+						norms.some(
+							(norm) =>
+								norm.id === mark.normId && norm.subjectId === selectedSubject.id
+						) && props.group.users.findIndex((u) => u.id === mark.userId) >= 0
+				);
 
-			return marks.length > 0;
-		});
+				return marks.length > 0;
+			})
+			.sort((a, b) => DateComparer(a.date, b.date));
 
 		if (filteredNormProcesses.length > 0) {
 			extremeDynamicColumns = filteredNormProcesses.map((process) => {
@@ -364,21 +358,23 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 									},
 									selectedSubject,
 									norms,
-									normProcesses.filter((normProcess) => {
-										const marks = normProcess.marks.filter(
-											(mark) =>
-												norms.some(
-													(norm) =>
-														norm.id === mark.normId &&
-														norm.subjectId === selectedSubject.id
-												) &&
-												props.group.users.findIndex(
-													(u) => u.id === mark.userId
-												) >= 0
-										);
+									normProcesses
+										.filter((normProcess) => {
+											const marks = normProcess.marks.filter(
+												(mark) =>
+													norms.some(
+														(norm) =>
+															norm.id === mark.normId &&
+															norm.subjectId === selectedSubject.id
+													) &&
+													props.group.users.findIndex(
+														(u) => u.id === mark.userId
+													) >= 0
+											);
 
-										return marks.length > 0;
-									})
+											return marks.length > 0;
+										})
+										.sort((a, b) => DateComparer(a.date, b.date))
 								);
 							}}
 							fileName={
@@ -395,16 +391,6 @@ export const GroupAccountingNormsForTrainingSubjects: React.FC<GroupAccountingNo
 						className="fade-in-top"
 					>
 						<div style={{ width: "99%" }}>
-							{/* <Table
-								title={props.title}
-								pagination={false}
-								rowKey={(gu: GroupTableData) => gu.data.id.toString()}
-								dataSource={tableData}
-								columns={columns}
-								size="small"
-								scroll={{ x: "max-content" }}
-								bordered
-							></Table> */}
 							<DataGrid
 								elementAttr={{
 									id: "gridContainer",

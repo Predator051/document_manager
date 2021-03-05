@@ -12,6 +12,7 @@ import { SubjectSelectPath } from "../../types/subjectSelectPath";
 import { HREFS } from "../menu/Menu";
 import { BackPage } from "../ui/BackPage";
 import { YearContext } from "../../context/YearContext";
+import { DateComparer } from "../../helpers/SorterHelper";
 
 interface MyClassTableData {
 	key: number;
@@ -239,7 +240,7 @@ export const MyClassesPage: React.FC = () => {
 					);
 				},
 				sorter: (a: MyClassTableData, b: MyClassTableData) => {
-					return a.data.date < b.data.date ? -1 : 1;
+					return DateComparer(a.data.date, b.data.date);
 				},
 				defaultSortOrder: "descend",
 				sortOrder: dateSortOrder,

@@ -25,6 +25,7 @@ import { YearContext } from "../../context/YearContext";
 import { ExcelExporter } from "../ui/excel-exporter/ExcelExporter";
 import { IndividualWorkExport } from "../ui/excel-exporter/exporters/IndividualWorkExporter";
 import { BackPage } from "../ui/BackPage";
+import { DateComparer } from "../../helpers/SorterHelper";
 
 export interface StudentProcessProps {
 	userId: number;
@@ -187,7 +188,7 @@ export const TeacherIndividualWorks: React.FC<StudentProcessProps> = (
 				);
 			},
 			sorter: (a: StudentProcessTableData, b: StudentProcessTableData) =>
-				a.work.date < b.work.date ? -1 : 1,
+				DateComparer(a.work.date, b.work.date),
 			defaultSortOrder: "descend",
 			width: "70%",
 		},
