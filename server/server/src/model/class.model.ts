@@ -51,9 +51,13 @@ export class ClassModel {
 		}
 
 		await DBClassManager.Delete(id);
-		await getRepository(SubjectSelectPathEntity).delete(
-			classEventEntity.selectPath.id
-		);
+		try {
+			await getRepository(SubjectSelectPathEntity).delete(
+				classEventEntity.selectPath.id
+			);
+		} catch {
+			console.log("error while selectpath removing. This not bad. Have fun");
+		}
 
 		return {
 			data: true,

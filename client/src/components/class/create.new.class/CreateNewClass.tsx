@@ -57,7 +57,7 @@ export function CreateNewClassPage() {
 		SubjectSelectPath | undefined
 	>(undefined);
 	const [classDate, setClassDate] = useState<Date | undefined>(undefined);
-	const [selectedGroup, setSelectedGroup] = useState<Group | undefined>();
+	const [selectedGroups, setSelectedGroups] = useState<Group[]>([]);
 	const [hours, setHours] = useState<number>(1);
 	const [place, setPlace] = useState<string>("");
 
@@ -72,8 +72,10 @@ export function CreateNewClassPage() {
 		}
 	}
 
-	function handleGroupChange(value: number) {
-		setSelectedGroup(groups.find((gr) => gr.id === value));
+	function handleGroupChange(values: number[]) {
+		setSelectedGroups(
+			values.map((value) => groups.find((gr) => gr.id === value))
+		);
 	}
 
 	function handleDateChange(date: moment.Moment) {
@@ -257,19 +259,35 @@ export function CreateNewClassPage() {
 					return;
 				}
 
-				history.push(HREFS.SHOW_CLASS + dataMessage.data.id);
+				if (selectedGroups.length <= 1) {
+					history.push(HREFS.SHOW_CLASS + dataMessage.data.id);
+				} else {
+					Modal.success({
+						title: "Успішно!",
+						closable: true,
+						zIndex: 1050,
+						content:
+							"Заняття для обраних груп успішно створені! Переглянути створені заняття можливо в меню 'Мої заняття'. ",
+						okText: "ОК",
+					});
+				}
 			}
 		);
 
-		const classEvent = new ClassEvent();
-		classEvent.groupId = selectedGroup.id;
-		classEvent.date = classDate;
-		classEvent.hours = hours;
-		classEvent.place = place;
-		classEvent.selectPath = selectSubjectPath;
-		classEvent.id = 0;
+		selectedGroups.forEach((gr) => {
+			const classEvent = new ClassEvent();
+			classEvent.groupId = gr.id;
+			classEvent.date = classDate;
+			classEvent.hours = hours;
+			classEvent.place = place;
+			classEvent.selectPath = selectSubjectPath;
+			classEvent.id = 0;
 
-		ConnectionManager.getInstance().emit(RequestType.CREATE_CLASS, classEvent);
+			ConnectionManager.getInstance().emit(
+				RequestType.CREATE_CLASS,
+				classEvent
+			);
+		});
 	};
 
 	useEffect(() => {
@@ -350,14 +368,15 @@ export function CreateNewClassPage() {
 									</div>
 								</div>
 							)}
+							mode="multiple"
 						>
 							{groups.map((gr) => (
 								<Option value={gr.id} title={GenerateGroupName(gr)}>
-									<Row justify="start">
+									<Row justify="start" align="middle">
 										<Col flex="auto">{GenerateGroupName(gr)}</Col>
-										<Col flex="10%">
-											<Row justify="end">
-												<Button
+										<Col flex="auto">
+											<Row justify="end" align="middle">
+												{/* <Button
 													icon={
 														<ExclamationCircleOutlined></ExclamationCircleOutlined>
 													}
@@ -366,7 +385,17 @@ export function CreateNewClassPage() {
 														onGroupInfoClick(gr.id);
 													}}
 													style={{ margin: 0, padding: 0 }}
-												></Button>
+												></Button> */}
+												<div
+													onClick={() => {
+														onGroupInfoClick(gr.id);
+													}}
+													style={{
+														paddingLeft: "5px",
+													}}
+												>
+													<ExclamationCircleOutlined></ExclamationCircleOutlined>
+												</div>
 											</Row>
 										</Col>
 									</Row>
@@ -448,7 +477,7 @@ export function CreateNewClassPage() {
 					type={"primary"}
 					onClick={createClassClick}
 					disabled={
-						selectedGroup === undefined ||
+						selectedGroups.length <= 0 ||
 						selectSubjectPath === undefined ||
 						setClassDate === undefined ||
 						hours === 0 ||
