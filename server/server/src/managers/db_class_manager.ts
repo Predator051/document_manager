@@ -104,6 +104,12 @@ export class DBClassManager {
 		return result.getMany();
 	}
 
+	public static async Delete(id: number): Promise<void> {
+		const result = getRepository(ClassEventEntity).delete(id);
+
+		return;
+	}
+
 	public static async GetClassesByGroupIdSubjectIdAndUserId(
 		groupId: number,
 		subjectId: number,

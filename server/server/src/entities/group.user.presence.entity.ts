@@ -30,7 +30,9 @@ export class GroupUserPresenceEntity {
 	})
 	type: UserPresenceType;
 
-	@ManyToOne((type) => ClassEventEntity, (classEvent) => classEvent.presenses)
+	@ManyToOne((type) => ClassEventEntity, (classEvent) => classEvent.presenses, {
+		onDelete: "CASCADE",
+	})
 	classEvent: ClassEventEntity;
 
 	@ManyToOne((type) => GroupUserEntity, (gu) => gu.presense)

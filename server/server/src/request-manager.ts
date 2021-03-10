@@ -597,6 +597,17 @@ export class RequestManager {
 			}
 		);
 
+		socket.on(
+			RequestType.DELETE_CLASS_EVENT,
+			async (m: RequestMessage<number>) => {
+				console.log("[server](message): %s", JSON.stringify(m));
+
+				const response = await ClassModel.delete(m.data);
+
+				socket.emit(RequestType.DELETE_CLASS_EVENT, response);
+			}
+		);
+
 		socket.on("disconnect", () => {
 			console.log("Client disconnected");
 		});

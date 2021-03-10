@@ -1,4 +1,4 @@
-import { Button, PageHeader, Row, Spin, Table } from "antd";
+import { Button, PageHeader, Row, Spin, Table, Modal } from "antd";
 import { ColumnsType, SortOrder } from "antd/lib/table/interface";
 import React, { useEffect, useState, useContext } from "react";
 import { useHistory, Link } from "react-router-dom";
@@ -26,8 +26,14 @@ export const MyClassesPage: React.FC = () => {
 	const [groups, setGroups] = useState<Group[]>([]);
 	const yearContext = useContext(YearContext);
 	const [dateSortOrder, setDateSortOrder] = useState<SortOrder>("descend");
+	const [loadingClassEvent, setLoadingClassEvent] = useState<boolean>(true);
+	const [loadingGroup, setLoadingGroup] = useState<boolean>(true);
+	const [loadingSubject, setLoadingSubject] = useState<boolean>(true);
 
-	useEffect(() => {
+	const loadAllClassData = () => {
+		setLoadingClassEvent(true);
+		setLoadingGroup(true);
+		setLoadingSubject(true);
 		ConnectionManager.getInstance().registerResponseOnceHandler(
 			RequestType.GET_MY_CLASSES,
 			(data) => {
@@ -41,6 +47,7 @@ export const MyClassesPage: React.FC = () => {
 					(classEvent) => (classEvent.date = new Date(classEvent.date))
 				);
 				setClassEvents(dataMessage.data);
+				setLoadingClassEvent(false);
 
 				ConnectionManager.getInstance().emit(
 					RequestType.GET_SUBJECT_BY_ID,
@@ -66,6 +73,7 @@ export const MyClassesPage: React.FC = () => {
 				}
 				console.log("receive", dataMessage.data);
 
+				setLoadingSubject(false);
 				setSubjects(dataMessage.data);
 			}
 		);
@@ -80,6 +88,7 @@ export const MyClassesPage: React.FC = () => {
 					console.log(`Error: ${dataMessage.requestCode}`);
 					return;
 				}
+				setLoadingGroup(false);
 				console.log("receive", dataMessage.data);
 
 				setGroups(dataMessage.data);
@@ -88,6 +97,10 @@ export const MyClassesPage: React.FC = () => {
 		ConnectionManager.getInstance().emit(RequestType.GET_MY_CLASSES, {
 			year: yearContext.year,
 		});
+	};
+
+	useEffect(() => {
+		loadAllClassData();
 	}, []);
 
 	// if (subjects.length < 1 || classEvents.length < 1 || groups.length < 1) {
@@ -101,6 +114,46 @@ export const MyClassesPage: React.FC = () => {
 
 	const onShowClassClick = (classEvent: ClassEvent) => {
 		history.push(HREFS.SHOW_CLASS + classEvent.id.toString());
+	};
+
+	const onDeleteClassClick = (classEvent: ClassEvent) => {
+		const modal = Modal.confirm({
+			title: "Увага!",
+			closable: true,
+			zIndex: 1050,
+			content: (
+				<div
+					style={{
+						height: "auto",
+						// minHeight: "500px",
+					}}
+				>
+					Видалення заняття - це безповоротна дія! Продовжити?
+				</div>
+			),
+			okText: "Так",
+			cancelText: "Ні",
+			onOk: () => {
+				onGroupUpdate();
+			},
+		});
+		const onGroupUpdate = () => {
+			ConnectionManager.getInstance().registerResponseOnceHandler(
+				RequestType.DELETE_CLASS_EVENT,
+				(data) => {
+					const dataMessage = data as RequestMessage<any>;
+					if (dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR) {
+						console.log(`Error: ${dataMessage.requestCode}`);
+						return;
+					}
+					loadAllClassData();
+				}
+			);
+			ConnectionManager.getInstance().emit(
+				RequestType.DELETE_CLASS_EVENT,
+				classEvent.id
+			);
+		};
 	};
 
 	let tableColumns: ColumnsType<any> = [
@@ -269,6 +322,13 @@ export const MyClassesPage: React.FC = () => {
 							>
 								Переглянути
 							</Button>
+							<Button
+								type="link"
+								onClick={onDeleteClassClick.bind(null, record.data)}
+								danger
+							>
+								Видалити
+							</Button>
 						</div>
 					);
 				},
@@ -311,6 +371,7 @@ export const MyClassesPage: React.FC = () => {
 					pagination={false}
 					size={"small"}
 					bordered
+					loading={loadingClassEvent || loadingGroup || loadingSubject}
 				></Table>
 			</Row>
 		</div>

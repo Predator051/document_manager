@@ -12,7 +12,7 @@ import {
 import { DBGroupManager } from "../managers/db_group_manager";
 import { CreateEmptyGroup } from "../types/group";
 import { GroupUserEntity } from "../entities/group.user.entity";
-import { getTreeRepository } from "typeorm";
+import { getTreeRepository, getRepository } from "typeorm";
 import { SubjectEntity } from "../entities/subject.entity";
 import { Subject } from "../types/subject";
 import { DBSubjectManager } from "../managers/db_subject_manager";
@@ -24,6 +24,7 @@ import { DBClassManager } from "../managers/db_class_manager";
 import { GroupUserPresenceEntity } from "../entities/group.user.presence.entity";
 import { DBGroupUserPresenceManager } from "../managers/db_group_user_presence";
 import { DBGroupUserMarkManager } from "../managers/db_group_user_mark";
+import { SubjectSelectPathEntity } from "../entities/subject.select.path";
 
 export class ClassModel {
 	public static async getById(id: number): Promise<RequestMessage<any>> {
@@ -31,6 +32,31 @@ export class ClassModel {
 
 		return {
 			data: result?.ToRequestObject(),
+			messageInfo: `SUCCESS`,
+			requestCode: RequestCode.RES_CODE_SUCCESS,
+			session: "",
+		};
+	}
+
+	public static async delete(id: number): Promise<RequestMessage<boolean>> {
+		const classEventEntity = await DBClassManager.GetClassById(id);
+
+		if (classEventEntity === undefined) {
+			return {
+				data: false,
+				messageInfo: `class event ${id} does not exist`,
+				requestCode: RequestCode.RES_CODE_INTERNAL_ERROR,
+				session: "",
+			};
+		}
+
+		await DBClassManager.Delete(id);
+		await getRepository(SubjectSelectPathEntity).delete(
+			classEventEntity.selectPath.id
+		);
+
+		return {
+			data: true,
 			messageInfo: `SUCCESS`,
 			requestCode: RequestCode.RES_CODE_SUCCESS,
 			session: "",

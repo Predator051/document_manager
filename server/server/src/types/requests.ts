@@ -51,6 +51,7 @@ export enum RequestType {
 	UPDATE_GROUP_USER = "update_group_user",
 	GET_ALL_IPP = "get_all_ipp",
 	UPDATE_IPP = "update_ipp",
+	DELETE_CLASS_EVENT = "delete_class_event",
 }
 
 export enum RequestCode {

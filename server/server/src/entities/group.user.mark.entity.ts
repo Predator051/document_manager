@@ -12,6 +12,7 @@ import { GroupUser } from "../types/groupUser";
 import { UserPresenceType } from "../types/groupUserPresence";
 import { GroupUserEntity } from "./group.user.entity";
 import { GroupUserMark } from "../types/groupUserMark";
+import { GroupUserPresenceEntity } from "./group.user.presence.entity";
 
 @Entity()
 export class GroupUserMarkEntity {
@@ -26,6 +27,11 @@ export class GroupUserMarkEntity {
 
 	@Column({ default: 0 })
 	subject: number;
+
+	@OneToOne((type) => GroupUserPresenceEntity, {
+		onDelete: "CASCADE",
+	})
+	mark?: GroupUserPresenceEntity;
 
 	public ToRequestObject(): GroupUserMark {
 		return {
