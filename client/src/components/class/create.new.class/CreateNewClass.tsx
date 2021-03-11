@@ -341,14 +341,14 @@ export function CreateNewClassPage() {
 					style={{ minWidth: "60%", width: "max-content", maxWidth: "100%" }}
 				>
 					<Descriptions.Item
-						label="Оберіть декілька груп чи створіть нову:"
+						label="Оберіть групу (групи) чи створіть нову:"
 						span={3}
 						labelStyle={descriptionItemLabelStyle}
 						contentStyle={descriptionItemContentStyle}
 					>
 						<Select
 							defaultValue={undefined}
-							placeholder={<Row justify="start">Обрати групу</Row>}
+							placeholder={<Row justify="start">Обрати групу(групи)</Row>}
 							style={{ width: "100%" }}
 							onChange={handleGroupChange}
 							dropdownRender={(menu) => (

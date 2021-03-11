@@ -66,7 +66,7 @@ export class ConnectionManager {
 	public static getInstance(): ConnectionManager {
 		if (!ConnectionManager.instance) {
 			ConnectionManager.instance = new ConnectionManager(
-				socketIo.connect("http://localhost:8080")
+				socketIo.connect("http://10.19.20.252:8080")
 			);
 			ConnectionManager.instance.m_socket.on("error", (err: string) => {
 				if (err === "NOT AUTHORIZED" && window.location.pathname !== "/login") {
