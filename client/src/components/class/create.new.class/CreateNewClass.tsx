@@ -341,7 +341,7 @@ export function CreateNewClassPage() {
 					style={{ minWidth: "60%", width: "max-content", maxWidth: "100%" }}
 				>
 					<Descriptions.Item
-						label="Оберіть групу чи створіть нову:"
+						label="Оберіть декілька груп чи створіть нову:"
 						span={3}
 						labelStyle={descriptionItemLabelStyle}
 						contentStyle={descriptionItemContentStyle}
