@@ -16,6 +16,7 @@ export class DBClassManager {
 		query.leftJoinAndSelect("class.presenses", "presenses");
 		query.leftJoinAndSelect("presenses.mark", "mark");
 		query.leftJoinAndSelect("presenses.user", "presensesUser");
+		query.leftJoinAndSelect("class.files", "files");
 
 		return query;
 	}

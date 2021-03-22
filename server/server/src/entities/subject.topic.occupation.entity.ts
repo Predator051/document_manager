@@ -1,7 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import {
+	Entity,
+	PrimaryGeneratedColumn,
+	Column,
+	ManyToOne,
+	OneToMany,
+} from "typeorm";
 import { SubjectTopicEntity } from "./subject.topic.entity";
 import { SubjectTopicOccupation } from "../types/subjectTopicOccupation";
 import { ObjectStatus } from "../types/constants";
+import { ClassFileEntity } from "./class.file.entity";
 
 @Entity()
 export class SubjectTopicOccupationEntity {
@@ -23,6 +30,9 @@ export class SubjectTopicOccupationEntity {
 
 	@ManyToOne((type) => SubjectTopicEntity, (topic) => topic.occupations)
 	topic?: SubjectTopicEntity;
+
+	@OneToMany((type) => ClassFileEntity, (file) => file.occupation)
+	files?: ClassFileEntity[];
 
 	public ToRequestObject(): SubjectTopicOccupation {
 		return {

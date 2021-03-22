@@ -122,121 +122,6 @@ export const TeacherExtractClasses: React.FC<TeacherExtractClassesProps> = (
 		);
 	}, []);
 
-	// if (
-	// 	subjects.length < 1 ||
-	// 	classEvents.length < 1 ||
-	// 	groups.length < 1 ||
-	// 	user === undefined
-	// ) {
-	// 	return (
-	// 		<div>
-	// 			<Empty description="Ще не має записів чи в процессі завантаження"></Empty>
-	// 			<Spin></Spin>
-	// 		</div>
-	// 	);
-	// }
-
-	const columns: ColumnsType<any> = [
-		{
-			title: "Дата",
-			dataIndex: "date",
-			key: "date",
-			width: "100px",
-			render: (value, record: TeacherExtractClassesTableData) => {
-				const date = new Date(record.classEvent.date);
-				return (
-					<div>
-						{date.toLocaleDateString("uk", {
-							year: "numeric",
-							month: "2-digit",
-							day: "2-digit",
-						})}
-					</div>
-				);
-			},
-			sorter: (
-				a: TeacherExtractClassesTableData,
-				b: TeacherExtractClassesTableData
-			) => DateComparer(a.classEvent.date, b.classEvent.date),
-			defaultSortOrder: "descend",
-		},
-		{
-			title: "Проведення занять",
-			children: [
-				{
-					title: "Години занять",
-					dataIndex: "hours",
-					key: "hours",
-					render: (value, record: TeacherExtractClassesTableData) => {
-						return <div>{record.classEvent.hours}</div>;
-					},
-				},
-				{
-					title: "Підрозділ, ВОС",
-					dataIndex: "groupInfo",
-					key: "groupInfo",
-					render: (value, record: TeacherExtractClassesTableData) => {
-						if (record.group.trainingType.type === GroupTrainingType.IPP) {
-							return <div>{record.group.ipp.name}</div>;
-						}
-
-						return (
-							<div>
-								{record.group.company} рота, {record.group.platoon} взвод, ВОС:{" "}
-								{record.group.mrs.number}
-							</div>
-						);
-					},
-				},
-			],
-		},
-		{
-			title:
-				"Предмети навчання, номер теми, її назва, номер заняття, його назва, номери нормативів, що відпрацьовуються",
-			dataIndex: "data",
-			key: "data",
-			render: (value, record: TeacherExtractClassesTableData) => {
-				const subject = subjects.find(
-					(s) => s.id === record.classEvent.selectPath.subject
-				);
-				const topic = subject.programTrainings
-					.find((pt) => pt.id === record.classEvent.selectPath.programTraining)
-					.topics.find((t) => t.id === record.classEvent.selectPath.topic);
-
-				const occupation = topic.occupation.find(
-					(oc) => oc.id === record.classEvent.selectPath.occupation
-				);
-
-				return (
-					<div>
-						<Row>
-							<Typography.Text strong>{subject.fullTitle}</Typography.Text>
-						</Row>
-						<Row>
-							Тема {topic.number}: {topic.title}
-						</Row>
-						<Row>
-							Заняття {occupation.number}: {occupation.title}
-						</Row>
-					</div>
-				);
-			},
-		},
-		{
-			title: "Місце проведення заняття",
-			dataIndex: "place",
-			key: "place",
-			render: (value, record: TeacherExtractClassesTableData) => {
-				return <div>{record.classEvent.place}</div>;
-			},
-		},
-		{
-			title: "Підпис викладача",
-			dataIndex: "signature",
-			key: "signature",
-		},
-	];
-
 	let tableData: TeacherExtractClassesTableData[] = [];
 	if (
 		subjects.length > 0 &&
@@ -374,14 +259,14 @@ export const TeacherExtractClasses: React.FC<TeacherExtractClassesProps> = (
 						);
 
 						return (
-							<div>
-								<Row>
+							<div style={{ textAlign: "left", wordWrap: "break-word" }}>
+								<Row justify="start">
 									<Typography.Text strong>{subject.fullTitle}</Typography.Text>
 								</Row>
-								<Row>
+								<Row justify="start">
 									Тема {topic.number}: {topic.title}
 								</Row>
-								<Row>
+								<Row justify="start">
 									Заняття {occupation.number}: {occupation.title}
 								</Row>
 							</div>

@@ -6,6 +6,8 @@ import {
 	OneToMany,
 	OneToOne,
 	JoinColumn,
+	ManyToMany,
+	JoinTable,
 } from "typeorm";
 import { SubjectTopicEntity } from "./subject.topic.entity";
 import { GroupEntity } from "./group.entity";
@@ -15,6 +17,7 @@ import { ClassEvent } from "../types/classEvent";
 import { GroupUserPresenceEntity } from "./group.user.presence.entity";
 import { UserEntity } from "./user.entity";
 import { SubdivisionEntity } from "./subdivision.entity";
+import { ClassFileEntity } from "./class.file.entity";
 
 @Entity()
 export class ClassEventEntity {
@@ -43,6 +46,14 @@ export class ClassEventEntity {
 	)
 	presenses: GroupUserPresenceEntity[];
 
+	@ManyToMany((type) => ClassFileEntity, (file) => file.classes, {
+		cascade: true,
+		nullable: true,
+		eager: true,
+	})
+	@JoinTable()
+	files?: ClassFileEntity[];
+
 	@OneToOne((type) => SubjectSelectPathEntity, { cascade: true })
 	@JoinColumn()
 	selectPath: SubjectSelectPathEntity;
@@ -64,6 +75,7 @@ export class ClassEventEntity {
 			presences: this.presenses.map((pr) => pr.ToRequestObject()),
 			cycle: this.cycle.ToRequestObject(),
 			userId: this.user.id,
+			files: this.files ? this.files.map((file) => file.ToRequestObject()) : [],
 		};
 	}
 }

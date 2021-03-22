@@ -44,6 +44,8 @@ import { SubjectSelector } from "../../subject/create/SubjectSelector";
 import { BackPage } from "../../ui/BackPage";
 import { YearContext } from "../../../context/YearContext";
 import { group } from "console";
+import { ClassFileManager } from "../../ui/ClassFileManager";
+import { ClassFile } from "../../../types/classFile";
 
 moment.locale("uk");
 
@@ -60,6 +62,7 @@ export function CreateNewClassPage() {
 	const [selectedGroups, setSelectedGroups] = useState<Group[]>([]);
 	const [hours, setHours] = useState<number>(1);
 	const [place, setPlace] = useState<string>("");
+	const [selectedFiles, setSelectedFiles] = useState<ClassFile[]>([]);
 
 	const yearContext = useContext(YearContext);
 
@@ -181,6 +184,7 @@ export function CreateNewClassPage() {
 		const onSubjectCreate = (subject: Subject, path: SubjectSelectPath) => {
 			setSubject(subject);
 			setSelectSubjectPath(path);
+			setSelectedFiles([]);
 			modal.destroy();
 		};
 		const onSubjectCreatorClose = () => {};
@@ -282,6 +286,7 @@ export function CreateNewClassPage() {
 			classEvent.place = place;
 			classEvent.selectPath = selectSubjectPath;
 			classEvent.id = 0;
+			classEvent.files = selectedFiles;
 
 			ConnectionManager.getInstance().emit(
 				RequestType.CREATE_CLASS,
@@ -326,6 +331,41 @@ export function CreateNewClassPage() {
 		);
 		ConnectionManager.getInstance().emit(RequestType.GET_ALL_GROUPS, {
 			year: yearContext.year,
+		});
+	};
+
+	const onClassFileClick = () => {
+		const modal = Modal.info({
+			title: "Менеджер файлів занять",
+			width: window.screen.width * 0.9,
+			style: { top: 20 },
+			closable: true,
+			okButtonProps: {
+				style: { visibility: "hidden" },
+			},
+			zIndex: 1050,
+		});
+		const onSelect = (files: ClassFile[]) => {
+			setSelectedFiles(files);
+
+			modal.destroy();
+		};
+		modal.update({
+			content: (
+				<div
+					style={{
+						height: "auto",
+						// minHeight: "500px",
+					}}
+				>
+					<ClassFileManager
+						occupationId={selectSubjectPath.occupation}
+						selectedFiles={selectedFiles}
+						onSelect={onSelect}
+						edit={true}
+					></ClassFileManager>
+				</div>
+			),
 		});
 	};
 
@@ -428,6 +468,31 @@ export function CreateNewClassPage() {
 							)}
 						</Button>
 					</Descriptions.Item>
+					{selectSubjectPath !== undefined && (
+						<Descriptions.Item
+							label="Оберіть чи додайте додатковий матеріал (за бажанням):"
+							span={3}
+							labelStyle={descriptionItemLabelStyle}
+							contentStyle={descriptionItemContentStyle}
+						>
+							<Button
+								type="dashed"
+								onClick={onClassFileClick}
+								style={{ width: "100%", height: "auto" }}
+							>
+								{selectedFiles.length <= 0 ? (
+									"Оберіть чи додайте додатковий матеріал"
+								) : (
+									<div>
+										{selectedFiles.map((file) => (
+											<Row style={{ width: "100%" }}>{file.filename}</Row>
+										))}
+									</div>
+								)}
+							</Button>
+						</Descriptions.Item>
+					)}
+
 					<Descriptions.Item
 						label="Оберіть дату:"
 						span={3}

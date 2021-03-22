@@ -15,6 +15,11 @@ import { DBRankManager } from "./managers/db_rank_manager";
 import { RankModel } from "./model/rank.model";
 import { DBMRSManager } from "./managers/db_mrs_manager";
 import { DBIPPManager } from "./managers/db_ipp_manager";
+import fileUpload, { UploadedFile } from "express-fileupload";
+import { builtinModules } from "module";
+import { RandomString } from "./helpers/stringHelper";
+import { FileModel } from "./model/file.model";
+import { ClassFile } from "./types/classFile";
 
 export class ServerManager {
 	public static readonly PORT: number = 8080;
@@ -260,6 +265,50 @@ export class ServerManager {
 	private createApp(): void {
 		this.app = express();
 		this.app.use(cors());
+		this.app.use(fileUpload());
+		this.app.use(express.json());
+
+		this.app.post("/upload", async function (req, res) {
+			if (!req.files || Object.keys(req.files).length === 0) {
+				return res.status(400).send("No files were uploaded.");
+			}
+
+			const sampleFiles = req.files;
+			const ids: number[] = [];
+			for (const key of Object.keys(sampleFiles)) {
+				let file = sampleFiles[key] as UploadedFile;
+
+				let savedDBFile = await FileModel.Update({
+					filename: file.name,
+					id: 0,
+					occupation: 0,
+					createAt: new Date(),
+				});
+
+				file.mv(FileModel.BuildFilePath(savedDBFile.data, __dirname), (err) => {
+					if (err) {
+						res.status(500).send();
+					}
+				});
+				ids.push(savedDBFile.data.id);
+			}
+
+			res.status(200).json({ file_ids: ids });
+		});
+		this.app.post("/download", async function (req, res) {
+			const file = req.body as ClassFile;
+			if (file) {
+				console.log(FileModel.BuildFilePath(file, __dirname));
+
+				res.download(
+					FileModel.BuildFilePath(file, __dirname),
+					file.filename,
+					(err) => {
+						if (err) console.log(err);
+					}
+				);
+			}
+		});
 	}
 
 	private createServer(): void {

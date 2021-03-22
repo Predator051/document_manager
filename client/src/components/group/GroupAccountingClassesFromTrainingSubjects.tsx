@@ -6,6 +6,8 @@ import {
 	Table,
 	Tooltip,
 	Typography,
+	Button,
+	Modal,
 } from "antd";
 import {
 	ColumnGroupType,
@@ -38,6 +40,9 @@ import DataSource from "devextreme/data/data_source";
 import { info } from "console";
 import { ObjectStatus } from "../../types/constants";
 import { DateComparer } from "../../helpers/SorterHelper";
+import { SearchOutlined } from "@ant-design/icons";
+import { ClassFile } from "../../types/classFile";
+import { ClassFileManager } from "../ui/ClassFileManager";
 
 interface EditableCellProps {
 	onSave: (newValue: any) => void;
@@ -263,6 +268,38 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 
 	let extremeDynamicColumns: JSX.Element[] = [];
 	if (selectedSubject && users.length > 0) {
+		const viewAttachmentFiles = (classEvent: ClassEvent) => {
+			const modal = Modal.info({
+				title: "Менеджер файлів занять",
+				width: window.screen.width * 0.9,
+				style: { top: 20 },
+				closable: true,
+				okButtonProps: {
+					style: { visibility: "hidden" },
+				},
+				zIndex: 1050,
+			});
+			const onSelect = (files: ClassFile[]) => {
+				modal.destroy();
+			};
+			modal.update({
+				content: (
+					<div
+						style={{
+							height: "auto",
+							// minHeight: "500px",
+						}}
+					>
+						<ClassFileManager
+							occupationId={classEvent.selectPath.occupation}
+							selectedFiles={classEvent.files}
+							onSelect={onSelect}
+						></ClassFileManager>
+					</div>
+				),
+			});
+		};
+
 		const filteredClasses = classEvents
 			.filter((ce) => ce.selectPath.subject === selectedSubject.id)
 			.sort((a, b) => DateComparer(a.date, b.date));
@@ -302,28 +339,40 @@ export const GroupAccountingClassesFromTrainingSubjects: React.FC<GroupAccountin
 						headerCellRender={({ column: { caption } }) => {
 							return (
 								<div>
-									<Tooltip
-										title={
+									<Popover
+										title="Деталі"
+										content={
 											<div>
-												<Row>
-													Викладач: {foundUser.secondName} {foundUser.firstName}{" "}
-													- {foundUser.cycle.title}
-												</Row>
-												<Row>
-													Тема {foundTopic.number}: {foundTopic.title}
-												</Row>
-												<Row>
-													Заняття {foundOccupation.number}:{" "}
-													{foundOccupation.title}
-												</Row>
+												<div>
+													<Row>
+														Викладач: {foundUser.secondName}{" "}
+														{foundUser.firstName} - {foundUser.cycle.title}
+													</Row>
+													<Row>
+														Тема {foundTopic.number}: {foundTopic.title}
+													</Row>
+													<Row>
+														Заняття {foundOccupation.number}:{" "}
+														{foundOccupation.title}
+													</Row>
+												</div>
+												{classEvent.files.length > 0 && (
+													<Button
+														style={{ margin: 0, padding: 0 }}
+														onClick={() => {
+															viewAttachmentFiles(classEvent);
+														}}
+														icon={<SearchOutlined></SearchOutlined>}
+														type="link"
+													>
+														Переглянути прикріплені файли
+													</Button>
+												)}
 											</div>
 										}
-										style={{
-											width: "100%",
-										}}
 									>
 										{caption}
-									</Tooltip>
+									</Popover>
 								</div>
 							);
 						}}

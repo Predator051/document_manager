@@ -39,3 +39,4 @@
 /server/server/npm-debug.log*
 /server/server/yarn-debug.log*
 /server/server/yarn-error.log*
+/server/server/src/files/*

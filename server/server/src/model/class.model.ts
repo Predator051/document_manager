@@ -25,6 +25,9 @@ import { GroupUserPresenceEntity } from "../entities/group.user.presence.entity"
 import { DBGroupUserPresenceManager } from "../managers/db_group_user_presence";
 import { DBGroupUserMarkManager } from "../managers/db_group_user_mark";
 import { SubjectSelectPathEntity } from "../entities/subject.select.path";
+import { ClassFileEntity } from "../entities/class.file.entity";
+import { da } from "date-fns/locale";
+import { DBClassFileManager } from "../managers/db_class_file_manager";
 
 export class ClassModel {
 	public static async getById(id: number): Promise<RequestMessage<any>> {
@@ -213,6 +216,24 @@ export class ClassModel {
 		subjectSelectPath.topic = data.selectPath.topic;
 		newClassEntity.selectPath = subjectSelectPath;
 
+		const files: ClassFileEntity[] = [];
+
+		for (const ifile of data.files) {
+			const fileEntity = await DBClassFileManager.GetById(ifile.id);
+
+			if (fileEntity) {
+				files.push(fileEntity);
+			} else {
+				return {
+					data: {},
+					messageInfo: `Cannot get selected file: ` + ifile.id.toString(),
+					requestCode: RequestCode.RES_CODE_INTERNAL_ERROR,
+					session: "",
+				};
+			}
+		}
+
+		newClassEntity.files = files;
 		const result = await DBClassManager.SaveClassEventEntity(newClassEntity);
 
 		if (result === undefined) {
@@ -256,6 +277,25 @@ export class ClassModel {
 				presenceEntity.mark.topic = inputPresence.mark.topic;
 			}
 		}
+
+		const files: ClassFileEntity[] = [];
+
+		for (const ifile of inputClass.files) {
+			const fileEntity = await DBClassFileManager.GetById(ifile.id);
+
+			if (fileEntity) {
+				files.push(fileEntity);
+			} else {
+				return {
+					data: {},
+					messageInfo: `Cannot get selected file: ` + ifile.id.toString(),
+					requestCode: RequestCode.RES_CODE_INTERNAL_ERROR,
+					session: "",
+				};
+			}
+		}
+
+		newClassEntity.files = files;
 
 		const result = await DBClassManager.SaveClassEventEntity(newClassEntity);
 

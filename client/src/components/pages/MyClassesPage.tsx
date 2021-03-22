@@ -1,4 +1,4 @@
-import { Button, PageHeader, Row, Spin, Table, Modal } from "antd";
+import { Button, PageHeader, Row, Spin, Table, Modal, message } from "antd";
 import { ColumnsType, SortOrder } from "antd/lib/table/interface";
 import React, { useEffect, useState, useContext } from "react";
 import { useHistory, Link } from "react-router-dom";
@@ -13,6 +13,9 @@ import { HREFS } from "../menu/Menu";
 import { BackPage } from "../ui/BackPage";
 import { YearContext } from "../../context/YearContext";
 import { DateComparer } from "../../helpers/SorterHelper";
+import { LoadClassFiles } from "../../helpers/LoadHelper";
+import { ClassFile } from "../../types/classFile";
+import { ClassFileManager } from "../ui/ClassFileManager";
 
 interface MyClassTableData {
 	key: number;
@@ -154,6 +157,58 @@ export const MyClassesPage: React.FC = () => {
 				classEvent.id
 			);
 		};
+	};
+
+	const viewAttachmentFiles = (classEvent: ClassEvent) => {
+		const modal = Modal.info({
+			title: "Менеджер файлів занять",
+			width: window.screen.width * 0.9,
+			style: { top: 20 },
+			closable: true,
+			okButtonProps: {
+				style: { visibility: "hidden" },
+			},
+			zIndex: 1050,
+		});
+		const onSelect = (files: ClassFile[]) => {
+			ConnectionManager.getInstance().registerResponseOnceHandler(
+				RequestType.UPDATE_CLASS,
+				(data) => {
+					const dataMessage = data as RequestMessage<ClassEvent>;
+					if (dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR) {
+						console.log(`Error: ${dataMessage.requestCode}`);
+						message.success("Сталася помилка! Зверніться до адміністратора!");
+						return;
+					}
+
+					message.success("Оновлено!");
+					loadAllClassData();
+				}
+			);
+			classEvent.files = files;
+			ConnectionManager.getInstance().emit(
+				RequestType.UPDATE_CLASS,
+				classEvent
+			);
+			modal.destroy();
+		};
+		modal.update({
+			content: (
+				<div
+					style={{
+						height: "auto",
+						// minHeight: "500px",
+					}}
+				>
+					<ClassFileManager
+						occupationId={classEvent.selectPath.occupation}
+						selectedFiles={classEvent.files}
+						onSelect={onSelect}
+						edit={true}
+					></ClassFileManager>
+				</div>
+			),
+		});
 	};
 
 	let tableColumns: ColumnsType<any> = [
@@ -321,6 +376,14 @@ export const MyClassesPage: React.FC = () => {
 								onClick={onShowClassClick.bind(null, record.data)}
 							>
 								Переглянути
+							</Button>
+							<Button
+								type="link"
+								onClick={() => {
+									viewAttachmentFiles(record.data);
+								}}
+							>
+								Переглянути прикріплені файли
 							</Button>
 							<Button
 								type="link"

@@ -1,4 +1,13 @@
-import { Popover, Row, Table, Typography, Spin, Tooltip } from "antd";
+import {
+	Popover,
+	Row,
+	Table,
+	Typography,
+	Spin,
+	Tooltip,
+	Modal,
+	Button,
+} from "antd";
 import { ColumnsType, ColumnType } from "antd/lib/table/interface";
 import React, { useState, useEffect, useContext } from "react";
 
@@ -28,6 +37,9 @@ import DataGrid, {
 } from "devextreme-react/data-grid";
 import DataSource from "devextreme/data/data_source";
 import { DateComparer } from "../../helpers/SorterHelper";
+import { ClassFile } from "../../types/classFile";
+import { ClassFileManager } from "../ui/ClassFileManager";
+import { SearchOutlined } from "@ant-design/icons";
 
 interface EditableCellProps {
 	onSave: (newValue: any) => void;
@@ -148,6 +160,38 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 		return <Spin size="large"></Spin>;
 	}
 
+	const viewAttachmentFiles = (classEvent: ClassEvent) => {
+		const modal = Modal.info({
+			title: "Менеджер файлів занять",
+			width: window.screen.width * 0.9,
+			style: { top: 20 },
+			closable: true,
+			okButtonProps: {
+				style: { visibility: "hidden" },
+			},
+			zIndex: 1050,
+		});
+		const onSelect = (files: ClassFile[]) => {
+			modal.destroy();
+		};
+		modal.update({
+			content: (
+				<div
+					style={{
+						height: "auto",
+						// minHeight: "500px",
+					}}
+				>
+					<ClassFileManager
+						occupationId={classEvent.selectPath.occupation}
+						selectedFiles={classEvent.files}
+						onSelect={onSelect}
+					></ClassFileManager>
+				</div>
+			),
+		});
+	};
+
 	const tableData: GroupTableData[] = props.group.users
 		.sort((a, b) => a.fullname.localeCompare(b.fullname))
 		.map(
@@ -161,111 +205,6 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 	const filteredClassEvents = props.classEvents.sort((a, b) =>
 		DateComparer(a.date, b.date)
 	);
-	// .filter((classEvent) => {
-	// 	return classEvent.presences.some(
-	// 		(presence) =>
-	// 			presence.mark.current !== 0 ||
-	// 			presence.mark.topic !== 0 ||
-	// 			presence.mark.subject !== 0
-	// 	);
-	// });
-	// console.log("filtered", filteredClassEvents.length);
-
-	// const columns: ColumnsType<any> = [
-	// 	{
-	// 		title: "№ з/п",
-	// 		key: "number",
-	// 		dataIndex: "number",
-	// 		render: (value, record: GroupTableData) => {
-	// 			return <div>{record.index}</div>;
-	// 		},
-	// 		fixed: "left",
-	// 		width: "40px",
-	// 	},
-	// 	{
-	// 		title: "Прізвище, ім’я та по батькові",
-	// 		key: "fullname",
-	// 		dataIndex: "fullname",
-	// 		render: (value, record: GroupTableData) => {
-	// 			return <div>{record.data.fullname}</div>;
-	// 		},
-	// 		sorter: (a: GroupTableData, b: GroupTableData) =>
-	// 			a.data.fullname.localeCompare(b.data.fullname),
-	// 		defaultSortOrder: "ascend",
-	// 		fixed: "left",
-	// 		width: "20%",
-	// 		ellipsis: true,
-	// 	},
-	// 	{
-	// 		title: "Дата, присутність, успішність",
-	// 		key: "data",
-	// 		align: "center",
-	// 		dataIndex: "data",
-	// 		width: filteredClassEvents.length > 1 ? "max-content" : "auto",
-	// 		// ellipsis: true,
-	// 		children: [
-	// 			...filteredClassEvents.map((classEvent) => {
-	// 				const foundTopic = props.subject.programTrainings
-	// 					.find((pt) => pt.id === classEvent.selectPath.programTraining)
-	// 					.topics.find((t) => t.id === classEvent.selectPath.topic);
-
-	// 				const foundOccupation = foundTopic.occupation.find(
-	// 					(occ) => occ.id === classEvent.selectPath.occupation
-	// 				);
-
-	// 				return {
-	// 					title: (
-	// 						<div>
-	// 							<Tooltip
-	// 								title={
-	// 									<div>
-	// 										<Row>
-	// 											Тема {foundTopic.number}: {foundTopic.title}
-	// 										</Row>
-	// 										<Row>
-	// 											Заняття {foundOccupation.number}:{" "}
-	// 											{foundOccupation.title}
-	// 										</Row>
-	// 									</div>
-	// 								}
-	// 								style={{
-	// 									width: "auto",
-	// 								}}
-	// 							>
-	// 								{classEvent.date.toLocaleDateString("uk", {
-	// 									year: "2-digit",
-	// 									month: "2-digit",
-	// 									day: "2-digit",
-	// 								})}
-	// 							</Tooltip>
-	// 						</div>
-	// 					),
-	// 					key: classEvent.date.toLocaleDateString(),
-	// 					dataIndex: classEvent.date.toLocaleDateString(),
-	// 					align: "center",
-	// 					width: "10px",
-	// 					render: (value, record: GroupTableData) => {
-	// 						const presence = classEvent.presences.find(
-	// 							(pr) => pr.userId === record.data.id
-	// 						);
-
-	// 						return (
-	// 							<div>
-	// 								<PresenceShower presence={presence}></PresenceShower>
-	// 							</div>
-	// 						);
-	// 					},
-	// 				} as ColumnType<any>;
-	// 			}),
-	// 			{
-	// 				title: " ",
-	// 				key: " ",
-	// 				dataIndex: " ",
-	// 				width: "auto",
-	// 			},
-	// 		],
-	// 	},
-	// ];
 
 	let extremeDynamicColumns: JSX.Element[] = filteredClassEvents.map(
 		(classEvent) => {
@@ -338,28 +277,40 @@ export const GroupSubjectTable: React.FC<GroupSubjectTableProps> = (
 					headerCellRender={({ column: { caption } }) => {
 						return (
 							<div>
-								<Tooltip
-									title={
+								<Popover
+									title="Деталі"
+									content={
 										<div>
-											<Row style={{ wordWrap: "break-word" }}>
-												Тема {foundTopic.number}: {foundTopic.title}
-											</Row>
-											<Row>
-												Заняття {foundOccupation.number}:{" "}
-												{foundOccupation.title}
-											</Row>
+											<div>
+												<Row style={{ wordWrap: "break-word" }}>
+													Тема {foundTopic.number}: {foundTopic.title}
+												</Row>
+												<Row>
+													Заняття {foundOccupation.number}:{" "}
+													{foundOccupation.title}
+												</Row>
+											</div>
+											{classEvent.files.length > 0 && (
+												<Button
+													style={{ margin: 0, padding: 0 }}
+													onClick={() => {
+														viewAttachmentFiles(classEvent);
+													}}
+													icon={<SearchOutlined></SearchOutlined>}
+													type="link"
+												>
+													Переглянути прикріплені файли
+												</Button>
+											)}
 										</div>
 									}
-									style={{
-										width: "auto",
-									}}
 								>
 									{classEvent.date.toLocaleDateString("uk", {
 										year: "2-digit",
 										month: "2-digit",
 										day: "2-digit",
 									})}
-								</Tooltip>
+								</Popover>
 							</div>
 						);
 					}}

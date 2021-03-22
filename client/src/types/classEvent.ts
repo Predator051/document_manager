@@ -1,6 +1,7 @@
 import { SubjectSelectPath } from "./subjectSelectPath";
 import { GroupUserPresence } from "./groupUserPresence";
 import { Subdivision } from "./subdivision";
+import { ClassFile } from "./classFile";
 
 export class ClassEvent {
 	id: number;
@@ -12,4 +13,5 @@ export class ClassEvent {
 	presences: GroupUserPresence[];
 	cycle: Subdivision;
 	userId: number;
+	files: ClassFile[];
 }

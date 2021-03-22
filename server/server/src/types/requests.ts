@@ -52,6 +52,8 @@ export enum RequestType {
 	GET_ALL_IPP = "get_all_ipp",
 	UPDATE_IPP = "update_ipp",
 	DELETE_CLASS_EVENT = "delete_class_event",
+	GET_FILES_BY_OCCUPATION = "get_files_by_occupation",
+	UPDATE_CLASS_FILE = "update_class_file",
 }
 
 export enum RequestCode {

@@ -30,6 +30,8 @@ import { MRS } from "./types/mrs";
 import { GroupUser } from "./types/groupUser";
 import { IPPModel } from "./model/ipp.model";
 import { IPP } from "./types/ipp";
+import { FileModel } from "./model/file.model";
+import { ClassFile } from "./types/classFile";
 
 export class RequestManager {
 	public static m_sessionSocket: Map<string, string> = new Map<
@@ -605,6 +607,28 @@ export class RequestManager {
 				const response = await ClassModel.delete(m.data);
 
 				socket.emit(RequestType.DELETE_CLASS_EVENT, response);
+			}
+		);
+
+		socket.on(
+			RequestType.GET_FILES_BY_OCCUPATION,
+			async (m: RequestMessage<number>) => {
+				console.log("[server](message): %s", JSON.stringify(m));
+
+				const response = await FileModel.GetByOccupation(m.data);
+
+				socket.emit(RequestType.GET_FILES_BY_OCCUPATION, response);
+			}
+		);
+
+		socket.on(
+			RequestType.UPDATE_CLASS_FILE,
+			async (m: RequestMessage<ClassFile>) => {
+				console.log("[server](message): %s", JSON.stringify(m));
+
+				const response = await FileModel.Update(m.data);
+
+				socket.emit(RequestType.UPDATE_CLASS_FILE, response);
 			}
 		);
 

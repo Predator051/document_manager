@@ -15,6 +15,11 @@ export class ConnectionManager {
 	private static instance: ConnectionManager;
 	private m_socket: SocketIOClient.Socket;
 	private m_registeredResponseHandler: Array<RequestType>;
+	private static host: string = "http://localhost:8080";
+
+	public static getHostAndPort() {
+		return this.host;
+	}
 
 	private static connectionStatus: ConnectionStatus =
 		ConnectionStatus.CONNECTED;
@@ -66,7 +71,7 @@ export class ConnectionManager {
 	public static getInstance(): ConnectionManager {
 		if (!ConnectionManager.instance) {
 			ConnectionManager.instance = new ConnectionManager(
-				socketIo.connect("http://10.19.20.252:8080")
+				socketIo.connect(this.host)
 			);
 			ConnectionManager.instance.m_socket.on("error", (err: string) => {
 				if (err === "NOT AUTHORIZED" && window.location.pathname !== "/login") {
