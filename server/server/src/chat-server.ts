@@ -320,7 +320,10 @@ export class ServerManager {
 	}
 
 	private sockets(): void {
-		this.io = require("socket.io").listen(this.server, { origins: "*:*" });
+		this.io = require("socket.io").listen(this.server, { origins: "*:*", cors: {
+			origin: "http://dm.ontc",
+			methods: ["GET", "POST"]
+		  } });
 	}
 
 	private listen(): void {
