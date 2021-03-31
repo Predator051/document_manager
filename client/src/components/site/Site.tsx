@@ -33,12 +33,9 @@ export const Site: React.FC = () => {
 	const userJsonString = localStorage.getItem("user");
 
 	const dispatch = useDispatch();
-	const [isNeedChangePassword, setNeedChangePassword] = useState<boolean>(
-		false
-	);
+	const [connected, setConnected] = useState<boolean>(false);
 	const [initCompleted, setInitComplited] = useState<boolean>(false);
 	let [state, setState] = useState<AccountState>(User.EmptyUser());
-	const history = useHistory();
 
 	if (userJsonString !== null) {
 		const userAccount = JSON.parse(userJsonString) as AccountState;
@@ -48,6 +45,7 @@ export const Site: React.FC = () => {
 	}
 
 	useEffect(() => {
+		ConnectionManager.getInstance().onConnectionStatusChange(setConnected);
 		ConnectionManager.getInstance().registerResponseOnceHandler(
 			RequestType.INIT,
 			(data) => {
@@ -55,14 +53,6 @@ export const Site: React.FC = () => {
 				if (dataMessage.requestCode === RequestCode.RES_CODE_INTERNAL_ERROR) {
 					console.log(`Error: ${dataMessage.requestCode}`);
 					return;
-				}
-
-				if (
-					dataMessage.requestCode ===
-					RequestCode.RES_CODE_EQUAL_PASSWORD_AND_LOGIN
-				) {
-					setNeedChangePassword(true);
-					history.push(SiteHREFS.NEED_CHANGE_PASSWORD);
 				}
 
 				setInitComplited(true);
@@ -84,71 +74,73 @@ export const Site: React.FC = () => {
 						{state.id === 0 || state.session === "" ? (
 							<Login></Login>
 						) : (
-							<div>
-								<Route path="/login">
-									<Login></Login>
-								</Route>
-								<Route exact path={SiteHREFS.NEED_CHANGE_PASSWORD}>
-									<ChangePassword></ChangePassword>
-								</Route>
-								{state.userType === UserType.TEACHER ? (
-									<Route
-										path={["/main", "/"]}
-										render={(props: RouteComponentProps<any>) => {
-											if (
-												props.location.pathname ===
-												SiteHREFS.NEED_CHANGE_PASSWORD
-											) {
-												return "";
-											}
-											return (
-												<ErrorBoundary>
-													<MainMenu></MainMenu>
-												</ErrorBoundary>
-											);
-										}}
-									></Route>
-								) : (
-									""
-								)}
-								{state.userType === UserType.ADMIN && (
-									<Route
-										path={["/main", "/"]}
-										render={(props: RouteComponentProps<any>) => {
-											if (
-												props.location.pathname ===
-												SiteHREFS.NEED_CHANGE_PASSWORD
-											) {
-												return "";
-											}
-											return (
-												<ErrorBoundary>
-													<AdminMainMenu></AdminMainMenu>
-												</ErrorBoundary>
-											);
-										}}
-									></Route>
-								)}
-								{state.userType === UserType.VIEWER && (
-									<Route
-										path={["/main", "/"]}
-										render={(props: RouteComponentProps<any>) => {
-											if (
-												props.location.pathname ===
-												SiteHREFS.NEED_CHANGE_PASSWORD
-											) {
-												return "";
-											}
+							<Spin spinning={!connected}>
+								<div>
+									<Route path="/login">
+										<Login></Login>
+									</Route>
+									<Route exact path={SiteHREFS.NEED_CHANGE_PASSWORD}>
+										<ChangePassword></ChangePassword>
+									</Route>
+									{state.userType === UserType.TEACHER ? (
+										<Route
+											path={["/main", "/"]}
+											render={(props: RouteComponentProps<any>) => {
+												if (
+													props.location.pathname ===
+													SiteHREFS.NEED_CHANGE_PASSWORD
+												) {
+													return "";
+												}
+												return (
+													<ErrorBoundary>
+														<MainMenu></MainMenu>
+													</ErrorBoundary>
+												);
+											}}
+										></Route>
+									) : (
+										""
+									)}
+									{state.userType === UserType.ADMIN && (
+										<Route
+											path={["/main", "/"]}
+											render={(props: RouteComponentProps<any>) => {
+												if (
+													props.location.pathname ===
+													SiteHREFS.NEED_CHANGE_PASSWORD
+												) {
+													return "";
+												}
+												return (
+													<ErrorBoundary>
+														<AdminMainMenu></AdminMainMenu>
+													</ErrorBoundary>
+												);
+											}}
+										></Route>
+									)}
+									{state.userType === UserType.VIEWER && (
+										<Route
+											path={["/main", "/"]}
+											render={(props: RouteComponentProps<any>) => {
+												if (
+													props.location.pathname ===
+													SiteHREFS.NEED_CHANGE_PASSWORD
+												) {
+													return "";
+												}
 
-											return (
-												<ErrorBoundary>
-													<ViewerMenu></ViewerMenu>
-												</ErrorBoundary>
-											);
-										}}
-									></Route>
-								)}
-							</div>
+												return (
+													<ErrorBoundary>
+														<ViewerMenu></ViewerMenu>
+													</ErrorBoundary>
+												);
+											}}
+										></Route>
+									)}
+								</div>
+							</Spin>
 						)}
 					</Switch>
 				) : (

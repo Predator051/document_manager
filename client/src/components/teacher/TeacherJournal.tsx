@@ -14,6 +14,7 @@ export interface TeacherJournalProps {
 
 export enum TeacherJournalHREFS {
 	EXTRACT_CLASSES_PAGE = "/extract/",
+	HOW_TO_PAGE = "/howto/",
 	TEACHER_GROUPS_SUBJECT_PAGE = "/groups/subject/list/",
 	TEACHER_GROUPS_NORM_PAGE = "/groups/norm/list/",
 	INDIVIDUAL_WORKS = "/individual/works/",
@@ -68,6 +69,21 @@ export const TeacherJournal: React.FC<TeacherJournalProps> = (
 					className={"add_text_shadow swing-in-right-fwd"}
 					style={divStyle}
 					onClick={() => {
+						history.push(TeacherJournalHREFS.HOW_TO_PAGE);
+					}}
+				>
+					<Row
+						align="middle"
+						style={{ width: "100%", height: "100%" }}
+						justify="center"
+					>
+						Правила ведення журналу
+					</Row>
+				</div>
+				<div
+					className={"add_text_shadow swing-in-right-fwd"}
+					style={divStyle}
+					onClick={() => {
 						history.push(
 							TeacherJournalHREFS.EXTRACT_CLASSES_PAGE + props.userId.toString()
 						);
@@ -99,6 +115,8 @@ export const TeacherJournal: React.FC<TeacherJournalProps> = (
 						Облік проведення занять з предметів підготовки
 					</Row>
 				</div>
+			</Row>
+			<Row justify="center">
 				<div
 					className={"add_text_shadow swing-in-right-fwd"}
 					style={divStyle}
@@ -117,8 +135,6 @@ export const TeacherJournal: React.FC<TeacherJournalProps> = (
 						Облік виконання нормативів з предметів підготовки
 					</Row>
 				</div>
-			</Row>
-			<Row justify="center">
 				<div
 					className={"add_text_shadow swing-in-right-fwd"}
 					style={divStyle}

@@ -34,6 +34,7 @@ import { ReactComponent as IconNotepad } from "../../images/icons/Notepad.svg";
 import { GroupList } from "../viewer/GroupList";
 import { GroupInfoPage } from "../viewer/GroupInfoPage";
 import { VIEWER_HREFS } from "./ViewerMenu";
+import { HowToPage } from "../pages/HowToPage";
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -217,6 +218,9 @@ export const MainMenu: React.FC = (props: any) => {
 					></Route>
 					<Route path={HREFS.NORM_PROCESS_PAGE}>
 						<NormProcessPage></NormProcessPage>
+					</Route>
+					<Route path={TeacherJournalHREFS.HOW_TO_PAGE}>
+						<HowToPage></HowToPage>
 					</Route>
 					<Route path={[HREFS.MY_JOURNAL_PAGE, "/main"]}>
 						<MyJournalPage></MyJournalPage>

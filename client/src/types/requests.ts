@@ -54,6 +54,8 @@ export enum RequestType {
 	DELETE_CLASS_EVENT = "delete_class_event",
 	GET_FILES_BY_OCCUPATION = "get_files_by_occupation",
 	UPDATE_CLASS_FILE = "update_class_file",
+	UPDATE_POST = "update_post",
+	GET_ALL_POST = "get_all_post",
 }
 
 export enum RequestCode {

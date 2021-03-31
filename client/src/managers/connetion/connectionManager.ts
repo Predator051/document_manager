@@ -16,9 +16,20 @@ export class ConnectionManager {
 	private m_socket: SocketIOClient.Socket;
 	private m_registeredResponseHandler: Array<RequestType>;
 	private static host: string = "http://localhost:8080";
+	private clbOnConnectionStatusChange: (
+		status: boolean
+	) => void | undefined = undefined;
 
 	public static getHostAndPort() {
 		return this.host;
+	}
+
+	public static getStatus() {
+		return this.instance.m_socket.connected;
+	}
+
+	public onConnectionStatusChange(clb: (status: boolean) => void) {
+		this.clbOnConnectionStatusChange = clb;
 	}
 
 	private static connectionStatus: ConnectionStatus =
@@ -35,6 +46,9 @@ export class ConnectionManager {
 	}
 
 	private static onChangeConnectionStatus() {
+		if (this.getInstance().clbOnConnectionStatusChange) {
+			this.getInstance().clbOnConnectionStatusChange(this.getStatus());
+		}
 		switch (this.connectionStatus) {
 			case ConnectionStatus.CONNECTED: {
 				// message.success("Підключено!");

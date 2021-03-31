@@ -32,6 +32,8 @@ import { IPPModel } from "./model/ipp.model";
 import { IPP } from "./types/ipp";
 import { FileModel } from "./model/file.model";
 import { ClassFile } from "./types/classFile";
+import { Post } from "./types/post";
+import { PostModel } from "./model/post.model";
 
 export class RequestManager {
 	public static m_sessionSocket: Map<string, string> = new Map<
@@ -631,6 +633,22 @@ export class RequestManager {
 				socket.emit(RequestType.UPDATE_CLASS_FILE, response);
 			}
 		);
+
+		socket.on(RequestType.UPDATE_POST, async (m: RequestMessage<Post>) => {
+			console.log("[server](message): %s", JSON.stringify(m));
+
+			const response = await PostModel.update(m.data);
+
+			socket.emit(RequestType.UPDATE_POST, response);
+		});
+
+		socket.on(RequestType.GET_ALL_POST, async (m: RequestMessage<{}>) => {
+			console.log("[server](message): %s", JSON.stringify(m));
+
+			const response = await PostModel.getAll();
+
+			socket.emit(RequestType.GET_ALL_POST, response);
+		});
 
 		socket.on("disconnect", () => {
 			console.log("Client disconnected");
