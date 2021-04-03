@@ -87,6 +87,9 @@ export const GroupManipulator: React.FC<GroupManipulatorProps> = (
 	const [fileUploaderEncoding, setFileUploaderEncoding] = useState<string>(
 		"windows-1251"
 	);
+	const [fileUploaderSeparator, setFileUploaderSeparator] = useState<string>(
+		";"
+	);
 	const [isGroupHasActivity, setIsGroupHasActivity] = useState<boolean>(false);
 
 	useEffect(() => {
@@ -757,6 +760,7 @@ export const GroupManipulator: React.FC<GroupManipulatorProps> = (
 										)
 									}
 									encoding={fileUploaderEncoding}
+									separator={fileUploaderSeparator}
 								></GroupUserUploader>
 								<Select
 									style={{ minWidth: "150px" }}
@@ -769,6 +773,17 @@ export const GroupManipulator: React.FC<GroupManipulatorProps> = (
 									</Select.Option>
 								</Select>
 								<Tooltip title="Кодування csv-файлу.">
+									<QuestionCircleOutlined />
+								</Tooltip>
+								<Select
+									style={{ minWidth: "150px" }}
+									defaultValue={fileUploaderSeparator}
+									onChange={setFileUploaderSeparator}
+								>
+									<Select.Option value=",">, - кома</Select.Option>
+									<Select.Option value=";">; - крапка з комою</Select.Option>
+								</Select>
+								<Tooltip title="Роздільник в csv-файлі.">
 									<QuestionCircleOutlined />
 								</Tooltip>
 							</Space>

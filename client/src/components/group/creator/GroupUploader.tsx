@@ -13,9 +13,9 @@ export class GroupUserFileParser {
 	public parser: Parser<any>;
 	private userGroupFields = ["fullname", "rank", "birthday", "education"];
 
-	constructor(fileText: string) {
+	constructor(fileText: string, separator: string) {
 		this.parser = new Parser<any>({
-			fieldSeparator: ";",
+			fieldSeparator: separator,
 		});
 		this.parser.parse(fileText);
 	}
@@ -65,6 +65,7 @@ export class GroupUserFileParser {
 export interface GroupUserUploaderProps {
 	onLoaded: (gu: GroupUser[]) => void;
 	encoding: string;
+	separator: string;
 }
 
 export const GroupUserUploader: React.FC<GroupUserUploaderProps> = (
@@ -92,7 +93,7 @@ export const GroupUserUploader: React.FC<GroupUserUploaderProps> = (
 					.encode(iconv.decode(value, props.encoding), "utf8")
 					.toString();
 
-				const parser = new GroupUserFileParser(conv);
+				const parser = new GroupUserFileParser(conv, props.separator);
 
 				if (!parser.checkFields()) {
 					message.error({
