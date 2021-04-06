@@ -9,6 +9,10 @@ import {
 	Spin,
 	Table,
 	Typography,
+	DatePicker,
+	Input,
+	Space,
+	Col,
 } from "antd";
 import { ColumnsType } from "antd/lib/table/interface";
 import React, { useEffect, useState } from "react";
@@ -27,6 +31,8 @@ import Checkbox from "antd/lib/checkbox/Checkbox";
 import { IsHasDeactivateGroupUserMark } from "../../helpers/GroupHelper";
 import { GroupUser } from "../../types/groupUser";
 import { ObjectStatus } from "../../types/constants";
+import moment from "moment";
+import DatePickerLocal from "antd/es/date-picker/locale/uk_UA";
 
 interface EditableCellProps {
 	onChange: (newValue: any) => void;
@@ -89,6 +95,7 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 	const [group, setGroup] = useState<Group | undefined>(undefined);
 	const [subject, setSubject] = useState<Subject | undefined>(undefined);
 	const [rerender, setRerender] = useState<boolean>(false);
+	const [classEvent, setClassEvent] = useState<ClassEvent>(props.class);
 
 	useEffect(() => {
 		ConnectionManager.getInstance().registerResponseOnceHandler(
@@ -122,11 +129,11 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 			}
 		);
 		ConnectionManager.getInstance().emit(RequestType.GET_GROUP_BY_ID, [
-			props.class.groupId,
+			classEvent.groupId,
 		]);
 
 		ConnectionManager.getInstance().emit(RequestType.GET_SUBJECT_BY_ID, [
-			props.class.selectPath.subject,
+			classEvent.selectPath.subject,
 		]);
 	}, []);
 
@@ -309,46 +316,98 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 
 	const findOccupation = () => {
 		return subject.programTrainings
-			.find((pt) => pt.id === props.class.selectPath.programTraining)
-			.topics.find((t) => t.id === props.class.selectPath.topic)
-			.occupation.find((oc) => oc.id === props.class.selectPath.occupation);
+			.find((pt) => pt.id === classEvent.selectPath.programTraining)
+			.topics.find((t) => t.id === classEvent.selectPath.topic)
+			.occupation.find((oc) => oc.id === classEvent.selectPath.occupation);
 	};
 
 	const tableTitle = () => {
 		return (
-			<div>
+			<Col>
 				<Row>
-					<Typography.Text underline strong>
-						Заняття
-					</Typography.Text>
-					<Typography.Text>
-						{": "}
-						{findOccupation().title}
-					</Typography.Text>
+					<Space direction="horizontal">
+						<Input
+							bordered={false}
+							value="Заняття:"
+							style={{
+								width: "80px",
+							}}
+						></Input>
+						<Typography.Text>{findOccupation().title}</Typography.Text>
+					</Space>
 				</Row>
 				<Row>
-					<Typography.Text underline strong>
-						{"Дата"}
-					</Typography.Text>
-					<Typography.Text>
-						{": " +
-							new Date(props.class.date).toLocaleDateString("uk", {
-								year: "numeric",
-								month: "2-digit",
-								day: "2-digit",
-							})}
-					</Typography.Text>
+					<Space direction="horizontal">
+						<Input
+							bordered={false}
+							value="Дата:"
+							style={{
+								width: "80px",
+							}}
+						></Input>
+						<DatePicker
+							onChange={(value) => {
+								if (value.isValid()) {
+									setClassEvent({ ...classEvent, date: value.toDate() });
+								}
+							}}
+							value={moment(new Date(classEvent.date))}
+							locale={DatePickerLocal}
+							clearIcon={false}
+							format="DD-MM-YYYY"
+							style={{
+								width: "200px",
+							}}
+						></DatePicker>
+					</Space>
 				</Row>
 				<Row>
-					<Typography.Text underline strong>
-						{"Місце"}
-					</Typography.Text>
-					<Typography.Text>
-						{": "}
-						{props.class.place}
-					</Typography.Text>
+					<Space direction="horizontal">
+						<Input
+							bordered={false}
+							value="Місце:"
+							style={{
+								width: "80px",
+							}}
+						></Input>
+						<Input
+							value={classEvent.place}
+							onChange={({ target: { value } }) => {
+								setClassEvent({ ...classEvent, place: value });
+							}}
+							style={{
+								width: "200px",
+							}}
+						></Input>
+					</Space>
 				</Row>
-			</div>
+				<Row>
+					<Space direction="horizontal">
+						<Input
+							bordered={false}
+							value="Години:"
+							style={{
+								width: "80px",
+							}}
+						></Input>
+						<InputNumber
+							min={1}
+							max={20}
+							value={classEvent.hours}
+							onChange={function handleHoursChange(value: React.Key) {
+								if (value !== undefined && value !== null)
+									setClassEvent({
+										...classEvent,
+										hours: parseInt(value.toString()),
+									});
+							}}
+							style={{
+								width: "200px",
+							}}
+						/>
+					</Space>
+				</Row>
+			</Col>
 		);
 	};
 
@@ -356,7 +415,7 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 		return <Spin></Spin>;
 	}
 
-	const tableData: ClassLookerTableData[] = props.class.presences
+	const tableData: ClassLookerTableData[] = classEvent.presences
 		// .filter((pr) => {
 		// 	const gu = group.users.find((u) => u.id === pr.userId);
 
@@ -371,7 +430,7 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 				current_mark: presence.mark.current,
 				topic_mark: presence.mark.topic,
 				occupation_mark: presence.mark.subject,
-				classEvent: props.class,
+				classEvent: classEvent,
 				presenceData: presence,
 				groupUser: gu,
 			};
@@ -392,7 +451,7 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 			}
 		);
 
-		ConnectionManager.getInstance().emit(RequestType.UPDATE_CLASS, props.class);
+		ConnectionManager.getInstance().emit(RequestType.UPDATE_CLASS, classEvent);
 	};
 
 	return (
@@ -411,7 +470,11 @@ export const ClassLooker: React.FC<ClassLookerProps> = (
 					return "";
 				}}
 			></Table>
-			<Button type="primary" onClick={onUpdateClassClick}>
+			<Button
+				type="primary"
+				onClick={onUpdateClassClick}
+				style={{ margin: "5px" }}
+			>
 				Зберегти зміни
 			</Button>
 		</div>
