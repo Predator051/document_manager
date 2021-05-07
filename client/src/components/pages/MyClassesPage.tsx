@@ -116,7 +116,8 @@ export const MyClassesPage: React.FC = () => {
 	// }
 
 	const onShowClassClick = (classEvent: ClassEvent) => {
-		history.push(HREFS.SHOW_CLASS + classEvent.id.toString());
+		window.open(HREFS.SHOW_CLASS + classEvent.id.toString(), "_target");
+		// history.push(HREFS.SHOW_CLASS + classEvent.id.toString();
 	};
 
 	const onDeleteClassClick = (classEvent: ClassEvent) => {
@@ -377,6 +378,7 @@ export const MyClassesPage: React.FC = () => {
 							>
 								Переглянути
 							</Button>
+
 							<Button
 								type="link"
 								onClick={() => {
